@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:fijkplayer/fijkplugin.dart';
+import 'package:fijkplayer/fijkplayer.dart';
+import 'package:fijkplayer/fijkview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -13,6 +15,9 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
+
+
+  FijkPlayer _player;
 
   @override
   void initState() {
@@ -30,6 +35,10 @@ class _MyAppState extends State<MyApp> {
       platformVersion = 'Failed to get platform version.';
     }
 
+
+    FijkPlayer player = FijkPlayer();
+    player.setDataSource(DateSourceType.network, "http://ivi.bupt.edu.cn/hls/cctv1.m3u8");
+    player.start();
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling
     // setState to update our non-existent appearance.
@@ -37,6 +46,7 @@ class _MyAppState extends State<MyApp> {
 
     setState(() {
       _platformVersion = platformVersion;
+      _player = player;
     });
   }
 
@@ -48,7 +58,15 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+
+          child: Column(
+            children: <Widget>[
+              Text('Running on: $_platformVersion\n'),
+              _player == null ? Container(
+                color: Color.fromRGBO(200, 200, 200, 0.5),
+              ) : FijkView(_player),
+            ],
+          )
         ),
       ),
     );

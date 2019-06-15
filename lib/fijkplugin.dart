@@ -4,27 +4,15 @@ class FijkPlugin {
   static const MethodChannel _channel = const MethodChannel('befovy.com/fijk');
 
   static Future<String> get platformVersion async {
-    await _channel.invokeMethod(
-      "init",
-      <String, dynamic>{'textureId': 0x000},
-    );
-    final String version = await _channel.invokeMethod('getPlatformVersion');
-    return version;
+    return await _channel.invokeMethod('getPlatformVersion');
   }
 
-  static Future<String> createIjkPlayer() async {
-    final String channel = await _channel.invokeMethod(
-      "createPlayer",
-      <String, dynamic>{},
-    );
-    return channel;
+  static Future<int> createPlayer() async {
+    return await _channel.invokeMethod("createPlayer");
   }
 
-  static Future<String> createIjkView() async {
-    final String channel = await _channel.invokeMethod(
-      "createView",
-      <String, dynamic>{},
-    );
-    return channel;
+  static Future<void> releasePlayer(int pid) async {
+    return await _channel
+        .invokeMethod("releasePlayer", <String, dynamic>{'pid': pid});
   }
 }
