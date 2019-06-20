@@ -14,7 +14,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/flutter/ios"
 
 SPEC CHECKSUMS:
-  fijkplayer: 229530ae0604e101ac6dd7e3c86fd34f231c284e
+  fijkplayer: cc0b2d72d33e031f021f3bce3b55f01e8fa3f8bb
   Flutter: 9d0fac939486c9aba2809b7982dfdbb47a7b0296
 
 PODFILE CHECKSUM: 3389836f37640698630b8f0670315d626d5f1469

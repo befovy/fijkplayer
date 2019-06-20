@@ -9,10 +9,16 @@ buildscript {
     }
 }
 
+def libaars ="$rootProject.projectDir.parentFile.parent/android/aars"
+
 allprojects {
     repositories {
         google()
         jcenter()
+
+        flatDir {
+            dirs "$libaars"
+        }
     }
 }
 

@@ -7,15 +7,75 @@ import 'fijkplugin.dart';
 enum DateSourceType { asset, network, file }
 
 enum PlayerState {
+  /**
+   * nativeSetup    -> created
+   * reset          ->
+   * release        -> end
+   *
+   */
   idle,
+
+  /**
+   * setDataSource  -> initialized
+   * reset          -> self
+   * release        -> end
+   */
   created,
+
+  /**
+   * prepareAsync   -> async_preparing
+   * reset          -> created
+   * release        -> end
+   */
   initialized,
+
+  /**
+   *        ...     -> prepared
+   *        ...     -> error
+   *
+   * reset          -> created
+   * release        -> release
+   */
   async_preparing,
+
+  /**
+   * start          -> started
+   *
+   * reset          -> created
+   * release        -> end
+   */
   prepared,
+
+  /**
+   *
+   */
   started,
+
+  /**
+   *
+   */
   paused,
+
+  /**
+   *
+   */
   completed,
+
+  /**
+   * strop        -> self
+   * pre
+   */
   stopped,
+
+  /**
+   * reset        -> created
+   * release      -> end
+   */
+  error,
+
+  /**
+   * release      -> self
+   */
   end
 }
 
@@ -48,10 +108,6 @@ class FijkPlayer {
     nativeSetup.complete(_playerId);
   }
 
-  Future<void> release() async {
-    int pid = await nativeSetup.future;
-    return FijkPlugin.releasePlayer(pid);
-  }
 
   Future<int> setupSurface() async {
     await nativeSetup.future;
@@ -77,12 +133,43 @@ class FijkPlayer {
     return _channel.invokeMethod("setDateSource", dataSourceDescription);
   }
 
+
+  Future<int> prepareAsync() async {
+
+    // ckeck state
+
+    await _channel.invokeMethod("prepareAsync");
+    return Future.value(0);
+  }
+
   Future<int> start() async {
     if (playerState == PlayerState.initialized) {
     } else if (playerState == PlayerState.async_preparing) {}
 
-    return Future.value(1);
+    return Future.value(0);
   }
+
+  Future<int> pause() async {
+        await _channel.invokeMethod("pause");
+    return Future.value(0);
+  }
+
+
+  Future<int> stop() async {
+    await _channel.invokeMethod("stop");
+    return Future.value(0);
+  }
+
+  Future<int> reset() async {
+    await _channel.invokeMethod("reset");
+    return Future.value(0);
+  }
+
+  Future<void> release() async {
+    int pid = await nativeSetup.future;
+    return FijkPlugin.releasePlayer(pid);
+  }
+
 
   void eventListener(dynamic event) {
     final Map<dynamic, dynamic> map = event;

@@ -8,12 +8,21 @@ Pod::Spec.new do |s|
   s.description      = <<-DESC
 Flutter plugin for ijkplayer
                        DESC
-  s.homepage         = 'http://example.com'
+  s.homepage         = 'http://github.com/befovy/fijkplayer'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'email@example.com' }
+  s.author           = { 'befovy' => 'befovy@gmail.com' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.public_header_files = 'Classes/**/*.h'
+
+
+  # s.frameworks = 'IJKMediaFramework'
+  s.preserve_paths = 'Frameworks/*.framework'
+  s.vendored_frameworks = 'Frameworks/IJKMediaFramework.framework'
+  s.resource = 'Frameworks/IJKMediaFramework.framework'
+  s.xcconfig = { 'LD_RUNPATH_SEARCH_PATHS' => '"$(PODS_ROOT)/Frameworks/"' }
+
+  s.libraries = "bz2", "z", "stdc++"
   s.dependency 'Flutter'
 
   s.ios.deployment_target = '8.0'

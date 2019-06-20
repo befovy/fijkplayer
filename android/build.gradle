@@ -35,7 +35,8 @@ android {
 
 
 dependencies {
-    implementation 'tv.danmaku.ijk.media:ijkplayer-java:0.8.8'
-    implementation 'tv.danmaku.ijk.media:ijkplayer-armv7a:0.8.8'
-    // implementation 'tv.danmaku.ijk.media:ijkplayer-arm64:0.8.8'
+    implementation(name: 'ijkplayer-java', ext: 'aar')
+    implementation(name: 'ijkplayer-arm64', ext: 'aar')
+    implementation(name: 'ijkplayer-armv7a', ext: 'aar')
+    implementation(name: 'ijkplayer-x86', ext: 'aar')
 }
