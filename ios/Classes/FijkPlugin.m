@@ -1,14 +1,13 @@
 
 #import "FijkPlugin.h"
+#import "FijkPlayer.h"
 
 #import <Flutter/Flutter.h>
 
-#import <IJKMediaFramework/IJKMediaFramework.h>
 
 @implementation FijkPlugin {
     NSObject<FlutterPluginRegistrar> * _registrar;
-    NSObject<FlutterTextureRegistry> * _textures;
-    IJKFFMediaPlayer *_player;
+    NSMutableDictionary<NSNumber *, FijkPlayer *> *_fijkPlayers;
 }
 
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
@@ -26,29 +25,35 @@
     
     if (self) {
         _registrar = registrar;
-        _textures = [registrar textures];
     }
     return self;
 }
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-  if ([@"getPlatformVersion" isEqualToString:call.method]) {
+    
+    NSDictionary *argsMap = call.arguments;
+    if ([@"getPlatformVersion" isEqualToString:call.method]) {
       NSString *osVersion = [[UIDevice currentDevice] systemVersion];
-      _player = [[IJKFFMediaPlayer alloc] init];
-      
-      [_player setDataSource: @"http://ivi.bupt.edu.cn/hls/cctv1.m3u8"];
-      [_player prepareAsync];
-      [_player start];
     result([@"iOS " stringByAppendingString:osVersion]);
   } else if([@"init" isEqualToString:call.method]) {
-      //FlutterTexture
-      //_textures registerTexture:<#(nonnull NSObject<FlutterTexture> *)#>
-      
-
-      NSDictionary *args =  call.arguments;
+      NSLog(@"FLUTTER: %s %@", "call init:", argsMap);
       result(NULL);
-  } else {
-    result(FlutterMethodNotImplemented);
+  } else if([@"createPlayer" isEqualToString:call.method]) {
+      FijkPlayer *fijkplayer = [[FijkPlayer alloc] initWithRegistrar:_registrar];
+      NSNumber * playerId = fijkplayer.playerId;
+      _fijkPlayers[playerId] = fijkplayer;
+      result(playerId);
+  } else if([@"releasePlayer" isEqualToString:call.method]){
+      // int pid = call
+        NSNumber *pid = argsMap[@"pid"];
+        FijkPlayer *fijkPlayer = _fijkPlayers[pid];
+        if (fijkPlayer != nil) {
+            //[fijkPlayer start];
+            [_fijkPlayers removeObjectForKey:pid];
+
+        }
+    } else {
+      result(FlutterMethodNotImplemented);
   }
 }
 

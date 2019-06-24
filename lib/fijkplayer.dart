@@ -7,43 +7,39 @@ import 'fijkplugin.dart';
 enum DateSourceType { asset, network, file }
 
 enum PlayerState {
-  /**
-   * nativeSetup    -> created
-   * reset          ->
-   * release        -> end
-   *
-   */
+  ///
+  /// nativeSetup    -> created
+  /// reset          ->
+  /// release        -> end
+  ///
   idle,
 
-  /**
-   * setDataSource  -> initialized
-   * reset          -> self
-   * release        -> end
-   */
+  ///
+  /// setDataSource  -> initialized
+  /// reset          -> self
+  /// release        -> end
+  ///
   created,
 
-  /**
-   * prepareAsync   -> async_preparing
-   * reset          -> created
-   * release        -> end
-   */
+  ///
+  /// prepareAsync   -> async_preparing
+  /// reset          -> created
+  /// release        -> end
   initialized,
 
-  /**
-   *        ...     -> prepared
-   *        ...     -> error
-   *
-   * reset          -> created
-   * release        -> release
-   */
+  ///
+  ///        ...     -> prepared
+  ///        ...     -> error
+  ///
+  /// reset          -> created
+  /// release        -> release
   async_preparing,
 
-  /**
-   * start          -> started
-   *
-   * reset          -> created
-   * release        -> end
-   */
+  ///
+  /// start          -> started
+  ///
+  /// reset          -> created
+  /// release        -> end
   prepared,
 
   /**
@@ -61,21 +57,15 @@ enum PlayerState {
    */
   completed,
 
-  /**
-   * strop        -> self
-   * pre
-   */
+  /// strop        -> self
+  ///
   stopped,
 
-  /**
-   * reset        -> created
-   * release      -> end
-   */
+  /// reset        -> created
+  /// release      -> end
   error,
 
-  /**
-   * release      -> self
-   */
+  /// release      -> self
   end
 }
 
@@ -84,22 +74,25 @@ enum PlayerState {
 class FijkPlayer {
   String dataSource;
   DateSourceType dateSourceType;
-  PlayerState playerState;
+
+  PlayerState mkState;
+  PlayerState epState;
   int _playerId;
   MethodChannel _channel;
 
   final Completer<int> nativeSetup;
 
   FijkPlayer() : nativeSetup = Completer() {
-    playerState = PlayerState.idle;
+    mkState = PlayerState.idle;
+    epState = PlayerState.idle;
     _nativeSetup();
   }
 
   Future<void> _nativeSetup() async {
-    assert(playerState == PlayerState.idle);
+    assert(mkState == PlayerState.idle);
     _playerId = await FijkPlugin.createPlayer();
     _channel = MethodChannel('befovy.com/fijkplayer/' + _playerId.toString());
-    playerState = PlayerState.created;
+    mkState = PlayerState.created;
     print("native player id:" + _playerId.toString());
 
     EventChannel('befovy.com/fijkplayer/event/' + _playerId.toString())
@@ -137,15 +130,18 @@ class FijkPlayer {
   Future<int> prepareAsync() async {
 
     // ckeck state
-
+    await nativeSetup.future;
     await _channel.invokeMethod("prepareAsync");
     return Future.value(0);
   }
 
   Future<int> start() async {
-    if (playerState == PlayerState.initialized) {
-    } else if (playerState == PlayerState.async_preparing) {}
+    await nativeSetup.future;
 
+    if (mkState == PlayerState.initialized) {
+    } else if (mkState == PlayerState.async_preparing) {}
+
+    await _channel.invokeMethod("start");
     return Future.value(0);
   }
 

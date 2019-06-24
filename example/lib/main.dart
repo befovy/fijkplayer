@@ -6,6 +6,8 @@ import 'package:fijkplayer/fijkview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'dart:io' show Platform;
+
 void main() => runApp(MyApp());
 
 class MyApp extends StatefulWidget {
@@ -38,6 +40,7 @@ class _MyAppState extends State<MyApp> {
 
     FijkPlayer player = FijkPlayer();
     player.setDataSource(DateSourceType.network, "http://ivi.bupt.edu.cn/hls/cctv1.m3u8");
+    player.prepareAsync();
     player.start();
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling

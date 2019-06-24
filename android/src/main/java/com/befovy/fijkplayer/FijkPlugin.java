@@ -44,6 +44,7 @@ public class FijkPlugin implements MethodCallHandler {
             result.success("Android " + android.os.Build.VERSION.RELEASE);
         } else if (call.method.equals("init")) {
             Log.i("FLUTTER", "call init:" + call.arguments.toString());
+            result.success(null);
         } else if (call.method.equals("createPlayer")) {
             FijkPlayer fijkPlayer = new FijkPlayer(registrar);
             int playerId = fijkPlayer.getPlayerId();
