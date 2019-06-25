@@ -1,0 +1,25 @@
+//
+//  FijkQueuingEventSink.h
+//  fijkplayer
+//
+//  Created by Bai Shuai on 2019/6/25.
+//
+
+#import <Flutter/Flutter.h>
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface FijkQueuingEventSink : NSObject
+
+- (void) setDelegate:(FlutterEventSink _Nullable)sink;
+
+- (void) endOfStream;
+
+- (void) error:(NSString *)code message:(NSString *)message details:(NSObject *)details;
+
+- (void) success: (NSObject *)event;
+
+@end
+
+NS_ASSUME_NONNULL_END

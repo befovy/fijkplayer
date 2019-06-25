@@ -7,6 +7,8 @@ import android.util.Log;
 import android.view.Surface;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import io.flutter.plugin.common.EventChannel;
@@ -14,10 +16,10 @@ import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.view.TextureRegistry;
-import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
+import tv.danmaku.ijk.media.player.IjkEventListener;
 
-public class FijkPlayer implements MethodChannel.MethodCallHandler {
+public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventListener {
 
     final private static AtomicInteger atomicId = new AtomicInteger(0);
 
@@ -37,8 +39,10 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler {
         mRegistrar = registrar;
         mPlayerId = atomicId.incrementAndGet();
         mIjkMediaPlayer = new IjkMediaPlayer();
+        mIjkMediaPlayer.addIjkEventListener(this);
+
         mContext = registrar.context();
-        IjkMediaPlayer.native_setLogLevel(IjkMediaPlayer.IJK_LOG_WARN);
+        IjkMediaPlayer.native_setLogLevel(IjkMediaPlayer.IJK_LOG_DEBUG);
         mMethodChannel = new MethodChannel(registrar.messenger(), "befovy.com/fijkplayer/" + mPlayerId);
         mMethodChannel.setMethodCallHandler(this);
 
@@ -54,6 +58,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler {
                 mEventSink.setDelegate(null);
             }
         });
+
     }
 
     int getPlayerId() {
@@ -77,8 +82,43 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler {
     }
 
     @Override
+    public void onEvent(IjkMediaPlayer ijkMediaPlayer, int what, int arg1, int arg2, Object extra) {
+        Map<String, Object> event = new HashMap<>();
+
+        switch (what) {
+            case PLAYBACK_STATE_CHANGED:
+                event.put("event", "state_change");
+                event.put("new", arg1);
+                event.put("old", arg2);
+                mEventSink.success(event);
+                break;
+
+            case BUFFERING_START:
+            case BUFFERING_END:
+                event.put("event", "freeze");
+                event.put("value", what == BUFFERING_START);
+                mEventSink.success(event);
+                break;
+
+            // play position
+            // case the duration of the file
+
+            // buffer / cache position
+            case BUFFERING_UPDATE:
+                event.put("event", "buffering");
+                event.put("head", arg1);
+                event.put("percent", arg2);
+                mEventSink.success(event);
+                break;
+
+            default:
+                // Log.d("FLUTTER", "jonEvent:" + what);
+                break;
+        }
+    }
+
+    @Override
     public void onMethodCall(MethodCall call, MethodChannel.Result result) {
-        Log.i("Flutter Player", String.valueOf(mPlayerId) + ":" + call.method);
         if (call.method.equals("setupSurface")) {
             long viewId = setupSurface();
             result.success(viewId);
@@ -99,9 +139,6 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler {
             String url = call.argument("url");
             try {
                 mIjkMediaPlayer.setDataSource(mContext, Uri.parse(url));
-
-                mIjkMediaPlayer.prepareAsync();
-                mIjkMediaPlayer.start();
                 result.success(null);
             } catch (IOException e) {
                 result.error(e.getMessage(), null, null);

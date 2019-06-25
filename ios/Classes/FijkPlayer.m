@@ -7,6 +7,8 @@
 
 #import "FijkPlayer.h"
 
+#import "FijkQueuingEventSink.h"
+
 #import <IJKMediaFramework/IJKMediaFramework.h>
 #import <Flutter/Flutter.h>
 #import <Foundation/Foundation.h>
@@ -18,11 +20,10 @@ static int atomicId = 0;
 @implementation FijkPlayer {
 	IJKFFMediaPlayer *_ijkMediaPlayer;
 
+    FijkQueuingEventSink *_eventSink;
 	FlutterMethodChannel *_methodChannel;
 	FlutterEventChannel *_eventChannel;
-
-	FlutterEventSink _eventSink;
-
+    
 	id <FlutterPluginRegistrar> _registrar;
 
 }
@@ -35,7 +36,10 @@ static int atomicId = 0;
 		int pid = OSAtomicIncrement32(&atomicId);
 		_playerId = @(pid);
 
+        _eventSink = [[FijkQueuingEventSink alloc] init];
 		_ijkMediaPlayer = [[IJKFFMediaPlayer alloc] init];
+        
+        [_ijkMediaPlayer addIJKMPEventHandler:self];
 		[IJKFFMoviePlayerController setLogLevel:k_IJK_LOG_WARN];
 		_methodChannel = [FlutterMethodChannel
 			methodChannelWithName:[@"befovy.com/fijkplayer/" stringByAppendingString:[_playerId stringValue]]
@@ -59,19 +63,22 @@ static int atomicId = 0;
 	return self;
 }
 
-- (void)shutdown {
+- (void)shutdown
+{
 	[_ijkMediaPlayer stop];
 	[_ijkMediaPlayer shutdown];
 }
 
-- (FlutterError *_Nullable)onCancelWithArguments:(id _Nullable)arguments {
-	_eventSink = nil;
+- (FlutterError *_Nullable)onCancelWithArguments:(id _Nullable)arguments
+{
+	[_eventSink setDelegate:nil];
 	return nil;
 }
 
 - (FlutterError *_Nullable)onListenWithArguments:(id _Nullable)arguments
-									   eventSink:(nonnull FlutterEventSink)events {
-	_eventSink = events;
+									   eventSink:(nonnull FlutterEventSink)events
+{
+    [_eventSink setDelegate:events];
 	// TODO(@recastrodiaz): remove the line below when the race condition is resolved:
 	// https://github.com/flutter/flutter/issues/21483
 	// This line ensures the 'initialized' event is sent when the event
@@ -79,16 +86,34 @@ static int atomicId = 0;
 	// onListenWithArguments is called)
 	// [self sendInitialized];
 
-	_eventSink(@{});
 	return nil;
 }
 
+- (void)onEvent4Player:(IJKFFMediaPlayer *)player withType:(int)what andArg1:(int)arg1 andArg2:(int)arg2 andExtra:(void *)extra
+{
+    switch (what) {
+        case IJKMPET_PLAYBACK_STATE_CHANGED:
+            [_eventSink success: @{@"event" : @"state_change", @"new" : @(arg1), @"old": @(arg2)}];
+            break;
+        case IJKMPET_BUFFERING_START:
+        case IJKMPET_BUFFERING_END:
+            [_eventSink success: @{@"event": @"freeze", @"value":  [NSNumber numberWithBool:what == IJKMPET_BUFFERING_START]}];
+            break;
+        case IJKMPET_BUFFERING_UPDATE:
+            [_eventSink success: @{@"event": @"buffering",  @"head" : @(arg1), @"percent" : @(arg2)}];
+            break;
+        default:
+            break;
+    }
+    
+}
 
 - (void)handleMethodCall:(FlutterMethodCall *)call result:(FlutterResult)result {
 
 	NSDictionary *argsMap = call.arguments;
 	if ([@"setupSurface" isEqualToString:call.method]) {
-		result(FlutterMethodNotImplemented);
+        result(@(-1));
+        //result(FlutterMethodNotImplemented);
 	} else if ([@"setOption" isEqualToString:call.method]) {
 		int category = [argsMap[@"cat"] intValue];
 		NSString *key = argsMap[@"key"];

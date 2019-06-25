@@ -18,7 +18,6 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
 
-
   FijkPlayer _player;
 
   @override
@@ -37,11 +36,11 @@ class _MyAppState extends State<MyApp> {
       platformVersion = 'Failed to get platform version.';
     }
 
-
     FijkPlayer player = FijkPlayer();
-    player.setDataSource(DateSourceType.network, "http://ivi.bupt.edu.cn/hls/cctv1.m3u8");
-    player.prepareAsync();
-    player.start();
+    await player.setDataSource(
+        DateSourceType.network, "http://ivi.bupt.edu.cn/hls/cctv1.m3u8");
+    await player.prepareAsync();
+    await player.start();
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling
     // setState to update our non-existent appearance.
@@ -61,16 +60,16 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-
-          child: Column(
-            children: <Widget>[
-              Text('Running on: $_platformVersion\n'),
-              _player == null ? Container(
-                color: Color.fromRGBO(200, 200, 200, 0.5),
-              ) : FijkView(_player),
-            ],
-          )
-        ),
+            child: Column(
+          children: <Widget>[
+            Text('Running on: $_platformVersion\n'),
+            _player == null
+                ? Container(
+                    color: Color.fromRGBO(200, 200, 200, 0.5),
+                  )
+                : FijkView(_player),
+          ],
+        )),
       ),
     );
   }

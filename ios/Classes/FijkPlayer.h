@@ -11,7 +11,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FijkPlayer :  NSObject<FlutterStreamHandler>
+@interface FijkPlayer :  NSObject<FlutterStreamHandler, IJKMPEventHandler>
 
 @property (atomic, readonly) NSNumber *playerId;
 

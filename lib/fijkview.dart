@@ -29,7 +29,6 @@ class _FijkViewState extends State<FijkView> {
     });
   }
 
-
   @override
   void dispose() {
     // TODO: implement dispose
@@ -52,5 +51,3 @@ class _FijkViewState extends State<FijkView> {
           );
   }
 }
-
-
