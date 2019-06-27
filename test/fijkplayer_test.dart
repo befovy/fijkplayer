@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fijkplayer/fijkplugin.dart';
 
 void main() {
-  const MethodChannel channel = MethodChannel('fijkplayer');
+  const MethodChannel channel = MethodChannel('befovy.com/fijk');
 
   setUp(() {
     channel.setMockMethodCallHandler((MethodCall methodCall) async {

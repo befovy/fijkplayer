@@ -16,6 +16,9 @@ rootProject.allprojects {
     repositories {
         google()
         jcenter()
+        maven {
+            url 'https://dl.bintray.com/befovytray/fijkplayer/'
+        }
     }
 }
 
@@ -35,8 +38,8 @@ android {
 
 
 dependencies {
-    implementation(name: 'ijkplayer-java', ext: 'aar')
-    implementation(name: 'ijkplayer-arm64', ext: 'aar')
-    implementation(name: 'ijkplayer-armv7a', ext: 'aar')
-    implementation(name: 'ijkplayer-x86', ext: 'aar')
+    implementation 'com.befovy.fijkplayer:ijkplayer-java:0.1.0'
+    implementation 'com.befovy.fijkplayer:ijkplayer-armv7a:0.1.0'
+    implementation 'com.befovy.fijkplayer:ijkplayer-arm64:0.1.0'
+    implementation 'com.befovy.fijkplayer:ijkplayer-x86:0.1.0'
 }

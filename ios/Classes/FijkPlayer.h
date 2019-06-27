@@ -6,7 +6,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <IJKMediaFramework/IJKMediaFramework.h>
+#import <FIJKPlayer/IJKFFMediaPlayer.h>
 #import <Flutter/FlutterPlugin.h>
 
 NS_ASSUME_NONNULL_BEGIN
