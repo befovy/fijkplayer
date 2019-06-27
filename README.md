@@ -1,14 +1,10 @@
 # fijkplayer
 
-Flutter plugin for ijkplayer
+Flutter media player plugin based on [ijkplayer](https://github.com/befovy/ijkplayer)
 
 ## Getting Started
 
-This project is a starting point for a Flutter
-[plug-in package](https://flutter.dev/developing-packages/),
-a specialized package that includes platform-specific implementation code for
-Android and/or iOS.
+This plugin is in active development.  
+The `Usage` will come later, just read the source code for help now.
+Any good suggestion or pull request is welcome.
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.

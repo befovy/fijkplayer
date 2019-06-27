@@ -1,3 +1,4 @@
 ## 0.0.1
 
-* TODO: Describe initial release.
+- A usable music player plugin
+- Draw the video frame through surface for android
