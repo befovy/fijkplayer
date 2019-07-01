@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 
 import 'fijkplugin.dart';
-import 'utils.dart';
 
 enum DateSourceType { asset, network, file }
 
