@@ -3,57 +3,116 @@ import 'package:flutter/services.dart';
 
 import 'fijkplugin.dart';
 
-enum DateSourceType { asset, network, file }
+/// The data source type for the player
+/// [asset] [network] and [file]
+enum DateSourceType {
+  /// [asset] means source from app asset files
+  asset,
 
-enum PlayerState {
-  ///
+  /// [network] means source from network. it supports many protocols, like `http` and `rtmp` etc.
+  network,
+
+  /// [file] means source from the phone's storage
+  file
+}
+
+/// State of the Player
+///
+/// This is the state machine of player.
+/// The state changed after method called or when some error occurs.
+/// One state can only change into the new state it can reach.
+///
+/// For example, [IDLE] can't becomes [ASYNC_PREPARING] directly.
+///
+/// Todo, make a picture which can show the state change
+enum FijkState {
+
   /// setDataSource  -> [INITIALIZED]
+  ///
   /// reset          -> self
+  ///
   /// release        -> [END]
   ///
   IDLE,
 
   ///
   /// prepareAsync   -> [ASYNC_PREPARING]
+  ///
   /// reset          -> [IDLE]
+  ///
   /// release        -> [END]
+  ///
   INITIALIZED,
 
   ///
-  ///        ...     -> [PREPARED]
-  ///        ...     -> [ERROR]
+  /// .....          -> [PREPARED]
+  /// 
+  /// .....          -> [ERROR]
   ///
-  /// reset          -> created
-  /// release        -> release
+  /// reset          -> [IDLE]
+  /// 
+  /// release        -> [END]
+  /// 
   ASYNC_PREPARING,
 
   ///
-  /// start          -> started
+  /// start          -> [STARTED]
   ///
-  /// reset          -> created
-  /// release        -> end
+  /// reset          -> [IDLE]
+  /// 
+  /// release        -> [END]
   PREPARED,
 
-  /**
-   *
-   */
+
+  /// start          -> self
+  /// 
+  /// pause          -> [PAUSED]
+  /// 
+  /// stop           -> [STOPPED]
+  /// 
+  /// ......         -> [COMPLETED]
+  /// 
+  /// ......         -> [ERROR]
+  /// 
+  /// reset          -> [IDLE]
+  /// 
+  /// release        -> [END]
   STARTED,
 
-  /**
-   *
-   */
+  /// start          -> [STARTED]
+  /// 
+  /// pause          -> self
+  /// 
+  /// stop           -> [STOPPED]
+  /// 
+  /// reset          -> [IDLE]
+  /// 
+  /// release        -> [END]
   PAUSED,
 
-  /**
-   *
-   */
+
+  /// start          -> [STARTED] (from beginning)
+  /// 
+  /// pause          -> self
+  /// 
+  /// stop           -> [STOPPED]
+  /// 
+  /// reset          -> [IDLE]
+  /// 
+  /// release        -> [END]
   COMPLETED,
 
-  /// stop        -> self
-  ///
+  /// stop           -> self
+  /// 
+  /// prepareAsync   -> [ASYNC_PREPARING]
+  /// 
+  /// reset          -> [IDLE]
+  /// 
+  /// release        -> [END]
   STOPPED,
 
   /// reset        -> [IDLE]
+  /// 
   /// release      -> [END]
   ERROR,
 
@@ -65,8 +124,8 @@ class FijkPlayer {
   String dataSource;
   DateSourceType dateSourceType;
 
-  PlayerState _fpState;
-  PlayerState _epState;
+  FijkState _fpState;
+  FijkState _epState;
   int _playerId;
   MethodChannel _channel;
   StreamSubscription<dynamic> _nativeEventSubscription;
@@ -77,7 +136,7 @@ class FijkPlayer {
   // Duration _duration;
   // DurationRange _bufferd;
 
-  final StreamController<PlayerState> _playerStateController =
+  final StreamController<FijkState> _playerStateController =
       StreamController.broadcast();
 
   final StreamController<Duration> _bufferPosController =
@@ -86,26 +145,26 @@ class FijkPlayer {
   final StreamController<bool> _bufferStateController =
       StreamController.broadcast();
 
-  PlayerState get state => _fpState;
+  FijkState get state => _fpState;
   Duration get bufferPos => _bufferPos;
   bool get isBuffering => _buffering;
 
-  Stream<PlayerState> get onPlayerStateChanged => _playerStateController.stream;
+  Stream<FijkState> get onPlayerStateChanged => _playerStateController.stream;
   Stream<Duration> get onBufferPosUpdate => _bufferPosController.stream;
   Stream<bool> get onBufferStateUpdate => _bufferStateController.stream;
 
   final Completer<int> _nativeSetup;
 
   FijkPlayer() : _nativeSetup = Completer() {
-    _fpState = PlayerState.IDLE;
-    _epState = PlayerState.ERROR;
+    _fpState = FijkState.IDLE;
+    _epState = FijkState.ERROR;
     _doNativeSetup();
   }
 
   Future<void> _doNativeSetup() async {
     _playerId = await FijkPlugin.createPlayer();
     _channel = MethodChannel('befovy.com/fijkplayer/' + _playerId.toString());
-    _epState = PlayerState.IDLE;
+    _epState = FijkState.IDLE;
 
     print("native player id: $_playerId");
 
@@ -124,7 +183,7 @@ class FijkPlayer {
   Future<int> setDataSource(DateSourceType type, String path) async {
     await _nativeSetup.future;
     int ret = 0;
-    if (_epState == PlayerState.IDLE) {
+    if (_epState == FijkState.IDLE) {
       Map<String, dynamic> dataSourceDescription;
       dateSourceType = type;
       dataSource = path;
@@ -137,7 +196,7 @@ class FijkPlayer {
         case DateSourceType.file:
           break;
       }
-      _epState = PlayerState.INITIALIZED;
+      _epState = FijkState.INITIALIZED;
       await _channel.invokeMethod("setDateSource", dataSourceDescription);
     } else {
       ret = -1;
@@ -149,8 +208,8 @@ class FijkPlayer {
     // ckeck state
     await _nativeSetup.future;
     int ret = 0;
-    if (_epState == PlayerState.INITIALIZED) {
-      _epState = PlayerState.PREPARED;
+    if (_epState == FijkState.INITIALIZED) {
+      _epState = FijkState.PREPARED;
       await _channel.invokeMethod("prepareAsync");
     } else {
       ret = -1;
@@ -161,13 +220,13 @@ class FijkPlayer {
   Future<int> start() async {
     await _nativeSetup.future;
     int ret = 0;
-    if (_epState == PlayerState.INITIALIZED) {
+    if (_epState == FijkState.INITIALIZED) {
       await _channel.invokeMethod("prepareAsync");
       await _channel.invokeMethod("start");
-      _epState = PlayerState.STARTED;
-    } else if (_epState == PlayerState.PREPARED) {
+      _epState = FijkState.STARTED;
+    } else if (_epState == FijkState.PREPARED) {
       await _channel.invokeMethod("start");
-      _epState = PlayerState.STARTED;
+      _epState = FijkState.STARTED;
     } else {
       ret = -1;
     }
@@ -176,7 +235,7 @@ class FijkPlayer {
 
   Future<int> pause() async {
     await _nativeSetup.future;
-    _epState = PlayerState.PAUSED;
+    _epState = FijkState.PAUSED;
     await _channel.invokeMethod("pause");
     return Future.value(0);
   }
@@ -184,7 +243,7 @@ class FijkPlayer {
   Future<int> stop() async {
     await _nativeSetup.future;
 
-    _epState = PlayerState.STOPPED;
+    _epState = FijkState.STOPPED;
     await _channel.invokeMethod("stop");
     return Future.value(0);
   }
@@ -209,9 +268,9 @@ class FijkPlayer {
     switch (map['event']) {
       case 'state_change':
         int newState = map['new'];
-        _fpState = PlayerState.values[newState];
-        if (_fpState == PlayerState.ERROR) {
-          _epState = PlayerState.ERROR;
+        _fpState = FijkState.values[newState];
+        if (_fpState == FijkState.ERROR) {
+          _epState = FijkState.ERROR;
         }
         _playerStateController.add(_fpState);
         print(_fpState.toString() + " <= " + _epState.toString());

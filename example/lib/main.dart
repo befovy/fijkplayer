@@ -6,7 +6,6 @@ import 'package:fijkplayer/fijkview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'dart:io' show Platform;
 
 void main() => runApp(MyApp());
 
