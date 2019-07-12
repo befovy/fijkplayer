@@ -1,4 +1,4 @@
-# fijkplayer_example
+# fijkplayer demo
 
 Demonstrates how to use the fijkplayer plugin.
 

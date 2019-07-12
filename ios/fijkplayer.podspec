@@ -16,15 +16,16 @@ Flutter plugin for ijkplayer
   s.public_header_files = 'Classes/**/*.h'
 
 
-  # s.frameworks = 'IJKMediaFramework'
+  # @ uncomment next 4 lines to debug FIJKPlayer
   # s.preserve_paths = 'Frameworks/*.framework'
-  # s.vendored_frameworks = 'Frameworks/FIJKMediaPlayer.framework'
-  # s.resource = 'Frameworks/FIJKMediaPlayer.framework'
+  # s.vendored_frameworks = 'Frameworks/FIJKPlayer.framework'
+  # s.resource = 'Frameworks/FIJKPlayer.framework'
   # s.xcconfig = { 'LD_RUNPATH_SEARCH_PATHS' => '"$(PODS_ROOT)/Frameworks/"' }
 
   s.libraries = "bz2", "z", "stdc++"
   s.dependency 'Flutter'
-  s.dependency 'FIJKPlayer'
+
+  s.dependency 'FIJKPlayer', '~> 0.2.0'
 
   s.ios.deployment_target = '8.0'
 end
