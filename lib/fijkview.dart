@@ -1,5 +1,4 @@
 import 'package:fijkplayer/fijkplayer.dart';
-import 'package:fijkplayer/fijkplugin.dart';
 import 'package:flutter/material.dart';
 
 class FijkView extends StatefulWidget {
@@ -12,13 +11,15 @@ class FijkView extends StatefulWidget {
 }
 
 class _FijkViewState extends State<FijkView> {
-  int _textureId;
+  int _textureId = -1;
+  int _vWidth = -1;
+  int _vHeight = -1;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     _nativeSetup();
+    widget.player.addListener(_fijkValueListener);
   }
 
   Future<void> _nativeSetup() async {
@@ -29,25 +30,47 @@ class _FijkViewState extends State<FijkView> {
     });
   }
 
+  void _fijkValueListener() {
+    FijkValue value = widget.player.value;
+    int width = value.width;
+    int height = value.height;
+    print("width $width, height $height");
+    setState(() {
+      _vWidth = width;
+      _vHeight = height;
+    });
+  }
+
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     widget.player.release();
-
-    print("dispose");
+    print("FijkView dispose");
   }
 
   @override
   Widget build(BuildContext context) {
-    return _textureId == null
-        ? Container()
-        : Container(
-            width: 350,
-            height: 200,
-            child: Texture(
-              textureId: _textureId,
-            ),
-          );
+    return Container(
+      color: Colors.black,
+      child: LayoutBuilder(builder: (ctx, constraints) {
+        Size s = (_vWidth > 0 && _vHeight > 0)
+            ? constraints.constrainSizeAndAttemptToPreserveAspectRatio(
+                Size(_vWidth.toDouble(), _vHeight.toDouble()))
+            : Size(-1, -1);
+        print("FijkView $constraints s: $s");
+
+        return Center(
+          child: Container(
+            width: s.width > 0.0 ? s.width : constraints.maxWidth,
+            height: s.height > 0.0 ? s.height : constraints.maxHeight,
+            child: _textureId > 0
+                ? Texture(
+                    textureId: _textureId,
+                  )
+                : null,
+          ),
+        );
+      }),
+    );
   }
 }

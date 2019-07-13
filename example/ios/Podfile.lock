@@ -4,10 +4,13 @@ PODS:
     - Flutter
   - FIJKPlayer (0.2.0)
   - Flutter (1.0.0)
+  - shared_preferences (0.0.1):
+    - Flutter
 
 DEPENDENCIES:
   - fijkplayer (from `.symlinks/plugins/fijkplayer/ios`)
   - Flutter (from `.symlinks/flutter/ios`)
+  - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
@@ -18,11 +21,14 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/fijkplayer/ios"
   Flutter:
     :path: ".symlinks/flutter/ios"
+  shared_preferences:
+    :path: ".symlinks/plugins/shared_preferences/ios"
 
 SPEC CHECKSUMS:
   FIJKPlayer: e90617247f98c16edd144609d5746182b026a2b8
   fijkplayer: 5768819ed60a944ea86042e09888701a6d7e317e
   Flutter: 58dd7d1b27887414a370fcccb9e645c08ffd7a6a
+  shared_preferences: 1feebfa37bb57264736e16865e7ffae7fc99b523
 
 PODFILE CHECKSUM: 3389836f37640698630b8f0670315d626d5f1469
 

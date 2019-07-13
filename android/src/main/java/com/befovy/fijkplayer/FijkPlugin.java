@@ -47,7 +47,9 @@ public class FijkPlugin implements MethodCallHandler {
                 break;
             }
             case "releasePlayer": {
-                int pid = call.argument("pid");
+                int pid = -1;
+                if (call.hasArgument("pid"))
+                    pid = call.argument("pid");
                 FijkPlayer fijkPlayer = fijkPlayers.get(pid);
                 if (fijkPlayer != null) {
                     fijkPlayer.release();

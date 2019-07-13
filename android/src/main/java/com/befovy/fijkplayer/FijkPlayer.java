@@ -32,6 +32,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
 
     final private QueuingEventSink mEventSink = new QueuingEventSink();
 
+    private TextureRegistry.SurfaceTextureEntry mSurfaceTextureEntry;
     private SurfaceTexture mSurfaceTexture;
     private Surface mSurface;
 
@@ -68,6 +69,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
     private long setupSurface() {
         TextureRegistry textureRegistry = mRegistrar.textures();
         TextureRegistry.SurfaceTextureEntry surfaceTextureEntry = textureRegistry.createSurfaceTexture();
+        mSurfaceTextureEntry = surfaceTextureEntry;
         long vid = surfaceTextureEntry.id();
         mSurfaceTexture = surfaceTextureEntry.surfaceTexture();
         mSurface = new Surface(mSurfaceTexture);
@@ -75,10 +77,23 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
         return vid;
     }
 
-    public void release() {
+    void release() {
         mIjkMediaPlayer.stop();
-        mIjkMediaPlayer.resetListeners();
         mIjkMediaPlayer.release();
+
+        if (mSurfaceTextureEntry != null){
+            mSurfaceTextureEntry.release();
+            mSurfaceTextureEntry = null;
+        }
+        if (mSurfaceTexture != null) {
+            mSurfaceTexture.release();
+            mSurfaceTexture = null;
+        }
+        if (mSurface != null) {
+            mSurface.release();
+            mSurface = null;
+        }
+
     }
 
     @Override
@@ -111,6 +126,12 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
                 mEventSink.success(event);
                 break;
 
+            case VIDEO_SIZE_CHANGED:
+                event.put("event", "size_changed");
+                event.put("width", arg1);
+                event.put("height", arg2);
+                mEventSink.success(event);
+                break;
             default:
                 // Log.d("FLUTTER", "jonEvent:" + what);
                 break;

@@ -2,7 +2,7 @@
 //  FijkQueuingEventSink.h
 //  fijkplayer
 //
-//  Created by Bai Shuai on 2019/6/25.
+//  Created by Befovy on 2019/6/25.
 //
 
 #import <Flutter/Flutter.h>

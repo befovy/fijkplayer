@@ -88,6 +88,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.3"
+  shared_preferences:
+    dependency: transitive
+    description:
+      name: shared_preferences
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.5.3+2"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -114,6 +121,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.0"
+  streaming_shared_preferences:
+    dependency: "direct main"
+    description:
+      name: streaming_shared_preferences
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.1"
   string_scanner:
     dependency: transitive
     description:
@@ -151,3 +165,4 @@ packages:
     version: "2.0.8"
 sdks:
   dart: ">=2.2.2 <3.0.0"
+  flutter: ">=1.5.0 <2.0.0"

@@ -9,7 +9,7 @@
          FlutterApplication and put your custom class here. -->
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="fijkplayer"
+        android:label="Fijkplayer"
         android:icon="@mipmap/ic_launcher"
         tools:ignore="GoogleAppIndexingWarning">
         <activity

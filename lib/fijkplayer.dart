@@ -1,4 +1,8 @@
 import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/painting.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
 import 'fijkplugin.dart';
@@ -26,7 +30,6 @@ enum DateSourceType {
 ///
 /// Todo, make a picture which can show the state change
 enum FijkState {
-
   /// setDataSource  -> [INITIALIZED]
   ///
   /// reset          -> self
@@ -46,83 +49,100 @@ enum FijkState {
 
   ///
   /// .....          -> [PREPARED]
-  /// 
+  ///
   /// .....          -> [ERROR]
   ///
   /// reset          -> [IDLE]
-  /// 
+  ///
   /// release        -> [END]
-  /// 
+  ///
   ASYNC_PREPARING,
 
   ///
   /// start          -> [STARTED]
   ///
   /// reset          -> [IDLE]
-  /// 
+  ///
   /// release        -> [END]
   PREPARED,
 
-
   /// start          -> self
-  /// 
+  ///
   /// pause          -> [PAUSED]
-  /// 
+  ///
   /// stop           -> [STOPPED]
-  /// 
+  ///
   /// ......         -> [COMPLETED]
-  /// 
+  ///
   /// ......         -> [ERROR]
-  /// 
+  ///
   /// reset          -> [IDLE]
-  /// 
+  ///
   /// release        -> [END]
   STARTED,
 
   /// start          -> [STARTED]
-  /// 
+  ///
   /// pause          -> self
-  /// 
+  ///
   /// stop           -> [STOPPED]
-  /// 
+  ///
   /// reset          -> [IDLE]
-  /// 
+  ///
   /// release        -> [END]
   PAUSED,
 
-
   /// start          -> [STARTED] (from beginning)
-  /// 
+  ///
   /// pause          -> self
-  /// 
+  ///
   /// stop           -> [STOPPED]
-  /// 
+  ///
   /// reset          -> [IDLE]
-  /// 
+  ///
   /// release        -> [END]
   COMPLETED,
 
   /// stop           -> self
-  /// 
+  ///
   /// prepareAsync   -> [ASYNC_PREPARING]
-  /// 
+  ///
   /// reset          -> [IDLE]
-  /// 
+  ///
   /// release        -> [END]
   STOPPED,
 
-  /// reset        -> [IDLE]
-  /// 
-  /// release      -> [END]
+  /// reset          -> [IDLE]
+  ///
+  /// release        -> [END]
   ERROR,
 
-  /// release      -> self
+  /// release        -> self
   END
 }
 
-class FijkPlayer {
-  String dataSource;
-  DateSourceType dateSourceType;
+@immutable
+class FijkValue {
+  const FijkValue({this.width = 0, this.height = 0});
+
+  final int width;
+  final int height;
+
+  @override
+  bool operator ==(dynamic other) {
+    if (other.runtimeType != runtimeType) return false;
+
+    FijkValue typedOther = other;
+    return hashCode == typedOther.hashCode;
+  }
+
+  @override
+  int get hashCode => hashValues(width, height);
+}
+
+class FijkPlayer extends ValueNotifier<FijkValue> {
+  String _dataSource;
+  DateSourceType _dateSourceType;
 
   FijkState _fpState;
   FijkState _epState;
@@ -130,11 +150,9 @@ class FijkPlayer {
   MethodChannel _channel;
   StreamSubscription<dynamic> _nativeEventSubscription;
 
+  bool _startAfterSetup = false;
   bool _buffering = false;
   Duration _bufferPos = Duration();
-
-  // Duration _duration;
-  // DurationRange _bufferd;
 
   final StreamController<FijkState> _playerStateController =
       StreamController.broadcast();
@@ -145,20 +163,51 @@ class FijkPlayer {
   final StreamController<bool> _bufferStateController =
       StreamController.broadcast();
 
+  String get dataSource => _dataSource;
+
+  /// return the current state
   FijkState get state => _fpState;
+
+  /// retuen the current buffered position
   Duration get bufferPos => _bufferPos;
+
+  /// return true if the player is buffering
   bool get isBuffering => _buffering;
 
   Stream<FijkState> get onPlayerStateChanged => _playerStateController.stream;
+
   Stream<Duration> get onBufferPosUpdate => _bufferPosController.stream;
+
   Stream<bool> get onBufferStateUpdate => _bufferStateController.stream;
 
   final Completer<int> _nativeSetup;
 
-  FijkPlayer() : _nativeSetup = Completer() {
+  FijkPlayer()
+      : _nativeSetup = Completer(),
+        super(FijkValue()) {
     _fpState = FijkState.IDLE;
     _epState = FijkState.ERROR;
     _doNativeSetup();
+  }
+
+  Future<void> _startFromAnyState() async {
+    await _nativeSetup.future;
+
+    if (_epState == FijkState.ERROR || _epState == FijkState.STOPPED) {
+      await reset();
+    }
+    if (_epState == FijkState.IDLE) {
+      await setDataSource(_dateSourceType, _dataSource);
+    }
+    if (_epState == FijkState.INITIALIZED) {
+      await prepareAsync();
+    }
+    if (_epState == FijkState.PREPARED ||
+        _epState == FijkState.COMPLETED ||
+        _epState == FijkState.PAUSED) {
+      await start();
+    }
+    return Future.value();
   }
 
   Future<void> _doNativeSetup() async {
@@ -171,8 +220,12 @@ class FijkPlayer {
     _nativeEventSubscription =
         EventChannel('befovy.com/fijkplayer/event/' + _playerId.toString())
             .receiveBroadcastStream()
-            .listen(eventListener, onError: errorListener);
+            .listen(_eventListener, onError: errorListener);
     _nativeSetup.complete(_playerId);
+
+    if (_startAfterSetup) {
+      await _startFromAnyState();
+    }
   }
 
   Future<int> setupSurface() async {
@@ -185,11 +238,11 @@ class FijkPlayer {
     int ret = 0;
     if (_epState == FijkState.IDLE) {
       Map<String, dynamic> dataSourceDescription;
-      dateSourceType = type;
-      dataSource = path;
-      switch (dateSourceType) {
+      _dateSourceType = type;
+      _dataSource = path;
+      switch (_dateSourceType) {
         case DateSourceType.network:
-          dataSourceDescription = <String, dynamic>{'url': dataSource};
+          dataSourceDescription = <String, dynamic>{'url': _dataSource};
           break;
         case DateSourceType.asset:
           break;
@@ -257,13 +310,13 @@ class FijkPlayer {
 
   Future<void> release() async {
     await _nativeSetup.future;
-
+    await this.stop();
     _nativeEventSubscription.cancel();
     int pid = await _nativeSetup.future;
     return FijkPlugin.releasePlayer(pid);
   }
 
-  void eventListener(dynamic event) {
+  void _eventListener(dynamic event) {
     final Map<dynamic, dynamic> map = event;
     switch (map['event']) {
       case 'state_change':
@@ -287,6 +340,11 @@ class FijkPlayer {
         // int percent = map['percent'];
         _bufferPos = Duration(milliseconds: head);
         _bufferPosController.add(_bufferPos);
+        break;
+      case 'size_changed':
+        int width = map['width'];
+        int height = map['height'];
+        value = FijkValue(width: width, height: height);
         break;
       default:
         break;
