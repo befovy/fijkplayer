@@ -15,3 +15,7 @@ doc/api/
 
 .idea/
 
+# eclipse project files
+.project
+.classpath
+org.eclipse.buildship.core.prefs

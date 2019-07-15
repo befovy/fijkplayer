@@ -12,13 +12,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface FijkQueuingEventSink : NSObject
 
-- (void) setDelegate:(FlutterEventSink _Nullable)sink;
+- (void)setDelegate:(FlutterEventSink _Nullable)sink;
 
-- (void) endOfStream;
+- (void)endOfStream;
 
-- (void) error:(NSString *)code message:(NSString *)message details:(NSObject *)details;
+- (void)error:(NSString *)code
+      message:(NSString *)message
+      details:(NSObject *)details;
 
-- (void) success: (NSObject *)event;
+- (void)success:(NSObject *)event;
 
 @end
 

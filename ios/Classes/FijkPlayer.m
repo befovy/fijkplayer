@@ -23,8 +23,8 @@ static int atomicId = 0;
     FijkQueuingEventSink *_eventSink;
     FlutterMethodChannel *_methodChannel;
     FlutterEventChannel *_eventChannel;
-    
-    id <FlutterPluginRegistrar> _registrar;
+
+    id<FlutterPluginRegistrar> _registrar;
     id<FlutterTextureRegistry> _textureRegistry;
     CVPixelBufferRef _cachePixelBufer;
     NSRecursiveLock *_cvPbLock;
@@ -33,8 +33,7 @@ static int atomicId = 0;
     int64_t _vid;
 }
 
-
-- (instancetype)initWithRegistrar:(id <FlutterPluginRegistrar>)registrar {
+- (instancetype)initWithRegistrar:(id<FlutterPluginRegistrar>)registrar {
     self = [super init];
     if (self) {
         _registrar = registrar;
@@ -49,23 +48,32 @@ static int atomicId = 0;
 
         [_ijkMediaPlayer addIJKMPEventHandler:self];
 
-        [_ijkMediaPlayer setOptionIntValue:1 forKey:@"videotoolbox" ofCategory:kIJKFFOptionCategoryPlayer];
-        [_ijkMediaPlayer setOptionValue:@"fcc-bgra" forKey:@"overlay-format" ofCategory:kIJKFFOptionCategoryPlayer];
+        [_ijkMediaPlayer setOptionIntValue:1
+                                    forKey:@"videotoolbox"
+                                ofCategory:kIJKFFOptionCategoryPlayer];
+        [_ijkMediaPlayer setOptionValue:@"fcc-bgra"
+                                 forKey:@"overlay-format"
+                             ofCategory:kIJKFFOptionCategoryPlayer];
         [IJKFFMoviePlayerController setLogLevel:k_IJK_LOG_WARN];
         _methodChannel = [FlutterMethodChannel
-            methodChannelWithName:[@"befovy.com/fijkplayer/" stringByAppendingString:[_playerId stringValue]]
+            methodChannelWithName:[@"befovy.com/fijkplayer/"
+                                      stringByAppendingString:[_playerId
+                                                                  stringValue]]
                   binaryMessenger:[registrar messenger]];
 
         __block typeof(self) weakSelf = self;
-        [_methodChannel setMethodCallHandler:^(FlutterMethodCall *call, FlutterResult result) {
-            [weakSelf handleMethodCall:call result:result];
+        [_methodChannel setMethodCallHandler:^(FlutterMethodCall *call,
+                                               FlutterResult result) {
+          [weakSelf handleMethodCall:call result:result];
         }];
 
         //[_methodChannel setMethodCallHandler:self];
         //[_registrar addMethodCallDelegate:self channel:_methodChannel];
 
         _eventChannel = [FlutterEventChannel
-            eventChannelWithName:[@"befovy.com/fijkplayer/event/" stringByAppendingString:[_playerId stringValue]]
+            eventChannelWithName:[@"befovy.com/fijkplayer/event/"
+                                     stringByAppendingString:[_playerId
+                                                                 stringValue]]
                  binaryMessenger:[registrar messenger]];
 
         [_eventChannel setStreamHandler:self];
@@ -74,8 +82,7 @@ static int atomicId = 0;
     return self;
 }
 
-- (void)shutdown
-{
+- (void)shutdown {
     [_ijkMediaPlayer stop];
     [_ijkMediaPlayer shutdown];
     if (_vid >= 0) {
@@ -85,19 +92,17 @@ static int atomicId = 0;
     }
 }
 
-- (FlutterError *_Nullable)onCancelWithArguments:(id _Nullable)arguments
-{
+- (FlutterError *_Nullable)onCancelWithArguments:(id _Nullable)arguments {
     [_eventSink setDelegate:nil];
     return nil;
 }
 
 - (FlutterError *_Nullable)onListenWithArguments:(id _Nullable)arguments
-                                       eventSink:(nonnull FlutterEventSink)events
-{
+                                       eventSink:
+                                           (nonnull FlutterEventSink)events {
     [_eventSink setDelegate:events];
     return nil;
 }
-
 
 - (void)display_pixelbuffer:(CVPixelBufferRef)pixelbuffer {
     [_cvPbLock lock];
@@ -112,7 +117,6 @@ static int atomicId = 0;
     [_cvPbLock unlock];
 }
 
-
 - (CVPixelBufferRef _Nullable)copyPixelBuffer {
     [_cvPbLock lock];
     CVPixelBufferRef buffer = _cachePixelBufer;
@@ -123,8 +127,7 @@ static int atomicId = 0;
     return buffer;
 }
 
-- (NSNumber *) setupSurface
-{
+- (NSNumber *)setupSurface {
     if (_vid < 0) {
         _textureRegistry = [_registrar textures];
         int64_t vid = [_textureRegistry registerTexture:self];
@@ -134,28 +137,46 @@ static int atomicId = 0;
     return [NSNumber numberWithLongLong:_vid];
 }
 
-- (void)onEvent4Player:(IJKFFMediaPlayer *)player withType:(int)what andArg1:(int)arg1 andArg2:(int)arg2 andExtra:(void *)extra
-{
+- (void)onEvent4Player:(IJKFFMediaPlayer *)player
+              withType:(int)what
+               andArg1:(int)arg1
+               andArg2:(int)arg2
+              andExtra:(void *)extra {
     switch (what) {
-        case IJKMPET_PLAYBACK_STATE_CHANGED:
-            [_eventSink success: @{@"event" : @"state_change", @"new" : @(arg1), @"old": @(arg2)}];
-            break;
-        case IJKMPET_BUFFERING_START:
-        case IJKMPET_BUFFERING_END:
-            [_eventSink success: @{@"event": @"freeze", @"value":  [NSNumber numberWithBool:what == IJKMPET_BUFFERING_START]}];
-            break;
-        case IJKMPET_BUFFERING_UPDATE:
-            [_eventSink success: @{@"event": @"buffering",  @"head" : @(arg1), @"percent" : @(arg2)}];
-            break;
-        case IJKMPET_VIDEO_SIZE_CHANGED:
-            [_eventSink success:@{@"event": @"size_changed", @"width": @(arg1), @"height": @(arg2)}];
-        default:
-            break;
+    case IJKMPET_PLAYBACK_STATE_CHANGED:
+        [_eventSink success:@{
+            @"event" : @"state_change",
+            @"new" : @(arg1),
+            @"old" : @(arg2)
+        }];
+        break;
+    case IJKMPET_BUFFERING_START:
+    case IJKMPET_BUFFERING_END:
+        [_eventSink success:@{
+            @"event" : @"freeze",
+            @"value" : [NSNumber numberWithBool:what == IJKMPET_BUFFERING_START]
+        }];
+        break;
+    case IJKMPET_BUFFERING_UPDATE:
+        [_eventSink success:@{
+            @"event" : @"buffering",
+            @"head" : @(arg1),
+            @"percent" : @(arg2)
+        }];
+        break;
+    case IJKMPET_VIDEO_SIZE_CHANGED:
+        [_eventSink success:@{
+            @"event" : @"size_changed",
+            @"width" : @(arg1),
+            @"height" : @(arg2)
+        }];
+    default:
+        break;
     }
-    
 }
 
-- (void)handleMethodCall:(FlutterMethodCall *)call result:(FlutterResult)result {
+- (void)handleMethodCall:(FlutterMethodCall *)call
+                  result:(FlutterResult)result {
 
     NSDictionary *argsMap = call.arguments;
     if ([@"setupSurface" isEqualToString:call.method]) {
@@ -165,10 +186,14 @@ static int atomicId = 0;
         NSString *key = argsMap[@"key"];
         if (argsMap[@"long"] != nil) {
             int64_t value = [argsMap[@"long"] longLongValue];
-            [_ijkMediaPlayer setOptionIntValue:value forKey:key ofCategory:(IJKFFOptionCategory) category];
+            [_ijkMediaPlayer setOptionIntValue:value
+                                        forKey:key
+                                    ofCategory:(IJKFFOptionCategory)category];
         } else if (argsMap[@"str"] != nil) {
             NSString *value = argsMap[@"str"];
-            [_ijkMediaPlayer setOptionValue:value forKey:key ofCategory:(IJKFFOptionCategory) category];
+            [_ijkMediaPlayer setOptionValue:value
+                                     forKey:key
+                                 ofCategory:(IJKFFOptionCategory)category];
         } else {
             NSLog(@"FIJKPLAYER: error arguments for setOptions");
         }
@@ -195,7 +220,6 @@ static int atomicId = 0;
     } else {
         result(FlutterMethodNotImplemented);
     }
-
 }
 
 @end

@@ -1,4 +1,4 @@
 #import <Flutter/Flutter.h>
 
-@interface FijkPlugin : NSObject<FlutterPlugin>
+@interface FijkPlugin : NSObject <FlutterPlugin>
 @end

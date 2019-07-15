@@ -23,45 +23,43 @@
     return self;
 }
 
-- (void) maybeFlush
-{
+- (void)maybeFlush {
     if (_delegate == nil)
         return;
-    
+
     for (NSObject *event in _eventQueue) {
         _delegate(event);
     }
     [_eventQueue removeAllObjects];
 }
 
-- (void) enqueue:(const NSObject *)event
-{
+- (void)enqueue:(const NSObject *)event {
     if (_done)
         return;
     [_eventQueue addObject:event];
 }
 
-- (void) setDelegate:(FlutterEventSink)sink
-{
+- (void)setDelegate:(FlutterEventSink)sink {
     _delegate = sink;
     [self maybeFlush];
 }
 
-- (void) endOfStream
-{
+- (void)endOfStream {
     [self enqueue:FlutterEndOfEventStream];
     [self maybeFlush];
     _done = TRUE;
 }
 
-- (void) error:(NSString *)code message:(NSString *)message details:(NSObject *)details
-{
-    [self enqueue:[FlutterError errorWithCode:code message:message details:details]];
+- (void)error:(NSString *)code
+      message:(NSString *)message
+      details:(NSObject *)details {
+    [self enqueue:[FlutterError errorWithCode:code
+                                      message:message
+                                      details:details]];
     [self maybeFlush];
 }
 
-- (void) success: (NSObject *)event
-{
+- (void)success:(NSObject *)event {
     [self enqueue:event];
     [self maybeFlush];
 }

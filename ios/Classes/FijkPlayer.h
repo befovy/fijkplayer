@@ -5,19 +5,20 @@
 //  Created by Befovy on 2019/6/21.
 //
 
-#import <Foundation/Foundation.h>
 #import <FIJKPlayer/IJKFFMediaPlayer.h>
 #import <FIJKPlayer/IJKSDLGLViewProtocol.h>
+#import <Foundation/Foundation.h>
 
 #import <Flutter/FlutterPlugin.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FijkPlayer :  NSObject<FlutterStreamHandler, IJKMPEventHandler, FlutterTexture, IJKCVPBViewProtocol>
+@interface FijkPlayer : NSObject <FlutterStreamHandler, IJKMPEventHandler,
+                                  FlutterTexture, IJKCVPBViewProtocol>
 
-@property (atomic, readonly) NSNumber *playerId;
+@property(atomic, readonly) NSNumber *playerId;
 
-- (instancetype)initWithRegistrar:(id <FlutterPluginRegistrar>)registrar;
+- (instancetype)initWithRegistrar:(id<FlutterPluginRegistrar>)registrar;
 
 @end
 
