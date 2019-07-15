@@ -12,8 +12,8 @@ class FijkView extends StatefulWidget {
 
 class _FijkViewState extends State<FijkView> {
   int _textureId = -1;
-  int _vWidth = -1;
-  int _vHeight = -1;
+  double _vWidth = -1;
+  double _vHeight = -1;
 
   @override
   void initState() {
@@ -32,19 +32,28 @@ class _FijkViewState extends State<FijkView> {
 
   void _fijkValueListener() {
     FijkValue value = widget.player.value;
-    int width = value.width;
-    int height = value.height;
+
+    double width = _vWidth;
+    double height = _vHeight;
+
+    if (value.initialized) {
+      width = value.size.width;
+      height = value.size.height;
+    }
     print("width $width, height $height");
-    setState(() {
-      _vWidth = width;
-      _vHeight = height;
-    });
+
+    if (width != _vWidth || height != _vHeight) {
+      setState(() {
+        _vWidth = width;
+        _vHeight = height;
+      });
+    }
   }
 
   @override
   void dispose() {
     super.dispose();
-    widget.player.release();
+    widget.player.dispose();
     print("FijkView dispose");
   }
 

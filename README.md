@@ -1,15 +1,36 @@
 # fijkplayer
 
-Flutter media player plugin based on [ijkplayer](https://github.com/befovy/ijkplayer)
-
-## Getting Started
-
-This plugin is in active development.  
-The `Usage` will come later, just read the source code for help now.
-Any good suggestion or pull request is welcome.
+A Flutter media player plugin for iOS and android based on [ijkplayer](https://github.com/befovy/ijkplayer)
 
 
-## demo
+*Note*: This plugin is still under development, and some APIs might not be available yet.
+[Feedback welcome](https://github.com/befovy/fijkplayer/issues) and
+[Pull Requests](https://github.com/befovy/fijkplayer/pulls) are most welcome!
+
+## Installation
+
+First, add `fijkplayer` as a [dependency in your pubspec.yaml file](https://flutter.io/using-packages/).
+
+### iOS
+
+Warning: The video player is not functional on iOS simulators. An iOS device must be used during development/testing.
+
+
+### Android
+
+
+Ensure the following permission is present in your Android Manifest file if you want to play a network stream, 
+located in `<project root>/android/app/src/main/AndroidManifest.xml`:
+
+```xml
+<uses-permission android:name="android.permission.INTERNET"/>
+```
+
+The example in this plugin project adds it, so it may already be there.
+
+
+
+## Demo Screenshots
 
 iOS screenshots
 <div>

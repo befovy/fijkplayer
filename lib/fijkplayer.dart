@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 
 import 'fijkplugin.dart';
 
-/// The data source type for the player
+/// The data source type for fijkplayer
 /// [asset] [network] and [file]
 enum DateSourceType {
   /// [asset] means source from app asset files
@@ -17,7 +17,10 @@ enum DateSourceType {
   network,
 
   /// [file] means source from the phone's storage
-  file
+  file,
+
+  /// player will try to detect data type when passed [unknown]
+  unknown,
 }
 
 /// State of the Player
@@ -123,21 +126,65 @@ enum FijkState {
 
 @immutable
 class FijkValue {
-  const FijkValue({this.width = 0, this.height = 0});
+  /// Indicates if the player is ready
+  final bool initialized;
 
-  final int width;
-  final int height;
+  /// The pixel [size] of current video
+  ///
+  /// Is null when [initialized] is false.
+  /// Is negative width and height if playback is audio only.
+  final Size size;
 
-  @override
-  bool operator ==(dynamic other) {
-    if (other.runtimeType != runtimeType) return false;
+  /// The current playback duration
+  ///
+  /// Is null when [initialized] is false.
+  /// Is zero when playback is realtime stream.
+  final Duration duration;
 
-    FijkValue typedOther = other;
-    return hashCode == typedOther.hashCode;
+  /// The [dateSourceType] of current playback.
+  ///
+  /// Is [DateSourceType.unknown] when [initialized] is false.
+  final DateSourceType dateSourceType;
+
+  /// A constructor requires all value.
+  const FijkValue({
+    @required this.initialized,
+    @required this.size,
+    @required this.duration,
+    @required this.dateSourceType,
+  });
+
+  /// Construct FijkValue with uninitialized value
+  const FijkValue.uninitialized()
+      : this(
+            initialized: false,
+            size: null,
+            duration: null,
+            dateSourceType: DateSourceType.unknown);
+
+  /// Return new FijkValue which combines the old value and the assigned new value
+  FijkValue copyWith(
+      {bool initialized,
+      Size size,
+      Duration duration,
+      DateSourceType dateSourceType}) {
+    return FijkValue(
+      initialized: initialized ?? this.initialized,
+      size: size ?? this.size,
+      duration: duration ?? this.duration,
+      dateSourceType: dateSourceType ?? this.dateSourceType,
+    );
   }
 
   @override
-  int get hashCode => hashValues(width, height);
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FijkValue &&
+          runtimeType == other.runtimeType &&
+          hashCode == other.hashCode;
+
+  @override
+  int get hashCode => hashValues(size, duration, initialized);
 }
 
 class FijkPlayer extends ValueNotifier<FijkValue> {
@@ -168,7 +215,7 @@ class FijkPlayer extends ValueNotifier<FijkValue> {
   /// return the current state
   FijkState get state => _fpState;
 
-  /// retuen the current buffered position
+  /// return the current buffered position
   Duration get bufferPos => _bufferPos;
 
   /// return true if the player is buffering
@@ -184,7 +231,7 @@ class FijkPlayer extends ValueNotifier<FijkValue> {
 
   FijkPlayer()
       : _nativeSetup = Completer(),
-        super(FijkValue()) {
+        super(FijkValue.uninitialized()) {
     _fpState = FijkState.IDLE;
     _epState = FijkState.ERROR;
     _doNativeSetup();
@@ -248,8 +295,11 @@ class FijkPlayer extends ValueNotifier<FijkValue> {
           break;
         case DateSourceType.file:
           break;
+        case DateSourceType.unknown:
+          break;
       }
       _epState = FijkState.INITIALIZED;
+      value = value.copyWith(dateSourceType: type);
       await _channel.invokeMethod("setDateSource", dataSourceDescription);
     } else {
       ret = -1;
@@ -308,7 +358,7 @@ class FijkPlayer extends ValueNotifier<FijkValue> {
     return Future.value(0);
   }
 
-  Future<void> release() async {
+  Future<void> dispose() async {
     await _nativeSetup.future;
     await this.stop();
     _nativeEventSubscription.cancel();
@@ -344,7 +394,7 @@ class FijkPlayer extends ValueNotifier<FijkValue> {
       case 'size_changed':
         int width = map['width'];
         int height = map['height'];
-        value = FijkValue(width: width, height: height);
+        value = value.copyWith(size: Size(width.toDouble(), height.toDouble()));
         break;
       default:
         break;
