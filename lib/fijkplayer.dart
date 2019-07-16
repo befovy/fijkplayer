@@ -127,28 +127,28 @@ enum FijkState {
 @immutable
 class FijkValue {
   /// Indicates if the player is ready
-  final bool initialized;
+  final bool prepared;
 
   /// The pixel [size] of current video
   ///
-  /// Is null when [initialized] is false.
+  /// Is null when [prepared] is false.
   /// Is negative width and height if playback is audio only.
   final Size size;
 
   /// The current playback duration
   ///
-  /// Is null when [initialized] is false.
+  /// Is null when [prepared] is false.
   /// Is zero when playback is realtime stream.
   final Duration duration;
 
   /// The [dateSourceType] of current playback.
   ///
-  /// Is [DateSourceType.unknown] when [initialized] is false.
+  /// Is [DateSourceType.unknown] when [prepared] is false.
   final DateSourceType dateSourceType;
 
   /// A constructor requires all value.
   const FijkValue({
-    @required this.initialized,
+    @required this.prepared,
     @required this.size,
     @required this.duration,
     @required this.dateSourceType,
@@ -157,19 +157,19 @@ class FijkValue {
   /// Construct FijkValue with uninitialized value
   const FijkValue.uninitialized()
       : this(
-            initialized: false,
+            prepared: false,
             size: null,
             duration: null,
             dateSourceType: DateSourceType.unknown);
 
   /// Return new FijkValue which combines the old value and the assigned new value
   FijkValue copyWith(
-      {bool initialized,
+      {bool prepared,
       Size size,
       Duration duration,
       DateSourceType dateSourceType}) {
     return FijkValue(
-      initialized: initialized ?? this.initialized,
+      prepared: prepared ?? this.prepared,
       size: size ?? this.size,
       duration: duration ?? this.duration,
       dateSourceType: dateSourceType ?? this.dateSourceType,
@@ -184,7 +184,7 @@ class FijkValue {
           hashCode == other.hashCode;
 
   @override
-  int get hashCode => hashValues(size, duration, initialized);
+  int get hashCode => hashValues(size, duration, prepared);
 }
 
 class FijkPlayer extends ValueNotifier<FijkValue> {
@@ -358,12 +358,11 @@ class FijkPlayer extends ValueNotifier<FijkValue> {
     return Future.value(0);
   }
 
-  Future<void> dispose() async {
+  Future<void> release() async {
     await _nativeSetup.future;
     await this.stop();
     _nativeEventSubscription.cancel();
-    int pid = await _nativeSetup.future;
-    return FijkPlugin.releasePlayer(pid);
+    return FijkPlugin.releasePlayer(_playerId);
   }
 
   void _eventListener(dynamic event) {
@@ -377,6 +376,11 @@ class FijkPlayer extends ValueNotifier<FijkValue> {
         }
         _playerStateController.add(_fpState);
         print(_fpState.toString() + " <= " + _epState.toString());
+        if (newState == FijkState.PREPARED.index) {
+          value = value.copyWith(prepared: true);
+        } else if (newState < FijkState.PREPARED.index) {
+          value = value.copyWith(prepared: false);
+        }
         break;
       case 'freeze':
         bool value = map['value'];

@@ -36,7 +36,7 @@ class _FijkViewState extends State<FijkView> {
     double width = _vWidth;
     double height = _vHeight;
 
-    if (value.initialized) {
+    if (value.prepared) {
       width = value.size.width;
       height = value.size.height;
     }
@@ -53,7 +53,7 @@ class _FijkViewState extends State<FijkView> {
   @override
   void dispose() {
     super.dispose();
-    widget.player.dispose();
+    widget.player.release();
     print("FijkView dispose");
   }
 

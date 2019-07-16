@@ -6,6 +6,10 @@ import 'media_item.dart';
 
 const List<MediaUrl> samples = [
   MediaUrl(
+      title: "Sample Video 360 * 240",
+      url:
+          "https://sample-videos.com/video123/flv/240/big_buck_bunny_240p_10mb.flv"),
+  MediaUrl(
       title: "bipbop basic master playlist",
       url:
           "http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/bipbop_4x3_variant.m3u8"),

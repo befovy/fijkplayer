@@ -1,5 +1,5 @@
 PODS:
-  - fijkplayer (0.0.1):
+  - fijkplayer (0.0.3):
     - FIJKPlayer (~> 0.3.0)
     - Flutter
   - FIJKPlayer (0.3.0)
@@ -9,7 +9,7 @@ PODS:
 
 DEPENDENCIES:
   - fijkplayer (from `.symlinks/plugins/fijkplayer/ios`)
-  - Flutter (from `.symlinks/flutter/ios-release`)
+  - Flutter (from `.symlinks/flutter/ios`)
   - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
 
 SPEC REPOS:
@@ -20,13 +20,13 @@ EXTERNAL SOURCES:
   fijkplayer:
     :path: ".symlinks/plugins/fijkplayer/ios"
   Flutter:
-    :path: ".symlinks/flutter/ios-release"
+    :path: ".symlinks/flutter/ios"
   shared_preferences:
     :path: ".symlinks/plugins/shared_preferences/ios"
 
 SPEC CHECKSUMS:
   FIJKPlayer: 5d64ba27f2ac8ff26aeca9289d36d514006edfa0
-  fijkplayer: 69149072c0886406603e4083e88991b62f65d7b3
+  fijkplayer: 2869b5b002a05a246a9a433b9b91a9eb93b26eee
   Flutter: 58dd7d1b27887414a370fcccb9e645c08ffd7a6a
   shared_preferences: 1feebfa37bb57264736e16865e7ffae7fc99b523
 
