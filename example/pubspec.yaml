@@ -8,7 +8,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
   streaming_shared_preferences: ^1.0.1
 
   # The following adds the Cupertino Icons font to your application.

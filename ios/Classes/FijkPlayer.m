@@ -54,7 +54,7 @@ static int atomicId = 0;
         [_ijkMediaPlayer setOptionValue:@"fcc-bgra"
                                  forKey:@"overlay-format"
                              ofCategory:kIJKFFOptionCategoryPlayer];
-        [IJKFFMoviePlayerController setLogLevel:k_IJK_LOG_WARN];
+        [IJKFFMoviePlayerController setLogLevel:k_IJK_LOG_INFO];
         _methodChannel = [FlutterMethodChannel
             methodChannelWithName:[@"befovy.com/fijkplayer/"
                                       stringByAppendingString:[_playerId
@@ -206,7 +206,8 @@ static int atomicId = 0;
         [_ijkMediaPlayer prepareAsync];
         result(nil);
     } else if ([@"start" isEqualToString:call.method]) {
-        [_ijkMediaPlayer start];
+        int ret = [_ijkMediaPlayer start];
+        NSLog(@"start start %d", ret);
         result(nil);
     } else if ([@"pause" isEqualToString:call.method]) {
         [_ijkMediaPlayer pause];
@@ -217,6 +218,10 @@ static int atomicId = 0;
     } else if ([@"reset" isEqualToString:call.method]) {
         [_ijkMediaPlayer reset];
         result(nil);
+    } else if ([@"getCurrentPosition" isEqualToString:call.method]) {
+        long pos = [_ijkMediaPlayer getCurrentPosition];
+        // [_eventSink success:@{@"event" : @"current_pos", @"pos" : @(pos)}];
+        result(@(pos));
     } else {
         result(FlutterMethodNotImplemented);
     }

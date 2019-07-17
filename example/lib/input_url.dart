@@ -11,6 +11,7 @@ class InputScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
+    _controller.text = "http://ivi.bupt.edu.cn/hls/cctv6.m3u8";
     return Scaffold(
       appBar: FijkAppBar.defaultSetting(title: "Input Url"),
       body: Column(

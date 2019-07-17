@@ -200,11 +200,17 @@ class FijkPlayer extends ValueNotifier<FijkValue> {
   bool _startAfterSetup = false;
   bool _buffering = false;
   Duration _bufferPos = Duration();
+  Duration _currentPos = Duration();
+
+  StreamSubscription _looperSub;
 
   final StreamController<FijkState> _playerStateController =
       StreamController.broadcast();
 
   final StreamController<Duration> _bufferPosController =
+      StreamController.broadcast();
+
+  final StreamController<Duration> _currentPosController =
       StreamController.broadcast();
 
   final StreamController<bool> _bufferStateController =
@@ -217,6 +223,9 @@ class FijkPlayer extends ValueNotifier<FijkValue> {
 
   /// return the current buffered position
   Duration get bufferPos => _bufferPos;
+
+  /// return the current playing position
+  Duration get currentPos => _currentPos;
 
   /// return true if the player is buffering
   bool get isBuffering => _buffering;
@@ -273,6 +282,10 @@ class FijkPlayer extends ValueNotifier<FijkValue> {
     if (_startAfterSetup) {
       await _startFromAnyState();
     }
+
+    _looperSub = Stream.periodic(const Duration(milliseconds: 200), (v) => v)
+        .listen(_looper);
+    _looperSub.pause();
   }
 
   Future<int> setupSurface() async {
@@ -327,12 +340,14 @@ class FijkPlayer extends ValueNotifier<FijkValue> {
       await _channel.invokeMethod("prepareAsync");
       await _channel.invokeMethod("start");
       _epState = FijkState.STARTED;
-    } else if (_epState == FijkState.PREPARED) {
+    } else if (_epState == FijkState.PREPARED || _epState == FijkState.PAUSED) {
       await _channel.invokeMethod("start");
       _epState = FijkState.STARTED;
-    } else {
+    } else if (_epState == FijkState.PAUSED) {
       ret = -1;
     }
+
+    print("call start $_epState");
     return Future.value(ret);
   }
 
@@ -340,6 +355,7 @@ class FijkPlayer extends ValueNotifier<FijkValue> {
     await _nativeSetup.future;
     _epState = FijkState.PAUSED;
     await _channel.invokeMethod("pause");
+    print("call pause");
     return Future.value(0);
   }
 
@@ -361,21 +377,52 @@ class FijkPlayer extends ValueNotifier<FijkValue> {
   Future<void> release() async {
     await _nativeSetup.future;
     await this.stop();
-    _nativeEventSubscription.cancel();
+    await _nativeEventSubscription.cancel();
+    await _looperSub.cancel();
     return FijkPlugin.releasePlayer(_playerId);
+  }
+
+  void _looper(int timer) {
+
+    if (_fpState == FijkState.STARTED) {
+      _channel.invokeMethod("getCurrentPosition").then((pos) {
+        _currentPos = Duration(milliseconds: pos);
+        _currentPosController.add(_currentPos);
+        debugPrint("currentPos $_currentPos");
+      });
+    }
   }
 
   void _eventListener(dynamic event) {
     final Map<dynamic, dynamic> map = event;
     switch (map['event']) {
+      case 'prepared':
+        int duration = map['duration'];
+        Duration dur = Duration(milliseconds: duration);
+        value = value.copyWith(duration: dur, prepared: true);
+        debugPrint("duration: $dur");
+        break;
       case 'state_change':
         int newState = map['new'];
+        int oldState = map['old'];
         _fpState = FijkState.values[newState];
+
+        if (_fpState == FijkState.STARTED) {
+          _looperSub.resume();
+          print("_looper resume");
+        } else {
+          if (!_looperSub.isPaused)
+            _looperSub.pause();
+        }
+
         if (_fpState == FijkState.ERROR) {
           _epState = FijkState.ERROR;
         }
         _playerStateController.add(_fpState);
         print(_fpState.toString() + " <= " + _epState.toString());
+
+        var o = FijkState.values[oldState];
+        print("new $_fpState <= old $o");
         if (newState == FijkState.PREPARED.index) {
           value = value.copyWith(prepared: true);
         } else if (newState < FijkState.PREPARED.index) {
@@ -398,6 +445,8 @@ class FijkPlayer extends ValueNotifier<FijkValue> {
       case 'size_changed':
         int width = map['width'];
         int height = map['height'];
+        print("size_changed buffer $width, $height");
+
         value = value.copyWith(size: Size(width.toDouble(), height.toDouble()));
         break;
       default:
