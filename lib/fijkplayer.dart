@@ -129,6 +129,11 @@ class FijkValue {
   /// Indicates if the player is ready
   final bool prepared;
 
+  /// Indicates if the player is completed
+  ///
+  /// If the playback stream is realtime/live, [completed] never be true.
+  final bool completed;
+
   /// The pixel [size] of current video
   ///
   /// Is null when [prepared] is false.
@@ -149,6 +154,7 @@ class FijkValue {
   /// A constructor requires all value.
   const FijkValue({
     @required this.prepared,
+    @required this.completed,
     @required this.size,
     @required this.duration,
     @required this.dateSourceType,
@@ -158,6 +164,7 @@ class FijkValue {
   const FijkValue.uninitialized()
       : this(
             prepared: false,
+            completed: false,
             size: null,
             duration: null,
             dateSourceType: DateSourceType.unknown);
@@ -165,11 +172,13 @@ class FijkValue {
   /// Return new FijkValue which combines the old value and the assigned new value
   FijkValue copyWith(
       {bool prepared,
+      bool completed,
       Size size,
       Duration duration,
       DateSourceType dateSourceType}) {
     return FijkValue(
       prepared: prepared ?? this.prepared,
+      completed: completed ?? this.completed,
       size: size ?? this.size,
       duration: duration ?? this.duration,
       dateSourceType: dateSourceType ?? this.dateSourceType,
@@ -184,57 +193,64 @@ class FijkValue {
           hashCode == other.hashCode;
 
   @override
-  int get hashCode => hashValues(size, duration, prepared);
+  int get hashCode =>
+      hashValues(prepared, completed, size, duration, dateSourceType);
 }
 
 class FijkPlayer extends ValueNotifier<FijkValue> {
   String _dataSource;
   DateSourceType _dateSourceType;
 
-  FijkState _fpState;
-  FijkState _epState;
   int _playerId;
   MethodChannel _channel;
   StreamSubscription<dynamic> _nativeEventSubscription;
 
-  bool _startAfterSetup = false;
-  bool _buffering = false;
-  Duration _bufferPos = Duration();
-  Duration _currentPos = Duration();
-
   StreamSubscription _looperSub;
 
-  final StreamController<FijkState> _playerStateController =
-      StreamController.broadcast();
+  bool _startAfterSetup = false;
 
-  final StreamController<Duration> _bufferPosController =
-      StreamController.broadcast();
-
-  final StreamController<Duration> _currentPosController =
-      StreamController.broadcast();
-
-  final StreamController<bool> _bufferStateController =
-      StreamController.broadcast();
-
-  String get dataSource => _dataSource;
+  FijkState _epState;
+  FijkState _fpState;
 
   /// return the current state
   FijkState get state => _fpState;
 
+  final StreamController<FijkState> _playerStateController =
+      StreamController.broadcast();
+
+  Stream<FijkState> get onPlayerStateChanged => _playerStateController.stream;
+
+  Duration _bufferPos = Duration();
+
   /// return the current buffered position
   Duration get bufferPos => _bufferPos;
+
+  final StreamController<Duration> _bufferPosController =
+      StreamController.broadcast();
+
+  Stream<Duration> get onBufferPosUpdate => _bufferPosController.stream;
+
+  Duration _currentPos = Duration();
 
   /// return the current playing position
   Duration get currentPos => _currentPos;
 
+  final StreamController<Duration> _currentPosController =
+      StreamController.broadcast();
+
+  Stream<Duration> get onCurrentPosUpdate => _currentPosController.stream;
+
+  bool _buffering = false;
+
   /// return true if the player is buffering
   bool get isBuffering => _buffering;
 
-  Stream<FijkState> get onPlayerStateChanged => _playerStateController.stream;
-
-  Stream<Duration> get onBufferPosUpdate => _bufferPosController.stream;
+  final StreamController<bool> _bufferStateController =
+      StreamController.broadcast();
 
   Stream<bool> get onBufferStateUpdate => _bufferStateController.stream;
+
+  String get dataSource => _dataSource;
 
   final Completer<int> _nativeSetup;
 
@@ -383,14 +399,11 @@ class FijkPlayer extends ValueNotifier<FijkValue> {
   }
 
   void _looper(int timer) {
-
-    if (_fpState == FijkState.STARTED) {
-      _channel.invokeMethod("getCurrentPosition").then((pos) {
-        _currentPos = Duration(milliseconds: pos);
-        _currentPosController.add(_currentPos);
-        debugPrint("currentPos $_currentPos");
-      });
-    }
+    _channel.invokeMethod("getCurrentPosition").then((pos) {
+      _currentPos = Duration(milliseconds: pos);
+      _currentPosController.add(_currentPos);
+      //debugPrint("currentPos $_currentPos");
+    });
   }
 
   void _eventListener(dynamic event) {
@@ -411,8 +424,7 @@ class FijkPlayer extends ValueNotifier<FijkValue> {
           _looperSub.resume();
           print("_looper resume");
         } else {
-          if (!_looperSub.isPaused)
-            _looperSub.pause();
+          if (!_looperSub.isPaused) _looperSub.pause();
         }
 
         if (_fpState == FijkState.ERROR) {

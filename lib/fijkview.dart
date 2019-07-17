@@ -60,16 +60,17 @@ class _FijkViewState extends State<FijkView> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.black,
+      color: Colors.white,
       child: LayoutBuilder(builder: (ctx, constraints) {
         Size s = (_vWidth > 0 && _vHeight > 0)
             ? constraints.constrainSizeAndAttemptToPreserveAspectRatio(
                 Size(_vWidth.toDouble(), _vHeight.toDouble()))
             : Size(-1, -1);
-        print("FijkView $constraints s: $s");
+        print("FijkView $constraints s: $s, tid $_textureId");
 
         return Center(
           child: Container(
+            color: Colors.blue,
             width: s.width > 0.0 ? s.width : constraints.maxWidth,
             height: s.height > 0.0 ? s.height : constraints.maxHeight,
             child: _textureId > 0
