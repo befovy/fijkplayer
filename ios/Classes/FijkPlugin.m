@@ -15,6 +15,11 @@
                                   binaryMessenger:[registrar messenger]];
   FijkPlugin *instance = [[FijkPlugin alloc] initWithRegistrar:registrar];
   [registrar addMethodCallDelegate:instance channel:channel];
+
+    FijkPlayer *player = [[FijkPlayer alloc] initWithRegistrar:registrar];
+    int64_t vid = [[registrar textures] registerTexture:player];
+    [[registrar textures] unregisterTexture:vid];
+    
 }
 
 - (instancetype)initWithRegistrar:

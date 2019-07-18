@@ -8,6 +8,7 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
+import io.flutter.view.TextureRegistry;
 
 /**
  * FijkPlugin
@@ -19,12 +20,16 @@ public class FijkPlugin implements MethodCallHandler {
     public static void registerWith(Registrar registrar) {
         final MethodChannel channel = new MethodChannel(registrar.messenger(), "befovy.com/fijk");
         channel.setMethodCallHandler(new FijkPlugin(registrar));
+
+        final FijkPlayer player = new FijkPlayer(registrar);
+        player.setupSurface();
+        player.release();
     }
 
     final private Registrar registrar;
     final private SparseArray<FijkPlayer> fijkPlayers;
 
-    private FijkPlugin(Registrar registrar ) {
+    private FijkPlugin(Registrar registrar) {
         this.registrar = registrar;
         fijkPlayers = new SparseArray<>();
     }

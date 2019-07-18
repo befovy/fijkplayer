@@ -66,7 +66,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
         return mPlayerId;
     }
 
-    private long setupSurface() {
+     long setupSurface() {
         TextureRegistry textureRegistry = mRegistrar.textures();
         TextureRegistry.SurfaceTextureEntry surfaceTextureEntry = textureRegistry.createSurfaceTexture();
         mSurfaceTextureEntry = surfaceTextureEntry;
