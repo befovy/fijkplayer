@@ -1,10 +1,36 @@
-import 'package:fijkplayer/fijkplayer.dart';
+//MIT License
+//
+//Copyright (c) [2019] [Befovy]
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+//
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+//
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+
+import 'package:fijkplayer/fijkpanel.dart';
 import 'package:flutter/material.dart';
 
+import 'fijkplayer.dart';
+import 'fijkpanel.dart';
+
 class FijkView extends StatefulWidget {
-  FijkView(this.player);
+  FijkView({@required this.player, this.builder});
 
   final FijkPlayer player;
+  final FijkPanelBuilder builder;
 
   @override
   createState() => _FijkViewState();
@@ -68,18 +94,21 @@ class _FijkViewState extends State<FijkView> {
             : Size(-1, -1);
         print("FijkView $constraints s: $s, tid $_textureId");
 
-        return Center(
-          child: Container(
-            color: Colors.blue,
-            width: s.width > 0.0 ? s.width : constraints.maxWidth,
-            height: s.height > 0.0 ? s.height : constraints.maxHeight,
-            child: _textureId > 0
-                ? Texture(
-                    textureId: _textureId,
-                  )
-                : null,
+        return Stack(children: <Widget>[
+          Center(
+            child: Container(
+              color: Colors.blue,
+              width: s.width > 0.0 ? s.width : constraints.maxWidth,
+              height: s.height > 0.0 ? s.height : constraints.maxHeight,
+              child: _textureId > 0
+                  ? Texture(
+                      textureId: _textureId,
+                    )
+                  : null,
+            ),
           ),
-        );
+          widget.builder.build(widget.player, ctx, constraints),
+        ]);
       }),
     );
   }

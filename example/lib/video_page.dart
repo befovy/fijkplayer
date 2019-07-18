@@ -1,3 +1,4 @@
+import 'package:fijkplayer/fijkpanel.dart';
 import 'package:fijkplayer/fijkplayer.dart';
 import 'package:fijkplayer/fijkview.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +26,6 @@ class _VideoScreenState extends State<VideoScreen> {
     startPlay();
   }
 
-
   void startPlay() async {
     await player.setDataSource(DateSourceType.network, url);
     await player.start();
@@ -41,21 +41,11 @@ class _VideoScreenState extends State<VideoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: FijkAppBar.defaultSetting(title: "Video"),
-      body: FijkView(this.player),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() {
-            print(player.state);
-            player.state == FijkState.STARTED ? player.pause() : player.start();
-          });
-        },
-        child: Icon(
-          player.state == FijkState.STARTED ? Icons.pause : Icons.play_arrow,
-        ),
-      ),
+      body: FijkView(
+          player: player,
+          builder: FijkPanelBuilder(builder: defaultFijkPanelBuilder)),
     );
   }
-
 
   @override
   void dispose() {

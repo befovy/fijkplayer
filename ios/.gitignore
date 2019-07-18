@@ -34,3 +34,5 @@ Icon?
 .tags*
 
 /Flutter/Generated.xcconfig
+
+Frameworks/FIJKPlayer.framework/

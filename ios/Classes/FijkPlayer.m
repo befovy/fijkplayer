@@ -108,6 +108,8 @@ static int atomicId = 0;
     [_cvPbLock lock];
     if (_cachePixelBufer != nil)
         CVBufferRelease(_cachePixelBufer);
+
+    // NSLog(@"display_pixelbuffer %@ %d", pixelbuffer, (int)_vid);
     if (pixelbuffer != nil) {
         _cachePixelBufer = CVBufferRetain(pixelbuffer);
         if (_vid >= 0) {
@@ -143,6 +145,11 @@ static int atomicId = 0;
                andArg2:(int)arg2
               andExtra:(void *)extra {
     switch (what) {
+    case IJKMPET_PREPARED: {
+        long duration = [_ijkMediaPlayer getDuration];
+        [_eventSink
+            success:@{@"event" : @"prepared", @"duration" : @(duration)}];
+    } break;
     case IJKMPET_PLAYBACK_STATE_CHANGED:
         [_eventSink success:@{
             @"event" : @"state_change",
