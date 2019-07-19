@@ -25,6 +25,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
 
 import 'fijkplayer.dart';
 
@@ -85,15 +86,19 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
   StreamSubscription _bufferPosSubs;
   StreamSubscription _bufferingSubs;
   StreamSubscription _fijkStateSubs;
+  
+  Timer _hideTimer;
+  bool _hideStuff = true;
+
+  double _volume = 1.0;
+
+  final barHeight = 40.0;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
-//    _currentPos = Duration();
-//    _bufferPos = Duration();
-//    _duration = Duration();
     player.addListener(_playerValueChanged);
 
     _currentPosSubs = player.onCurrentPosUpdate.listen((v) {
@@ -119,6 +124,7 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
       if (playing != _playing) {
         setState(() {
           _playing = playing;
+          print("_set playing $_playing");
         });
       }
     });
@@ -133,6 +139,15 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
     }
   }
 
+  void _playOrPause() {
+    print("_playOrPause $_playing");
+    if (_playing == true) {
+      player.pause();
+    } else {
+      player.start();
+    }
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -142,6 +157,128 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
     _bufferPosSubs.cancel();
     _bufferingSubs.cancel();
     _fijkStateSubs.cancel();
+  }
+
+  void _startHideTimer() {
+    _hideTimer = Timer(const Duration(seconds: 8), () {
+      setState(() {
+        _hideStuff = true;
+      });
+    });
+  }
+
+  void _cancelAndRestartTimer() {
+    if (_hideStuff == true) {
+      _hideTimer?.cancel();
+      _startHideTimer();
+    }
+    print("_cancelAndRestartTimer $_hideStuff");
+    setState(() {
+      _hideStuff = !_hideStuff;
+    });
+  }
+
+  Widget _buildPosition(Color iconColor) {
+    final position = _currentPos ?? Duration.zero;
+    final duration = _duration ?? Duration.zero;
+
+    return Padding(
+      padding: EdgeInsets.only(right: 10.0),
+      child: Text(
+        '${duration2String(position)} / ${duration2String(duration)}',
+        style: TextStyle(
+          fontSize: 14.0,
+        ),
+      ),
+    );
+  }
+
+  AnimatedOpacity _buildBottomBar(BuildContext context) {
+    final iconColor = Theme.of(context).textTheme.button.color;
+
+    double currentValue =
+        _seekPos > 0 ? _seekPos : _currentPos.inSeconds.toDouble();
+
+    return AnimatedOpacity(
+      opacity: _hideStuff ? 0.0 : 1.0,
+      duration: Duration(milliseconds: 400),
+      child: Container(
+        height: barHeight,
+        color: Theme.of(context).dialogBackgroundColor,
+        child: Row(
+          children: <Widget>[
+            // mute or not muter
+            GestureDetector(
+              onTap: _playOrPause,
+              child: Container(
+                height: barHeight,
+                color: Colors.transparent,
+                padding: EdgeInsets.only(left: 12.0, right: 12.0),
+                child: Icon(_volume > 0 ? Icons.volume_up : Icons.volume_off),
+              ),
+            ),
+
+            Padding(
+              padding: EdgeInsets.only(right: 5.0, left: 5),
+              child: Text(
+                '${duration2String(_currentPos)}',
+                style: TextStyle(
+                  fontSize: 14.0,
+                ),
+              ),
+            ),
+
+            _duration.inMilliseconds == 0
+                ? Expanded(
+                    child: Center(),
+                  )
+                : Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.only(right: 0, left: 0),
+                      child: Slider(
+                        value: currentValue,
+                        min: 0.0,
+                        max: _duration.inSeconds.toDouble(),
+                        label: '$currentValue',
+                        //divisions: _duration.inSeconds,
+                        onChanged: (e) {
+                          setState(() {
+                            _seekPos = e;
+                          });
+                        },
+                      ),
+                    ),
+                  ),
+
+            // duration / position
+            _duration.inMilliseconds == 0
+                ? Container(child: const Text("LIVE"))
+                : Padding(
+                    padding: EdgeInsets.only(right: 5.0, left: 5),
+                    child: Text(
+                      '${duration2String(_duration)}',
+                      style: TextStyle(
+                        fontSize: 14.0,
+                      ),
+                    ),
+                  ),
+
+            // play or pause
+            GestureDetector(
+              onTap: _playOrPause,
+              child: Container(
+                height: barHeight,
+                color: Colors.transparent,
+                padding: EdgeInsets.only(left: 10.0, right: 10.0),
+                child: Icon(_playing ? Icons.fullscreen : Icons.fullscreen_exit),
+              ),
+            ),
+
+            //
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -184,13 +321,44 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
 
     return Container(
       constraints: widget.boxConstraints,
-      child: Stack(
-        children: <Widget>[
-          Positioned(
-            bottom: 0,
-            child: Row(children: rows),
-          )
-        ],
+      child: GestureDetector(
+        onTap: _cancelAndRestartTimer,
+        child: AbsorbPointer(
+          absorbing: _hideStuff,
+          child: Column(
+            children: <Widget>[
+               Expanded(
+                child:  GestureDetector(
+                  onTap: (){
+                    print("SDFdsf");
+                    _cancelAndRestartTimer();
+                  },
+                  child: Container(
+                    color: Colors.transparent,
+                  height: double.infinity,
+                    width: double.infinity,
+                    child:
+                    AnimatedOpacity(
+                      opacity: _hideStuff ? 0.0 : 0.7,
+                      duration: Duration(milliseconds: 400),
+                    child:
+                    Center(
+                      child:  GestureDetector(
+                        onTap: _playOrPause,
+                        child: Container(
+
+                          child: Icon(_playing  ? Icons.pause : Icons.play_arrow, size: barHeight * 2,
+                          color: Colors.white,),
+                        ),
+                      ),),
+                    ),
+                  ),
+                ),
+              ),
+              _buildBottomBar(context),
+            ],
+          ),
+        ),
       ),
     );
   }

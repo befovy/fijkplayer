@@ -147,8 +147,10 @@ static int atomicId = 0;
     switch (what) {
     case IJKMPET_PREPARED: {
         long duration = [_ijkMediaPlayer getDuration];
-        [_eventSink
-            success:@{@"event" : @"prepared", @"duration" : @(duration)}];
+        [_eventSink success:@{
+            @"event" : @"prepared",
+            @"duration" : @(duration)
+        }];
     } break;
     case IJKMPET_PLAYBACK_STATE_CHANGED:
         [_eventSink success:@{

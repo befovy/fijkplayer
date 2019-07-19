@@ -19,6 +19,7 @@ rootProject.allprojects {
         maven {
             url 'https://dl.bintray.com/befovytray/fijkplayer/'
         }
+
     }
 }
 
@@ -30,6 +31,7 @@ android {
     defaultConfig {
         minSdkVersion 16
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
     }
     lintOptions {
         disable 'InvalidPackage'

@@ -1,3 +1,4 @@
+//
 //MIT License
 //
 //Copyright (c) [2019] [Befovy]
@@ -19,19 +20,27 @@
 //LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
+//
+
 
 import 'package:fijkplayer/fijkpanel.dart';
 import 'package:flutter/material.dart';
 
-import 'fijkplayer.dart';
 import 'fijkpanel.dart';
+import 'fijkplayer.dart';
+
+enum FijkPanelPos {
+  MatchTexture,
+  MatchFijkView,
+}
 
 class FijkView extends StatefulWidget {
-  FijkView({@required this.player, this.builder});
+  FijkView({@required this.player, this.builder, Color color})
+      : color = color ?? Colors.blueGrey;
 
   final FijkPlayer player;
   final FijkPanelBuilder builder;
-
+  final Color color;
   @override
   createState() => _FijkViewState();
 }
@@ -62,7 +71,9 @@ class _FijkViewState extends State<FijkView> {
     double width = _vWidth;
     double height = _vHeight;
 
+    Size s = value.size;
     if (value.prepared) {
+      print("prepared: $s");
       width = value.size.width;
       height = value.size.height;
     }
@@ -86,15 +97,46 @@ class _FijkViewState extends State<FijkView> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: widget.color,
       child: LayoutBuilder(builder: (ctx, constraints) {
         Size s = (_vWidth > 0 && _vHeight > 0)
             ? constraints.constrainSizeAndAttemptToPreserveAspectRatio(
                 Size(_vWidth.toDouble(), _vHeight.toDouble()))
             : Size(-1, -1);
+
         print("FijkView $constraints s: $s, tid $_textureId");
 
+//        double.maxFinite
+
         return Stack(children: <Widget>[
+
+//           (_vHeight > 0 && _vWidth > 0)  ?
+//               Container(
+//                 //constraints: constraints,
+//                 width: constraints.maxWidth,
+//          height: constraints.maxHeight,
+//          child:FittedBox(
+//
+//            fit: BoxFit.none,
+//            alignment: Alignment.center,
+////            child:
+////          Container(
+//
+////            width: constraints.maxWidth * 2,
+////          height: constraints.maxHeight * 2,
+//          child:
+//          Container(
+//            width: s.width,
+//height: s.height,
+////              aspectRatio: _vWidth / _vHeight,
+//              child:
+//            Texture(
+//                textureId: _textureId,
+//              ),
+//            ),
+//          ),
+//          ):
+
           Center(
             child: Container(
               color: Colors.blue,

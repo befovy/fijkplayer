@@ -106,6 +106,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
                 long duration = mIjkMediaPlayer.getDuration();
                 event.put("duration", duration);
                 mEventSink.success(event);
+                break;
             case PLAYBACK_STATE_CHANGED:
                 event.put("event", "state_change");
                 event.put("new", arg1);
@@ -186,12 +187,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
             result.success(null);
         }  else if(call.method.equals("getCurrentPosition")) {
             long pos = mIjkMediaPlayer.getCurrentPosition();
-            result.success(0);
-
-            Map<String, Object> event = new HashMap<>();
-            event.put("event", "position");
-            event.put("pos", pos);
-            mEventSink.success(event);
+            result.success(pos);
         } else {
             result.notImplemented();
         }
