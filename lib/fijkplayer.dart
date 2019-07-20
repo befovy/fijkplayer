@@ -173,6 +173,9 @@ class FijkValue {
   /// Is [DateSourceType.unknown] when [prepared] is false.
   final DateSourceType dateSourceType;
 
+  /// whether if player should be displayed as in full screen
+  final bool fullScreen;
+
   /// A constructor requires all value.
   const FijkValue({
     @required this.prepared,
@@ -180,6 +183,7 @@ class FijkValue {
     @required this.size,
     @required this.duration,
     @required this.dateSourceType,
+    @required this.fullScreen,
   });
 
   /// Construct FijkValue with uninitialized value
@@ -189,7 +193,8 @@ class FijkValue {
             completed: false,
             size: null,
             duration: const Duration(),
-            dateSourceType: DateSourceType.unknown);
+            dateSourceType: DateSourceType.unknown,
+            fullScreen: false);
 
   /// Return new FijkValue which combines the old value and the assigned new value
   FijkValue copyWith(
@@ -197,13 +202,15 @@ class FijkValue {
       bool completed,
       Size size,
       Duration duration,
-      DateSourceType dateSourceType}) {
+      DateSourceType dateSourceType,
+      bool fullScreen}) {
     return FijkValue(
       prepared: prepared ?? this.prepared,
       completed: completed ?? this.completed,
       size: size ?? this.size,
       duration: duration ?? this.duration,
       dateSourceType: dateSourceType ?? this.dateSourceType,
+      fullScreen: fullScreen ?? this.fullScreen,
     );
   }
 
@@ -215,8 +222,14 @@ class FijkValue {
           hashCode == other.hashCode;
 
   @override
-  int get hashCode =>
-      hashValues(prepared, completed, size, duration, dateSourceType);
+  int get hashCode => hashValues(
+      prepared, completed, size, duration, dateSourceType, fullScreen);
+
+  @override
+  String toString() {
+    return "prepared:$prepared, completed:$completed, size:$size, "
+        "dataType:$dateSourceType duration:$duration, fullScreen:$fullScreen";
+  }
 }
 
 class FijkPlayer extends ValueNotifier<FijkValue> {
@@ -376,6 +389,15 @@ class FijkPlayer extends ValueNotifier<FijkValue> {
     return _channel
         .invokeMethod("setVolume", <String, dynamic>{"volume": volume});
   }
+
+  /// Toggle full screen value.
+  /// Return the value after toggle.
+  bool toggleFullScreen() {
+    bool full = value.fullScreen;
+    value = value.copyWith(fullScreen: !full);
+    return !full;
+  }
+
   Future<int> start() async {
     await _nativeSetup.future;
     int ret = 0;

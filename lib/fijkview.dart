@@ -22,25 +22,39 @@
 //SOFTWARE.
 //
 
-
 import 'package:fijkplayer/fijkpanel.dart';
+import 'package:fijkplayer/fijkplugin.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'fijkpanel.dart';
 import 'fijkplayer.dart';
 
-enum FijkPanelPos {
-  MatchTexture,
-  MatchFijkView,
-}
-
 class FijkView extends StatefulWidget {
-  FijkView({@required this.player, this.builder, Color color})
-      : color = color ?? Colors.blueGrey;
+  FijkView(
+      {@required this.player,
+      this.builder,
+      Color color,
+      AlignmentGeometry alignment,
+      double aspectRatio})
+      : color = color ?? Colors.blueGrey,
+        alignment = alignment ?? Alignment.center,
+        aspectRatio = aspectRatio ?? -1;
 
   final FijkPlayer player;
+
+  /// build FijkPanel
   final FijkPanelBuilder builder;
+
+  /// background color
   final Color color;
+
+  final AlignmentGeometry alignment;
+
+  /// A null or negative value  video aspect
+  /// double.infinate lead to fill parent widget.
+  final double aspectRatio;
+
   @override
   createState() => _FijkViewState();
 }
@@ -49,6 +63,7 @@ class _FijkViewState extends State<FijkView> {
   int _textureId = -1;
   double _vWidth = -1;
   double _vHeight = -1;
+  bool _fullScreen = false;
 
   @override
   void initState() {
@@ -65,7 +80,7 @@ class _FijkViewState extends State<FijkView> {
     });
   }
 
-  void _fijkValueListener() {
+  void _fijkValueListener() async {
     FijkValue value = widget.player.value;
 
     double width = _vWidth;
@@ -85,6 +100,14 @@ class _FijkViewState extends State<FijkView> {
         _vHeight = height;
       });
     }
+
+    if (value.fullScreen && !_fullScreen) {
+      _fullScreen = true;
+      await _pushFullScreenWidget(context);
+    } else if (_fullScreen && !value.fullScreen) {
+      Navigator.of(context).pop();
+      _fullScreen = false;
+    }
   }
 
   @override
@@ -94,64 +117,90 @@ class _FijkViewState extends State<FijkView> {
     print("FijkView dispose");
   }
 
+  double getAspectRatio(BoxConstraints constraints) {
+    double ar = widget.aspectRatio;
+    if (ar == null || ar < 0) {
+      ar = _vWidth / _vHeight;
+    } else if (ar == double.infinity) {
+      ar = constraints.maxWidth / constraints.maxHeight;
+    }
+    return ar;
+  }
+
+  AnimatedWidget _defaultRoutePageBuilder(
+      BuildContext context, Animation<double> animation) {
+    
+    return AnimatedBuilder(
+      animation: animation,
+      builder: (BuildContext context, Widget child) {
+        return Scaffold(
+            resizeToAvoidBottomInset: false,
+            body: LayoutBuilder(builder: (ctx, constraints) {
+              print("value:${widget.player.value}");
+
+              return Stack(
+                children: <Widget>[
+                  Container(
+                    alignment: Alignment.center,
+                    color: Colors.blueGrey,
+                    child: AspectRatio(
+                        aspectRatio: getAspectRatio(constraints),
+                        child: Texture(textureId: _textureId)),
+                  ),
+                  widget.builder.build(widget.player, ctx, constraints)
+                ],
+              );
+            }));
+      },
+    );
+  }
+
+  Widget _fullScreenRoutePageBuilder(BuildContext context,
+      Animation<double> animation, Animation<double> secondaryAnimation) {
+    return _defaultRoutePageBuilder(context, animation);
+  }
+
+  Future<dynamic> _pushFullScreenWidget(BuildContext context) async {
+    final TransitionRoute<Null> route = PageRouteBuilder<Null>(
+      settings: RouteSettings(isInitialRoute: false),
+      pageBuilder: _fullScreenRoutePageBuilder,
+    );
+
+    await SystemChrome.setEnabledSystemUIOverlays([]);
+    await FijkPlugin.setOrientationLandscape(context: context);
+    await Navigator.of(context).push(route);
+    _fullScreen = false;
+    if (widget.player.value.fullScreen) {
+      widget.player.toggleFullScreen();
+    }
+    await SystemChrome.setEnabledSystemUIOverlays(
+        [SystemUiOverlay.top, SystemUiOverlay.bottom]);
+    await FijkPlugin.setOrientationPortrait(context: context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: widget.color,
-      child: LayoutBuilder(builder: (ctx, constraints) {
-        Size s = (_vWidth > 0 && _vHeight > 0)
-            ? constraints.constrainSizeAndAttemptToPreserveAspectRatio(
-                Size(_vWidth.toDouble(), _vHeight.toDouble()))
-            : Size(-1, -1);
-
-        print("FijkView $constraints s: $s, tid $_textureId");
-
-//        double.maxFinite
-
-        return Stack(children: <Widget>[
-
-//           (_vHeight > 0 && _vWidth > 0)  ?
-//               Container(
-//                 //constraints: constraints,
-//                 width: constraints.maxWidth,
-//          height: constraints.maxHeight,
-//          child:FittedBox(
-//
-//            fit: BoxFit.none,
-//            alignment: Alignment.center,
-////            child:
-////          Container(
-//
-////            width: constraints.maxWidth * 2,
-////          height: constraints.maxHeight * 2,
-//          child:
-//          Container(
-//            width: s.width,
-//height: s.height,
-////              aspectRatio: _vWidth / _vHeight,
-//              child:
-//            Texture(
-//                textureId: _textureId,
-//              ),
-//            ),
-//          ),
-//          ):
-
-          Center(
-            child: Container(
-              color: Colors.blue,
-              width: s.width > 0.0 ? s.width : constraints.maxWidth,
-              height: s.height > 0.0 ? s.height : constraints.maxHeight,
-              child: _textureId > 0
-                  ? Texture(
-                      textureId: _textureId,
-                    )
-                  : null,
-            ),
-          ),
-          widget.builder.build(widget.player, ctx, constraints),
-        ]);
-      }),
+      color: _fullScreen ? Colors.black : widget.color,
+      alignment: _fullScreen ? Alignment.center : widget.alignment,
+      child: (!_fullScreen && _vHeight > 0 && _vWidth > 0)
+          ? LayoutBuilder(builder: (ctx, constraints) {
+              return AspectRatio(
+                aspectRatio: getAspectRatio(constraints),
+                child: Stack(
+                  children: <Widget>[
+                    _textureId > 0
+                        ? Texture(textureId: _textureId)
+                        : Container(),
+                    LayoutBuilder(builder: (panelCtx, panelConstraints) {
+                      return widget.builder
+                          .build(widget.player, panelCtx, panelConstraints);
+                    }),
+                  ],
+                ),
+              );
+            })
+          : Container(),
     );
   }
 }

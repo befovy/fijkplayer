@@ -86,7 +86,7 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
   StreamSubscription _bufferPosSubs;
   StreamSubscription _bufferingSubs;
   StreamSubscription _fijkStateSubs;
-  
+
   Timer _hideTimer;
   bool _hideStuff = true;
 
@@ -96,8 +96,13 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+
+    _duration = player.value.duration;
+    _currentPos = player.currentPos;
+    _bufferPos = player.bufferPos;
+    _playing = player.state == FijkState.STARTED;
+    _buffering = player.isBuffering;
 
     player.addListener(_playerValueChanged);
 
@@ -124,7 +129,6 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
       if (playing != _playing) {
         setState(() {
           _playing = playing;
-          print("_set playing $_playing");
         });
       }
     });
@@ -140,7 +144,6 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
   }
 
   void _playOrPause() {
-    print("_playOrPause $_playing");
     if (_playing == true) {
       player.pause();
     } else {
@@ -151,6 +154,8 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
   @override
   void dispose() {
     super.dispose();
+
+    _hideTimer?.cancel();
 
     player.removeListener(_playerValueChanged);
     _currentPosSubs.cancel();
@@ -172,30 +177,12 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
       _hideTimer?.cancel();
       _startHideTimer();
     }
-    print("_cancelAndRestartTimer $_hideStuff");
     setState(() {
       _hideStuff = !_hideStuff;
     });
   }
 
-  Widget _buildPosition(Color iconColor) {
-    final position = _currentPos ?? Duration.zero;
-    final duration = _duration ?? Duration.zero;
-
-    return Padding(
-      padding: EdgeInsets.only(right: 10.0),
-      child: Text(
-        '${duration2String(position)} / ${duration2String(duration)}',
-        style: TextStyle(
-          fontSize: 14.0,
-        ),
-      ),
-    );
-  }
-
   AnimatedOpacity _buildBottomBar(BuildContext context) {
-    final iconColor = Theme.of(context).textTheme.button.color;
-
     double currentValue =
         _seekPos > 0 ? _seekPos : _currentPos.inSeconds.toDouble();
 
@@ -209,7 +196,12 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
           children: <Widget>[
             // mute or not muter
             GestureDetector(
-              onTap: _playOrPause,
+              onTap: () {
+                setState(() {
+                  _volume = _volume > 0 ? 0.0 : 1.0;
+                  player.setVolume(_volume);
+                });
+              },
               child: Container(
                 height: barHeight,
                 color: Colors.transparent,
@@ -265,12 +257,15 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
 
             // play or pause
             GestureDetector(
-              onTap: _playOrPause,
+              onTap: () {
+                player.toggleFullScreen();
+              },
               child: Container(
                 height: barHeight,
                 color: Colors.transparent,
                 padding: EdgeInsets.only(left: 10.0, right: 10.0),
-                child: Icon(_playing ? Icons.fullscreen : Icons.fullscreen_exit),
+                child:
+                    Icon(widget.player.value.fullScreen ? Icons.fullscreen_exit : Icons.fullscreen),
               ),
             ),
 
@@ -283,42 +278,6 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> rows = [
-      IconButton(
-        icon: Icon(_playing ? Icons.pause : Icons.play_arrow),
-        onPressed: () {
-          _playing ? player.pause() : player.start();
-        },
-      ),
-    ];
-
-    String times = _duration.inMilliseconds > 0
-        ? duration2String(_currentPos) + "/" + duration2String(_duration)
-        : duration2String(_currentPos);
-
-    rows.add(Text(
-      times,
-      textWidthBasis: TextWidthBasis.longestLine,
-    ));
-
-    if (_duration.inMilliseconds > 0) {
-      double currentValue =
-          _seekPos > 0 ? _seekPos : _currentPos.inSeconds.toDouble();
-
-      rows.add(Slider(
-        value: currentValue,
-        min: 0.0,
-        max: _duration.inSeconds.toDouble(),
-        label: '$currentValue',
-        //divisions: _duration.inSeconds,
-        onChanged: (e) {
-          setState(() {
-            _seekPos = e;
-          });
-        },
-      ));
-    }
-
     return Container(
       constraints: widget.boxConstraints,
       child: GestureDetector(
@@ -327,30 +286,30 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
           absorbing: _hideStuff,
           child: Column(
             children: <Widget>[
-               Expanded(
-                child:  GestureDetector(
-                  onTap: (){
-                    print("SDFdsf");
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
                     _cancelAndRestartTimer();
                   },
                   child: Container(
                     color: Colors.transparent,
-                  height: double.infinity,
+                    height: double.infinity,
                     width: double.infinity,
-                    child:
-                    AnimatedOpacity(
+                    child: AnimatedOpacity(
                       opacity: _hideStuff ? 0.0 : 0.7,
                       duration: Duration(milliseconds: 400),
-                    child:
-                    Center(
-                      child:  GestureDetector(
-                        onTap: _playOrPause,
-                        child: Container(
-
-                          child: Icon(_playing  ? Icons.pause : Icons.play_arrow, size: barHeight * 2,
-                          color: Colors.white,),
+                      child: Center(
+                        child: GestureDetector(
+                          onTap: _playOrPause,
+                          child: Container(
+                            child: Icon(
+                              _playing ? Icons.pause : Icons.play_arrow,
+                              size: barHeight * 2,
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
-                      ),),
+                      ),
                     ),
                   ),
                 ),

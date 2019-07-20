@@ -1,5 +1,8 @@
 package com.befovy.fijkplayer;
 
+import android.app.Activity;
+import android.content.pm.ActivityInfo;
+import android.os.Build;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -26,12 +29,14 @@ public class FijkPlugin implements MethodCallHandler {
         player.release();
     }
 
+    final private Activity activity;
     final private Registrar registrar;
     final private SparseArray<FijkPlayer> fijkPlayers;
 
     private FijkPlugin(Registrar registrar) {
         this.registrar = registrar;
         fijkPlayers = new SparseArray<>();
+        activity = registrar.activity();
     }
 
     @Override
@@ -63,6 +68,36 @@ public class FijkPlugin implements MethodCallHandler {
                 result.success(null);
                 break;
             }
+            case "setOrientationPortrait":
+                if (activity != null) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT);
+                    } else {
+                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+                    }
+                }
+                result.success(null);
+                break;
+            case "setOrientationLandscape":
+                if (activity != null) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE);
+                    } else {
+                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+                    }
+                }
+                result.success(null);
+                break;
+            case "setOrientationAuto":
+                if (activity != null) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_USER);
+                    } else {
+                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
+                    }
+                }
+                result.success(null);
+                break;
             default:
                 Log.w("FLUTTER", "onMethod Call, name: " + call.method);
                 result.notImplemented();

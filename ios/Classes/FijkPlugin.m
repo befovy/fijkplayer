@@ -55,8 +55,35 @@
       //[fijkPlayer start];
       [_fijkPlayers removeObjectForKey:pid];
     }
+      result(@(0));
+  } else if ([@"setOrientationPortrait" isEqualToString:call.method]) {
+      UIInterfaceOrientationMask mask = [[UIApplication sharedApplication] supportedInterfaceOrientationsForWindow: nil];
+      UIDeviceOrientation deviceOrientation = [UIDevice currentDevice].orientation;
+      if (deviceOrientation == UIDeviceOrientationPortraitUpsideDown && (mask & UIInterfaceOrientationMaskPortraitUpsideDown))
+        [[UIDevice currentDevice] setValue:@(UIInterfaceOrientationPortraitUpsideDown) forKey:@"orientation"];
+      else if (mask & UIInterfaceOrientationMaskPortrait)
+          [[UIDevice currentDevice] setValue:@(UIInterfaceOrientationPortrait) forKey:@"orientation"];
+      //[UIViewController attemptRotationToDeviceOrientation];
+      result(nil);
+  } else if ([@"setOrientationLandscape" isEqualToString:call.method]) {
+      UIInterfaceOrientationMask mask = [[UIApplication sharedApplication] supportedInterfaceOrientationsForWindow: nil];
+
+      UIDeviceOrientation deviceOrientation = [UIDevice currentDevice].orientation;
+      if (deviceOrientation == UIDeviceOrientationLandscapeLeft && (mask & UIInterfaceOrientationMaskLandscapeLeft))
+          [[UIDevice currentDevice] setValue:@(UIInterfaceOrientationLandscapeLeft) forKey:@"orientation"];
+      else if (mask & UIInterfaceOrientationMaskLandscapeRight)
+          [[UIDevice currentDevice] setValue:@(UIInterfaceOrientationLandscapeRight) forKey:@"orientation"];
+      //[UIViewController attemptRotationToDeviceOrientation];
+      result(nil);
+  } else if ([@"setOrientationAuto" isEqualToString:call.method]) {
+      UIInterfaceOrientationMask mask = [[UIApplication sharedApplication] supportedInterfaceOrientationsForWindow: nil];
+
+      if (mask & UIInterfaceOrientationMaskPortrait)
+          [[UIDevice currentDevice] setValue:@(UIInterfaceOrientationPortrait) forKey:@"orientation"];
+      //[UIViewController attemptRotationToDeviceOrientation];
+      result(nil);
   } else {
-    result(FlutterMethodNotImplemented);
+      result(FlutterMethodNotImplemented);
   }
 }
 
