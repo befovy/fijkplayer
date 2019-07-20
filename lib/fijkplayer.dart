@@ -371,6 +371,11 @@ class FijkPlayer extends ValueNotifier<FijkValue> {
     return Future.value(ret);
   }
 
+  Future<void> setVolume(double volume) async {
+    await _nativeSetup.future;
+    return _channel
+        .invokeMethod("setVolume", <String, dynamic>{"volume": volume});
+  }
   Future<int> start() async {
     await _nativeSetup.future;
     int ret = 0;

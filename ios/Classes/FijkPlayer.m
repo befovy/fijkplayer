@@ -231,6 +231,10 @@ static int atomicId = 0;
         long pos = [_ijkMediaPlayer getCurrentPosition];
         // [_eventSink success:@{@"event" : @"current_pos", @"pos" : @(pos)}];
         result(@(pos));
+    } else if ([@"setVolume" isEqualToString:call.method]){
+        double volume = [argsMap[@"volume"] doubleValue];
+        [_ijkMediaPlayer setPlaybackVolume:(float) volume];
+        result(@(0));
     } else {
         result(FlutterMethodNotImplemented);
     }
