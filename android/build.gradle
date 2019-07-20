@@ -19,7 +19,6 @@ rootProject.allprojects {
         maven {
             url 'https://dl.bintray.com/befovytray/fijkplayer/'
         }
-
     }
 }
 
@@ -41,11 +40,8 @@ android {
 
 dependencies {
 
-    // fijkplayer-full include the java lib and native shared libs for armv5 armv7 arm64 x86 x86_64
-    implementation 'com.befovy.fijkplayer:fijkplayer-full:0.1.2'
+    // implementation(name: 'fijkplayer-full-release', ext: 'aar')
 
-    // implementation 'com.befovy.fijkplayer:ijkplayer-java:0.1.0'
-    // implementation 'com.befovy.fijkplayer:ijkplayer-armv7a:0.1.0'
-    // implementation 'com.befovy.fijkplayer:ijkplayer-arm64:0.1.0'
-    // implementation 'com.befovy.fijkplayer:ijkplayer-x86:0.1.0'
+    // fijkplayer-full include the java lib and native shared libs for armv5 armv7 arm64 x86 x86_64
+    implementation 'com.befovy.fijkplayer:fijkplayer-full:0.3.1'
 }
