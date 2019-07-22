@@ -63,7 +63,7 @@
         [[UIDevice currentDevice] setValue:@(UIInterfaceOrientationPortraitUpsideDown) forKey:@"orientation"];
       else if (mask & UIInterfaceOrientationMaskPortrait)
           [[UIDevice currentDevice] setValue:@(UIInterfaceOrientationPortrait) forKey:@"orientation"];
-      //[UIViewController attemptRotationToDeviceOrientation];
+      [UIViewController attemptRotationToDeviceOrientation];
       result(nil);
   } else if ([@"setOrientationLandscape" isEqualToString:call.method]) {
       UIInterfaceOrientationMask mask = [[UIApplication sharedApplication] supportedInterfaceOrientationsForWindow: nil];
@@ -73,14 +73,14 @@
           [[UIDevice currentDevice] setValue:@(UIInterfaceOrientationLandscapeLeft) forKey:@"orientation"];
       else if (mask & UIInterfaceOrientationMaskLandscapeRight)
           [[UIDevice currentDevice] setValue:@(UIInterfaceOrientationLandscapeRight) forKey:@"orientation"];
-      //[UIViewController attemptRotationToDeviceOrientation];
+      [UIViewController attemptRotationToDeviceOrientation];
       result(nil);
   } else if ([@"setOrientationAuto" isEqualToString:call.method]) {
       UIInterfaceOrientationMask mask = [[UIApplication sharedApplication] supportedInterfaceOrientationsForWindow: nil];
 
       if (mask & UIInterfaceOrientationMaskPortrait)
           [[UIDevice currentDevice] setValue:@(UIInterfaceOrientationPortrait) forKey:@"orientation"];
-      //[UIViewController attemptRotationToDeviceOrientation];
+      [UIViewController attemptRotationToDeviceOrientation];
       result(nil);
   } else {
       result(FlutterMethodNotImplemented);

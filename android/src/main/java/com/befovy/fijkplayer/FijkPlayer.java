@@ -43,7 +43,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
         mIjkMediaPlayer.addIjkEventListener(this);
 
         mContext = registrar.context();
-        IjkMediaPlayer.native_setLogLevel(IjkMediaPlayer.IJK_LOG_DEBUG);
+        IjkMediaPlayer.native_setLogLevel(IjkMediaPlayer.IJK_LOG_INFO);
         mMethodChannel = new MethodChannel(registrar.messenger(), "befovy.com/fijkplayer/" + mPlayerId);
         mMethodChannel.setMethodCallHandler(this);
 

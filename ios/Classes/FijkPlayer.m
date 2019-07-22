@@ -235,6 +235,10 @@ static int atomicId = 0;
         double volume = [argsMap[@"volume"] doubleValue];
         [_ijkMediaPlayer setPlaybackVolume:(float) volume];
         result(@(0));
+    } else if ([@"seekTo" isEqualToString:call.method]) {
+        long pos = [argsMap[@"pos"] longValue];
+        int ret = [_ijkMediaPlayer seekTo:pos];
+        result(@(ret));
     } else {
         result(FlutterMethodNotImplemented);
     }

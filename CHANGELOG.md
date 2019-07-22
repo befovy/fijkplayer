@@ -1,3 +1,7 @@
+## 0.0.5
+
+- add FijkPanel (UI controller of video)
+
 ## 0.0.3
 
 - add more comment and update README

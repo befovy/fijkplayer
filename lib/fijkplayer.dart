@@ -31,15 +31,15 @@ import 'fijkplugin.dart';
 
 /// The data source type for fijkplayer
 /// [asset] [network] and [file]
-enum DateSourceType {
+enum FijkSourceType {
   /// [asset] means source from app asset files
-  asset,
+  /// asset,
 
   /// [network] means source from network. it supports many protocols, like `http` and `rtmp` etc.
   network,
 
   /// [file] means source from the phone's storage
-  file,
+  /// file,
 
   /// player will try to detect data type when passed [unknown]
   unknown,
@@ -170,8 +170,8 @@ class FijkValue {
 
   /// The [dateSourceType] of current playback.
   ///
-  /// Is [DateSourceType.unknown] when [prepared] is false.
-  final DateSourceType dateSourceType;
+  /// Is [FijkSourceType.unknown] when [prepared] is false.
+  final FijkSourceType dateSourceType;
 
   /// whether if player should be displayed as in full screen
   final bool fullScreen;
@@ -193,7 +193,7 @@ class FijkValue {
             completed: false,
             size: null,
             duration: const Duration(),
-            dateSourceType: DateSourceType.unknown,
+            dateSourceType: FijkSourceType.unknown,
             fullScreen: false);
 
   /// Return new FijkValue which combines the old value and the assigned new value
@@ -202,7 +202,7 @@ class FijkValue {
       bool completed,
       Size size,
       Duration duration,
-      DateSourceType dateSourceType,
+      FijkSourceType dateSourceType,
       bool fullScreen}) {
     return FijkValue(
       prepared: prepared ?? this.prepared,
@@ -232,9 +232,10 @@ class FijkValue {
   }
 }
 
-class FijkPlayer extends ValueNotifier<FijkValue> {
+class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   String _dataSource;
-  DateSourceType _dateSourceType;
+
+  FijkSourceType _dateSourceType;
 
   int _playerId;
   MethodChannel _channel;
@@ -249,6 +250,19 @@ class FijkPlayer extends ValueNotifier<FijkValue> {
 
   /// return the current state
   FijkState get state => _fpState;
+
+  FijkValue _value;
+
+  @override
+  FijkValue get value => _value;
+
+  void _setValue(FijkValue newValue) {
+    if (_value == newValue)
+      return;
+    _value = newValue;
+    notifyListeners();
+  }
+
 
   final StreamController<FijkState> _playerStateController =
       StreamController.broadcast();
@@ -291,7 +305,8 @@ class FijkPlayer extends ValueNotifier<FijkValue> {
 
   FijkPlayer()
       : _nativeSetup = Completer(),
-        super(FijkValue.uninitialized()) {
+        super() {
+    _value = FijkValue.uninitialized();
     _fpState = FijkState.IDLE;
     _epState = FijkState.ERROR;
     _doNativeSetup();
@@ -344,7 +359,7 @@ class FijkPlayer extends ValueNotifier<FijkValue> {
     return _channel.invokeMethod("setupSurface");
   }
 
-  Future<int> setDataSource(DateSourceType type, String path) async {
+  Future<int> setDataSource(FijkSourceType type, String path, {bool autoPlay = false}) async {
     await _nativeSetup.future;
     int ret = 0;
     if (_epState == FijkState.IDLE) {
@@ -352,21 +367,25 @@ class FijkPlayer extends ValueNotifier<FijkValue> {
       _dateSourceType = type;
       _dataSource = path;
       switch (_dateSourceType) {
-        case DateSourceType.network:
+        case FijkSourceType.network:
           dataSourceDescription = <String, dynamic>{'url': _dataSource};
           break;
-        case DateSourceType.asset:
-          break;
-        case DateSourceType.file:
-          break;
-        case DateSourceType.unknown:
+        //case FijkSourceType.asset:
+        //  break;
+        //case FijkSourceType.file:
+        //  break;
+        case FijkSourceType.unknown:
           break;
       }
       _epState = FijkState.INITIALIZED;
-      value = value.copyWith(dateSourceType: type);
+      _setValue(value.copyWith(dateSourceType: type));
       await _channel.invokeMethod("setDateSource", dataSourceDescription);
     } else {
       ret = -1;
+    }
+
+    if (autoPlay == true) {
+      await this.start();
     }
     return Future.value(ret);
   }
@@ -394,7 +413,7 @@ class FijkPlayer extends ValueNotifier<FijkValue> {
   /// Return the value after toggle.
   bool toggleFullScreen() {
     bool full = value.fullScreen;
-    value = value.copyWith(fullScreen: !full);
+    _setValue(value.copyWith(fullScreen: !full));
     return !full;
   }
 
@@ -461,17 +480,14 @@ class FijkPlayer extends ValueNotifier<FijkValue> {
       case 'prepared':
         int duration = map['duration'];
         Duration dur = Duration(milliseconds: duration);
-        value = value.copyWith(duration: dur, prepared: true);
-        debugPrint("duration: $dur");
+        _setValue(value.copyWith(duration: dur, prepared: true));
         break;
       case 'state_change':
         int newState = map['new'];
-        int oldState = map['old'];
         _fpState = FijkState.values[newState];
 
         if (_fpState == FijkState.STARTED) {
           _looperSub.resume();
-          print("_looper resume");
         } else {
           if (!_looperSub.isPaused) _looperSub.pause();
         }
@@ -480,23 +496,18 @@ class FijkPlayer extends ValueNotifier<FijkValue> {
           _epState = FijkState.ERROR;
         }
         _playerStateController.add(_fpState);
-        print(_fpState.toString() + " <= " + _epState.toString());
 
-        var o = FijkState.values[oldState];
-        print("new $_fpState <= old $o");
         if (newState == FijkState.PREPARED.index) {
-          value = value.copyWith(prepared: true);
+          _setValue(value.copyWith(prepared: true));
         } else if (newState < FijkState.PREPARED.index) {
-          value = value.copyWith(prepared: false);
+          _setValue(value.copyWith(prepared: false));
         }
         break;
       case 'freeze':
         bool value = map['value'];
         _buffering = value;
         _bufferStateController.add(value);
-        print(value ? "buffer $value start" : "buffer $value end");
         break;
-
       case 'buffering':
         int head = map['head'];
         // int percent = map['percent'];
@@ -506,9 +517,7 @@ class FijkPlayer extends ValueNotifier<FijkValue> {
       case 'size_changed':
         int width = map['width'];
         int height = map['height'];
-        print("size_changed buffer $width, $height");
-
-        value = value.copyWith(size: Size(width.toDouble(), height.toDouble()));
+        _setValue(value.copyWith(size: Size(width.toDouble(), height.toDouble())));
         break;
       default:
         break;
@@ -519,4 +528,5 @@ class FijkPlayer extends ValueNotifier<FijkValue> {
     final PlatformException e = obj;
     print("onError: $e");
   }
+
 }

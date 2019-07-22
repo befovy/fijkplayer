@@ -30,17 +30,18 @@ import 'package:flutter/widgets.dart';
 import 'fijkplayer.dart';
 
 /// The signature of the [LayoutBuilder] builder function.
+/// Must not return null.
 typedef FijkPanelWidgetBuilder = Widget Function(
     FijkPlayer player, BuildContext context, BoxConstraints constraints);
 
-/// default create IJK Controller UI
+/// Default builder generate default [FijkPanel] UI
 Widget defaultFijkPanelBuilder(
     FijkPlayer player, BuildContext context, BoxConstraints constraints) {
   return DefaultFijkPanel(
       player: player, buildContext: context, boxConstraints: constraints);
 }
 
-String duration2String(Duration duration) {
+String _duration2String(Duration duration) {
   if (duration.inMilliseconds < 0) return "-: negtive";
 
   String twoDigits(int n) {
@@ -78,6 +79,7 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
   Duration _currentPos = Duration();
   Duration _bufferPos = Duration();
   bool _playing = false;
+  bool _prepared = false;
   bool _buffering = false;
 
   double _seekPos = -1.0;
@@ -101,6 +103,7 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
     _duration = player.value.duration;
     _currentPos = player.currentPos;
     _bufferPos = player.bufferPos;
+    _prepared = player.state.index >= FijkState.PREPARED.index;
     _playing = player.state == FijkState.STARTED;
     _buffering = player.isBuffering;
 
@@ -126,9 +129,11 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
 
     _fijkStateSubs = player.onPlayerStateChanged.listen((v) {
       bool playing = v == FijkState.STARTED;
-      if (playing != _playing) {
+      bool prepared = v.index >= FijkState.PREPARED.index;
+      if (playing != _playing || prepared != _prepared) {
         setState(() {
           _playing = playing;
+          _prepared = prepared;
         });
       }
     });
@@ -165,7 +170,7 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
   }
 
   void _startHideTimer() {
-    _hideTimer = Timer(const Duration(seconds: 8), () {
+    _hideTimer = Timer(const Duration(seconds: 3), () {
       setState(() {
         _hideStuff = true;
       });
@@ -183,40 +188,31 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
   }
 
   AnimatedOpacity _buildBottomBar(BuildContext context) {
-    double currentValue =
-        _seekPos > 0 ? _seekPos : _currentPos.inSeconds.toDouble();
+    double currentValue = _currentPos.inSeconds.toDouble();
 
     return AnimatedOpacity(
-      opacity: _hideStuff ? 0.0 : 1.0,
+      opacity: _hideStuff ? 0.0 : 0.8,
       duration: Duration(milliseconds: 400),
       child: Container(
         height: barHeight,
         color: Theme.of(context).dialogBackgroundColor,
         child: Row(
           children: <Widget>[
-            // mute or not muter
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  _volume = _volume > 0 ? 0.0 : 1.0;
-                  player.setVolume(_volume);
-                });
-              },
-              child: Container(
-                height: barHeight,
-                color: Colors.transparent,
-                padding: EdgeInsets.only(left: 12.0, right: 12.0),
-                child: Icon(_volume > 0 ? Icons.volume_up : Icons.volume_off),
-              ),
-            ),
+            IconButton(
+                icon: Icon(_volume > 0 ? Icons.volume_up : Icons.volume_off),
+                padding: EdgeInsets.only(left: 10.0, right: 10.0),
+                onPressed: () {
+                  setState(() {
+                    _volume = _volume > 0 ? 0.0 : 1.0;
+                    player.setVolume(_volume);
+                  });
+                }),
 
             Padding(
               padding: EdgeInsets.only(right: 5.0, left: 5),
               child: Text(
-                '${duration2String(_currentPos)}',
-                style: TextStyle(
-                  fontSize: 14.0,
-                ),
+                '${_duration2String(_currentPos)}',
+                style: TextStyle(fontSize: 14.0),
               ),
             ),
 
@@ -232,12 +228,7 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
                         min: 0.0,
                         max: _duration.inSeconds.toDouble(),
                         label: '$currentValue',
-                        //divisions: _duration.inSeconds,
-                        onChanged: (e) {
-                          setState(() {
-                            _seekPos = e;
-                          });
-                        },
+                        onChanged: (v) {},
                       ),
                     ),
                   ),
@@ -248,27 +239,23 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
                 : Padding(
                     padding: EdgeInsets.only(right: 5.0, left: 5),
                     child: Text(
-                      '${duration2String(_duration)}',
+                      '${_duration2String(_duration)}',
                       style: TextStyle(
                         fontSize: 14.0,
                       ),
                     ),
                   ),
 
-            // play or pause
-            GestureDetector(
-              onTap: () {
+            IconButton(
+              icon: Icon(widget.player.value.fullScreen
+                  ? Icons.fullscreen_exit
+                  : Icons.fullscreen),
+              padding: EdgeInsets.only(left: 10.0, right: 10.0),
+//              color: Colors.transparent,
+              onPressed: () {
                 player.toggleFullScreen();
               },
-              child: Container(
-                height: barHeight,
-                color: Colors.transparent,
-                padding: EdgeInsets.only(left: 10.0, right: 10.0),
-                child:
-                    Icon(widget.player.value.fullScreen ? Icons.fullscreen_exit : Icons.fullscreen),
-              ),
-            ),
-
+            )
             //
           ],
         ),
@@ -286,6 +273,7 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
           absorbing: _hideStuff,
           child: Column(
             children: <Widget>[
+              Container(height: barHeight,),
               Expanded(
                 child: GestureDetector(
                   onTap: () {
@@ -295,22 +283,28 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
                     color: Colors.transparent,
                     height: double.infinity,
                     width: double.infinity,
-                    child: AnimatedOpacity(
-                      opacity: _hideStuff ? 0.0 : 0.7,
-                      duration: Duration(milliseconds: 400),
-                      child: Center(
-                        child: GestureDetector(
-                          onTap: _playOrPause,
-                          child: Container(
-                            child: Icon(
-                              _playing ? Icons.pause : Icons.play_arrow,
-                              size: barHeight * 2,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                    child: Center(
+                        child: _prepared
+                            ? AnimatedOpacity(
+                                opacity: _hideStuff ? 0.0 : 0.7,
+                                duration: Duration(milliseconds: 400),
+                                child: IconButton(
+                                    iconSize: barHeight * 2,
+                                    icon: Icon(
+                                        _playing
+                                            ? Icons.pause
+                                            : Icons.play_arrow,
+                                        color: Colors.white),
+                                    padding: EdgeInsets.only(
+                                        left: 10.0, right: 10.0),
+                                    onPressed: _playOrPause))
+                            : SizedBox(
+                                width: barHeight * 2,
+                                height: barHeight * 2,
+                                child: CircularProgressIndicator(
+                                    valueColor:
+                                        AlwaysStoppedAnimation(Colors.white)),
+                              )),
                   ),
                 ),
               ),
@@ -320,21 +314,5 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
         ),
       ),
     );
-  }
-}
-
-class FijkPanelBuilder {
-  const FijkPanelBuilder({
-    Key key,
-    @required this.builder,
-  }) : assert(builder != null);
-
-  /// Called at layout time to construct the widget tree. The builder must not
-  /// return null.
-  final FijkPanelWidgetBuilder builder;
-
-  Widget build(FijkPlayer player, BuildContext buildContext,
-      BoxConstraints boxConstraints) {
-    return builder(player, buildContext, boxConstraints);
   }
 }

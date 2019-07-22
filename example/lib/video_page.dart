@@ -1,4 +1,3 @@
-import 'package:fijkplayer/fijkpanel.dart';
 import 'package:fijkplayer/fijkplayer.dart';
 import 'package:fijkplayer/fijkview.dart';
 import 'package:flutter/material.dart';
@@ -23,28 +22,25 @@ class _VideoScreenState extends State<VideoScreen> {
   @override
   void initState() {
     super.initState();
-    startPlay();
-  }
-
-  void startPlay() async {
-    await player.setDataSource(DateSourceType.network, url);
-    await player.start();
-
-    player.onPlayerStateChanged.listen(ijkStateChange);
-  }
-
-  void ijkStateChange(FijkState state) {
-    setState(() {});
+    player.setDataSource(FijkSourceType.network, url, autoPlay: true);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: FijkAppBar.defaultSetting(title: "Video"),
-      body: FijkView(
-          player: player,
-          builder: FijkPanelBuilder(builder: defaultFijkPanelBuilder)),
-    );
+        appBar: FijkAppBar.defaultSetting(title: "Video"),
+        body: Container(
+          alignment: Alignment.center,
+          child: FijkView(
+            player: player,
+            // panelSize: FijkPanelSize.MatchView,
+            // alignment: Alignment.center,
+            // aspectRatio: 1,
+            // width: 320,
+            // height: 180,
+            // builder: defaultFijkPanelBuilder,
+          ),
+        ));
   }
 
   @override

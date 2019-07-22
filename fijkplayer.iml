@@ -10,6 +10,9 @@
       <excludeFolder url="file://$MODULE_DIR$/example/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/example/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/example/build" />
+      <excludeFolder url="file://$MODULE_DIR$/example/iconbutton_sample/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/example/iconbutton_sample/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/example/iconbutton_sample/build" />
       <excludeFolder url="file://$MODULE_DIR$/example/ios/.symlinks/plugins/fijkplayer/example/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/example/ios/.symlinks/plugins/fijkplayer/example/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/example/ios/.symlinks/plugins/fijkplayer/example/build" />

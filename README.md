@@ -28,7 +28,60 @@ located in `<project root>/android/app/src/main/AndroidManifest.xml`:
 
 The example in this plugin project adds it, so it may already be there.
 
+## Example
 
+```dart
+import 'package:fijkplayer/fijkplayer.dart';
+import 'package:fijkplayer/fijkview.dart';
+import 'package:flutter/material.dart';
+
+class VideoScreen extends StatefulWidget {
+  final String url;
+
+  VideoScreen({@required this.url});
+
+  @override
+  _VideoScreenState createState() => _VideoScreenState(url: url);
+}
+
+class _VideoScreenState extends State<VideoScreen> {
+  final String url;
+  final FijkPlayer player = FijkPlayer();
+
+  _VideoScreenState({@required this.url});
+
+  @override
+  void initState() {
+    super.initState();
+    player.setDataSource(FijkSourceType.network, url, autoPlay: true);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(title: Text("Fijkplayer Example")),
+        body: Container(
+          alignment: Alignment.center,
+          child: FijkView(
+            player: player,
+            // panelSize: FijkPanelSize.MatchView,
+            // alignment: Alignment.center,
+            // aspectRatio: 1,
+            // width: 320,
+            // height: 180,
+            // builder: defaultFijkPanelBuilder,
+          ),
+        ));
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    player.release();
+  }
+}
+
+```
 
 ## Demo Screenshots
 
