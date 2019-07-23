@@ -27,7 +27,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
-import 'fijkplayer.dart';
+import './fijkplayer.dart';
 
 /// The signature of the [LayoutBuilder] builder function.
 /// Must not return null.
@@ -77,16 +77,19 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
 
   Duration _duration = Duration();
   Duration _currentPos = Duration();
-  Duration _bufferPos = Duration();
+
+  // Duration _bufferPos = Duration();
   bool _playing = false;
   bool _prepared = false;
-  bool _buffering = false;
 
-  double _seekPos = -1.0;
+  // bool _buffering = false;
+
+  //double _seekPos = -1.0;
 
   StreamSubscription _currentPosSubs;
-  StreamSubscription _bufferPosSubs;
-  StreamSubscription _bufferingSubs;
+
+  //StreamSubscription _bufferPosSubs;
+  //StreamSubscription _bufferingSubs;
   StreamSubscription _fijkStateSubs;
 
   Timer _hideTimer;
@@ -102,10 +105,10 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
 
     _duration = player.value.duration;
     _currentPos = player.currentPos;
-    _bufferPos = player.bufferPos;
+    //_bufferPos = player.bufferPos;
     _prepared = player.state.index >= FijkState.PREPARED.index;
     _playing = player.state == FijkState.STARTED;
-    _buffering = player.isBuffering;
+    // _buffering = player.isBuffering;
 
     player.addListener(_playerValueChanged);
 
@@ -115,17 +118,21 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
       });
     });
 
+    /*
     _bufferPosSubs = player.onBufferPosUpdate.listen((v) {
       setState(() {
         _bufferPos = v;
       });
     });
+    */
 
+    /*
     _bufferingSubs = player.onBufferStateUpdate.listen((v) {
       setState(() {
         _buffering = v;
       });
     });
+    */
 
     _fijkStateSubs = player.onPlayerStateChanged.listen((v) {
       bool playing = v == FijkState.STARTED;
@@ -163,9 +170,9 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
     _hideTimer?.cancel();
 
     player.removeListener(_playerValueChanged);
-    _currentPosSubs.cancel();
-    _bufferPosSubs.cancel();
-    _bufferingSubs.cancel();
+    _currentPosSubs?.cancel();
+    //_bufferPosSubs.cancel();
+    //_bufferingSubs.cancel();
     _fijkStateSubs.cancel();
   }
 
@@ -273,7 +280,7 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
           absorbing: _hideStuff,
           child: Column(
             children: <Widget>[
-              Container(height: barHeight,),
+              Container(height: barHeight),
               Expanded(
                 child: GestureDetector(
                   onTap: () {
@@ -299,8 +306,8 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
                                         left: 10.0, right: 10.0),
                                     onPressed: _playOrPause))
                             : SizedBox(
-                                width: barHeight * 2,
-                                height: barHeight * 2,
+                                width: barHeight * 1.5,
+                                height: barHeight * 1.5,
                                 child: CircularProgressIndicator(
                                     valueColor:
                                         AlwaysStoppedAnimation(Colors.white)),

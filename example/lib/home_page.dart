@@ -4,8 +4,6 @@ import 'app_bar.dart';
 import 'input_url.dart';
 import 'recent_list.dart';
 
-import 'package:fijkplayer/fijkplugin.dart';
-
 class HomeItem extends StatelessWidget {
   HomeItem({
     @required this.onPressed,

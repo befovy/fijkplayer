@@ -22,13 +22,12 @@
 //SOFTWARE.
 //
 
-import 'package:fijkplayer/fijkpanel.dart';
-import 'package:fijkplayer/fijkplugin.dart';
+import 'package:fijkplayer/src/fijkpanel.dart';
+import 'package:fijkplayer/src/fijkplugin.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'fijkpanel.dart';
-import 'fijkplayer.dart';
+import './fijkplayer.dart';
 
 enum FijkPanelSize {
   MatchView,
@@ -169,13 +168,11 @@ class _FijkViewState extends State<FijkView> {
         return Scaffold(
             resizeToAvoidBottomInset: false,
             body: LayoutBuilder(builder: (ctx, constraints) {
-              print("value:${widget.player.value}");
-
               return Stack(
                 children: <Widget>[
                   Container(
                     alignment: Alignment.center,
-                    color: Colors.blueGrey,
+                    color: Colors.black,
                     child: AspectRatio(
                         aspectRatio: getAspectRatio(constraints),
                         child: Texture(textureId: _textureId)),
@@ -215,7 +212,6 @@ class _FijkViewState extends State<FijkView> {
     return _textureId > 0 ? Texture(textureId: _textureId) : Container();
   }
 
-
   // build Inter Texture and possible Panel
   Widget buildInterior() {
     if (widget.builder == null || widget.panelSize == FijkPanelSize.MatchView) {
@@ -239,11 +235,12 @@ class _FijkViewState extends State<FijkView> {
       return widget.builder != null &&
               widget.panelSize == FijkPanelSize.MatchView
           ? Stack(children: <Widget>[
-            Container(
-              alignment: widget.alignment,
-              child: AspectRatio(
-                  aspectRatio: getAspectRatio(constraints),
-                  child: buildTexture()),),
+              Container(
+                alignment: widget.alignment,
+                child: AspectRatio(
+                    aspectRatio: getAspectRatio(constraints),
+                    child: buildTexture()),
+              ),
               widget.builder(widget.player, ctx, constraints)
             ])
           : AspectRatio(
@@ -254,11 +251,10 @@ class _FijkViewState extends State<FijkView> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: widget.color,
-      width: widget.width,
-      height: widget.height,
-      alignment: widget.alignment,
-      child: buildExterior()
-    );
+        color: widget.color,
+        width: widget.width,
+        height: widget.height,
+        alignment: widget.alignment,
+        child: buildExterior());
   }
 }

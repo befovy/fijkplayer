@@ -1,6 +1,5 @@
-import 'package:fijkplayer/fijkplayer.dart';
-import 'package:fijkplayer/fijkview.dart';
 import 'package:flutter/material.dart';
+import 'package:fijkplayer/fijkplayer.dart';
 
 import 'app_bar.dart';
 
@@ -10,19 +9,18 @@ class VideoScreen extends StatefulWidget {
   VideoScreen({@required this.url});
 
   @override
-  _VideoScreenState createState() => _VideoScreenState(url: url);
+  _VideoScreenState createState() => _VideoScreenState();
 }
 
 class _VideoScreenState extends State<VideoScreen> {
-  final String url;
   final FijkPlayer player = FijkPlayer();
 
-  _VideoScreenState({@required this.url});
+  _VideoScreenState();
 
   @override
   void initState() {
     super.initState();
-    player.setDataSource(FijkSourceType.network, url, autoPlay: true);
+    player.setDataSource(widget.url, autoPlay: true);
   }
 
   @override

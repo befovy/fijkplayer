@@ -1,4 +1,6 @@
-# fijkplayer
+# fijkplayer (Video player plugin for Flutter)
+
+[![pub package](https://img.shields.io/pub/v/fijkplayer.svg)](https://pub.dartlang.org/packages/fijkplayer)
 
 A Flutter media player plugin for iOS and android based on [ijkplayer](https://github.com/befovy/ijkplayer)
 
@@ -32,7 +34,6 @@ The example in this plugin project adds it, so it may already be there.
 
 ```dart
 import 'package:fijkplayer/fijkplayer.dart';
-import 'package:fijkplayer/fijkview.dart';
 import 'package:flutter/material.dart';
 
 class VideoScreen extends StatefulWidget {
@@ -41,19 +42,18 @@ class VideoScreen extends StatefulWidget {
   VideoScreen({@required this.url});
 
   @override
-  _VideoScreenState createState() => _VideoScreenState(url: url);
+  _VideoScreenState createState() => _VideoScreenState();
 }
 
 class _VideoScreenState extends State<VideoScreen> {
-  final String url;
   final FijkPlayer player = FijkPlayer();
 
-  _VideoScreenState({@required this.url});
+  _VideoScreenState();
 
   @override
   void initState() {
     super.initState();
-    player.setDataSource(FijkSourceType.network, url, autoPlay: true);
+    player.setDataSource(widget.url, autoPlay: true);
   }
 
   @override

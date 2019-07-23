@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fijkplayer/fijkplugin.dart';
+import 'package:fijkplayer/fijkplayer.dart';
 
 void main() {
   const MethodChannel channel = MethodChannel('befovy.com/fijk');

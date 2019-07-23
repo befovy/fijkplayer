@@ -13,6 +13,9 @@
       <excludeFolder url="file://$MODULE_DIR$/example/iconbutton_sample/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/example/iconbutton_sample/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/example/iconbutton_sample/build" />
+      <excludeFolder url="file://$MODULE_DIR$/example/ios/.symlinks/plugins/fijkplayer/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/example/ios/.symlinks/plugins/fijkplayer/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/example/ios/.symlinks/plugins/fijkplayer/build" />
       <excludeFolder url="file://$MODULE_DIR$/example/ios/.symlinks/plugins/fijkplayer/example/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/example/ios/.symlinks/plugins/fijkplayer/example/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/example/ios/.symlinks/plugins/fijkplayer/example/build" />
