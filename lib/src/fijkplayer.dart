@@ -146,6 +146,7 @@ enum FijkState {
   END
 }
 
+/// FijkValue include the not frequent updated properties of a [FijkPlayer]
 @immutable
 class FijkValue {
   /// Indicates if the player is ready
@@ -232,6 +233,9 @@ class FijkValue {
   }
 }
 
+/// FijkPlayer present as a playback. It interacts with native object.
+///
+/// FijkPlayer invoke native method and receive native event.
 class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   String _dataSource;
 
@@ -265,7 +269,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   final StreamController<FijkState> _playerStateController =
       StreamController.broadcast();
 
-  Stream<FijkState> get onPlayerStateChanged => _playerStateController.stream;
+  Stream<FijkState> get onPlayerStateChange => _playerStateController.stream;
 
   Duration _bufferPos = Duration();
 
@@ -277,6 +281,8 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
 
   Stream<Duration> get onBufferPosUpdate => _bufferPosController.stream;
 
+
+
   Duration _currentPos = Duration();
 
   /// return the current playing position
@@ -285,7 +291,10 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   final StreamController<Duration> _currentPosController =
       StreamController.broadcast();
 
+  /// stream of current playing position, update every 200ms.
   Stream<Duration> get onCurrentPosUpdate => _currentPosController.stream;
+
+
 
   bool _buffering = false;
 

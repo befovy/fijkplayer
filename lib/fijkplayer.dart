@@ -23,7 +23,6 @@
 
 library fijkplayer;
 
-export 'src/fijkplugin.dart';
 export 'src/fijkplayer.dart';
 export 'src/fijkview.dart';
 export 'src/fijkpanel.dart';

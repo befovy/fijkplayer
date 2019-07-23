@@ -27,7 +27,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
-import './fijkplayer.dart';
+import 'fijkplayer.dart';
 
 /// The signature of the [LayoutBuilder] builder function.
 /// Must not return null.
@@ -134,7 +134,7 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
     });
     */
 
-    _fijkStateSubs = player.onPlayerStateChanged.listen((v) {
+    _fijkStateSubs = player.onPlayerStateChange.listen((v) {
       bool playing = v == FijkState.STARTED;
       bool prepared = v.index >= FijkState.PREPARED.index;
       if (playing != _playing || prepared != _prepared) {

@@ -27,14 +27,16 @@ import 'package:fijkplayer/src/fijkplugin.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import './fijkplayer.dart';
+import 'fijkplayer.dart';
 
 enum FijkPanelSize {
   MatchView,
   MatchVideo,
 }
 
-/// [FijkView] is a Container widget contains many children.
+/// [FijkView] is a widget that can display the video frame of [FijkPlayer].
+///
+/// Actually, it is a Container widget contains many children.
 /// The most important is a Texture which display the read video frame.
 class FijkView extends StatefulWidget {
   FijkView({

@@ -24,6 +24,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'fijkplayer.dart';
+import 'fijkview.dart';
+
+/// for inner use, don't use this directly in app.
+/// use [FijkPlayer] and [FijkView] instead.
 class FijkPlugin {
   static const MethodChannel _channel = const MethodChannel('befovy.com/fijk');
 
