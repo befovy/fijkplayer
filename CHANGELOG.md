@@ -1,3 +1,7 @@
+## 0.0.6
+
+- FijkSourceType as a option argument
+
 ## 0.0.5
 
 - add FijkPanel (UI controller of video)
