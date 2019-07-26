@@ -26,7 +26,7 @@ matrix:
           packages:
             - libstdc++6
             - fonts-droid
-      before_script:
+      install:
         - mkdir -p $HOME/wgetcache
         - cd $HOME
         - |
@@ -48,6 +48,11 @@ matrix:
           if [ "$COMMIT_MSG" = "update flutter" ]; then 
             flutter upgrade
           fi;
+        - |
+          output=$(dartfmt ./ -n)
+          if [ ! -z $output]; then
+            exit 1
+          fi;
         - flutter test
         - cd example
         - flutter -v build apk
@@ -56,7 +61,7 @@ matrix:
     - os: osx
       language: generic
       osx_image: xcode10.2
-      before_script:
+      install:
         - pip install six
         - brew update
         - |
@@ -87,13 +92,18 @@ matrix:
 
       script:
         - pwd
-        - pod repo update
         - flutter doctor
         - |
           COMMIT_MSG=`git show -s --format=%B HEAD`
           if [ "$COMMIT_MSG" = "update flutter" ]; then 
             flutter upgrade
           fi;
+        - |
+          output=$(dartfmt ./ -n)
+          if [ ! -z $output]; then
+            exit 1
+          fi;
+        - pod repo update
         - flutter test
         - cd example
         - cd ios && pod install &&cd -
@@ -107,3 +117,8 @@ cache:
     - $HOME/.pub-cache
     - $HOME/wgetcache
     - $HOME/flutter
+
+notifications:
+  email:
+    on_success: never # default: change
+    on_failure: always # default: always
