@@ -281,8 +281,6 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
 
   Stream<Duration> get onBufferPosUpdate => _bufferPosController.stream;
 
-
-
   Duration _currentPos = Duration();
 
   /// return the current playing position
@@ -293,8 +291,6 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
 
   /// stream of current playing position, update every 200ms.
   Stream<Duration> get onCurrentPosUpdate => _currentPosController.stream;
-
-
 
   bool _buffering = false;
 
