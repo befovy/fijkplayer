@@ -68,20 +68,20 @@ class _LocalPathState extends State<LocalPath> {
 
   void listDir(String path) {
     bool opened = true;
-
+    List<FileSystemEntity> tmpFiles = List();
     FileSystemEntity.isDirectory(path).then((f) {
       if (f) {
-        files.clear();
         final Directory dir = Directory(path);
-        files.add(dir.parent);
+        tmpFiles.add(dir.parent);
         _subscription = dir.list(followLinks: false).listen((child) {
           if (FileSystemEntity.isDirectorySync(child.path) ||
               _mediaReg.hasMatch(child.path)) {
-            files.add(child);
+            tmpFiles.add(child);
           }
         }, onDone: () {
           if (opened == true) {
             setState(() {
+              files = tmpFiles;
               current = dir;
             });
           }
