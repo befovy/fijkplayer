@@ -1,5 +1,3 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.befovy.fijkplayer">
+<manifest package="com.befovy.fijkplayer">
 
-    <uses-permission android:name="android.permission.INTERNET" />
 </manifest>
