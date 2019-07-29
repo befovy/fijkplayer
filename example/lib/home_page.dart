@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'app_bar.dart';
 import 'input_url.dart';
+import 'local_path.dart';
 import 'recent_list.dart';
 
 class HomeItem extends StatelessWidget {
@@ -60,7 +61,8 @@ class HomeScreen extends StatelessWidget {
             ),
             HomeItem(
               onPressed: () {
-                displaySnackBar(ctx);
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => LocalPathScreen()));
               },
               text: "Local Folder",
             ),
