@@ -63,7 +63,7 @@ matrix:
       osx_image: xcode10.2
       install:
         - pip install six
-        - brew update
+        # - brew update
         - |
           if brew ls --versions libimobiledevice > /dev/null; then
             brew uninstall --ignore-dependencies libimobiledevice
