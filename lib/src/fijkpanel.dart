@@ -28,6 +28,16 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 import 'fijkplayer.dart';
+import 'fijkview.dart';
+
+/// Which area the panel should be rendered.
+enum FijkPanelSize {
+  /// same size as [FijkView]
+  sameAsFijkView,
+
+  /// same size as video(Texture) in[FijkView]
+  sameAsVideo,
+}
 
 /// The signature of the [LayoutBuilder] builder function.
 /// Must not return null.
@@ -335,5 +345,19 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
         ),
       ),
     );
+  }
+}
+
+class FijkPanelBuilder {
+  const FijkPanelBuilder(
+      {@required this.builder, this.panelSize = FijkPanelSize.sameAsFijkView})
+      : assert(builder != null);
+
+  final FijkPanelWidgetBuilder builder;
+  final FijkPanelSize panelSize;
+
+  Widget build(
+      FijkPlayer player, BuildContext context, BoxConstraints constraints) {
+    return builder(player, context, constraints);
   }
 }

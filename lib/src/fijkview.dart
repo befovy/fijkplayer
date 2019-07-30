@@ -28,11 +28,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'fijkplayer.dart';
-
-enum FijkPanelSize {
-  MatchView,
-  MatchVideo,
-}
+import 'fijkpanel.dart';
 
 /// [FijkView] is a widget that can display the video frame of [FijkPlayer].
 ///
@@ -44,20 +40,18 @@ class FijkView extends StatefulWidget {
     this.width,
     this.height,
     this.aspectRatio,
-    this.builder = defaultFijkPanelBuilder,
+    this.panelBuilder =
+        const FijkPanelBuilder(builder: defaultFijkPanelBuilder),
     this.color = Colors.blueGrey,
     this.alignment = Alignment.center,
-    this.panelSize = FijkPanelSize.MatchView,
-  });
+  }) : assert(player != null);
 
   /// The player that need display video by this [FijkView].
-  /// Will be passed to [builder].
+  /// Will be passed to [panelBuilder].
   final FijkPlayer player;
 
-  /// builder to build [FijkPanel]
-  final FijkPanelWidgetBuilder builder;
-
-  final FijkPanelSize panelSize;
+  /// builder to build panel Widget
+  final FijkPanelBuilder panelBuilder;
 
   /// background color
   final Color color;
@@ -179,7 +173,7 @@ class _FijkViewState extends State<FijkView> {
                         aspectRatio: getAspectRatio(constraints),
                         child: Texture(textureId: _textureId)),
                   ),
-                  widget.builder(widget.player, ctx, constraints)
+                  widget.panelBuilder.build(widget.player, ctx, constraints)
                 ],
               );
             }));
@@ -216,14 +210,16 @@ class _FijkViewState extends State<FijkView> {
 
   // build Inter Texture and possible Panel
   Widget buildInterior() {
-    if (widget.builder == null || widget.panelSize == FijkPanelSize.MatchView) {
+    if (widget.panelBuilder == null ||
+        widget.panelBuilder.panelSize == FijkPanelSize.sameAsFijkView) {
       return buildTexture();
     } else {
       return Stack(
         children: <Widget>[
           buildTexture(),
           LayoutBuilder(builder: (panelCtx, panelConstraints) {
-            return widget.builder(widget.player, panelCtx, panelConstraints);
+            return widget.panelBuilder
+                .build(widget.player, panelCtx, panelConstraints);
           })
         ],
       );
@@ -234,8 +230,8 @@ class _FijkViewState extends State<FijkView> {
   Widget buildExterior() {
     if (_fullScreen) return Container();
     return LayoutBuilder(builder: (ctx, constraints) {
-      return widget.builder != null &&
-              widget.panelSize == FijkPanelSize.MatchView
+      return widget.panelBuilder != null &&
+              widget.panelBuilder.panelSize == FijkPanelSize.sameAsFijkView
           ? Stack(children: <Widget>[
               Container(
                 alignment: widget.alignment,
@@ -243,7 +239,7 @@ class _FijkViewState extends State<FijkView> {
                     aspectRatio: getAspectRatio(constraints),
                     child: buildTexture()),
               ),
-              widget.builder(widget.player, ctx, constraints)
+              widget.panelBuilder.build(widget.player, ctx, constraints)
             ])
           : AspectRatio(
               aspectRatio: getAspectRatio(constraints), child: buildInterior());
