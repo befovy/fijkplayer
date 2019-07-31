@@ -195,7 +195,8 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
   }
 
   AnimatedOpacity _buildBottomBar(BuildContext context) {
-    double currentValue = _seekPos > 0 ? _seekPos: _currentPos.inMilliseconds.toDouble();
+    double currentValue =
+        _seekPos > 0 ? _seekPos : _currentPos.inMilliseconds.toDouble();
 
     return AnimatedOpacity(
       opacity: _hideStuff ? 0.0 : 0.8,
@@ -242,13 +243,12 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
                         },
                         onChangeEnd: (v) {
                           setState(() {
-                            player.seekTo(v.toInt() );
+                            player.seekTo(v.toInt());
                             print("seek to $v");
-                            _currentPos = Duration(milliseconds: _seekPos.toInt());
+                            _currentPos =
+                                Duration(milliseconds: _seekPos.toInt());
                             _seekPos = -1;
-
                           });
-
                         },
                       ),
                     ),
