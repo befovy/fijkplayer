@@ -109,18 +109,9 @@ pod 'FIJKPlayer'
 ```
 
 ```gradle
-rootProject.allprojects {
-    repositories {
-        maven {
-            url 'https://dl.bintray.com/befovytray/fijkplayer/'
-        }
-    }
-}
-
 dependencies {
-
     // fijkplayer-full include the java lib and native shared libs for armv5 armv7 arm64 x86 x86_64
-    implementation 'com.befovy.fijkplayer:fijkplayer-full:0.3.1'
+    implementation 'com.befovy.fijkplayer:fijkplayer-full:0.3.2'
 }
 ```
 

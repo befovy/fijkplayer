@@ -16,8 +16,8 @@ import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.view.TextureRegistry;
-import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkEventListener;
+import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
 public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventListener {
 
@@ -66,7 +66,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
         return mPlayerId;
     }
 
-     long setupSurface() {
+    long setupSurface() {
         TextureRegistry textureRegistry = mRegistrar.textures();
         TextureRegistry.SurfaceTextureEntry surfaceTextureEntry = textureRegistry.createSurfaceTexture();
         mSurfaceTextureEntry = surfaceTextureEntry;
@@ -81,7 +81,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
         mIjkMediaPlayer.stop();
         mIjkMediaPlayer.release();
 
-        if (mSurfaceTextureEntry != null){
+        if (mSurfaceTextureEntry != null) {
             mSurfaceTextureEntry.release();
             mSurfaceTextureEntry = null;
         }
@@ -96,8 +96,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
 
     }
 
-    @Override
-    public void onEvent(IjkMediaPlayer ijkMediaPlayer, int what, int arg1, int arg2, Object extra) {
+    private void handleEvent(int what, int arg1, int arg2, Object extra) {
         Map<String, Object> event = new HashMap<>();
 
         switch (what) {
@@ -145,6 +144,23 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
     }
 
     @Override
+    public void onEvent(IjkMediaPlayer ijkMediaPlayer, int what, int arg1, int arg2, Object extra) {
+        switch (what) {
+            case PREPARED:
+            case PLAYBACK_STATE_CHANGED:
+            case BUFFERING_START:
+            case BUFFERING_END:
+            case BUFFERING_UPDATE:
+            case VIDEO_SIZE_CHANGED:
+                handleEvent(what, arg1, arg2, extra);
+                break;
+            default:
+                break;
+        }
+    }
+
+
+    @Override
     public void onMethodCall(MethodCall call, MethodChannel.Result result) {
         if (call.method.equals("setupSurface")) {
             long viewId = setupSurface();
@@ -185,12 +201,17 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
         } else if (call.method.equals("reset")) {
             mIjkMediaPlayer.reset();
             result.success(null);
-        }  else if(call.method.equals("getCurrentPosition")) {
+        } else if (call.method.equals("getCurrentPosition")) {
             long pos = mIjkMediaPlayer.getCurrentPosition();
             result.success(pos);
-        } else  if(call.method.equals("setVolume")){
-            final double volume = call.argument("volume");
-            mIjkMediaPlayer.setVolume((float)volume, (float)volume);
+        } else if (call.method.equals("setVolume")) {
+            final Double volume = call.argument("volume");
+            float vol = volume != null ? volume.floatValue() : 1.0f;
+            mIjkMediaPlayer.setVolume(vol, vol);
+            result.success(0);
+        } else if (call.method.equals("seekTo")) {
+            final Integer msec = call.argument("msec");
+            mIjkMediaPlayer.seekTo(msec != null ? msec.longValue() : 0);
             result.success(0);
         } else {
             result.notImplemented();

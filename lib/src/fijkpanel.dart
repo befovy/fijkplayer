@@ -84,7 +84,7 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
 
   // bool _buffering = false;
 
-  //double _seekPos = -1.0;
+  double _seekPos = -1.0;
 
   StreamSubscription _currentPosSubs;
 
@@ -195,7 +195,7 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
   }
 
   AnimatedOpacity _buildBottomBar(BuildContext context) {
-    double currentValue = _currentPos.inSeconds.toDouble();
+    double currentValue = _seekPos > 0 ? _seekPos: _currentPos.inMilliseconds.toDouble();
 
     return AnimatedOpacity(
       opacity: _hideStuff ? 0.0 : 0.8,
@@ -233,9 +233,23 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
                       child: Slider(
                         value: currentValue,
                         min: 0.0,
-                        max: _duration.inSeconds.toDouble(),
+                        max: _duration.inMilliseconds.toDouble(),
                         label: '$currentValue',
-                        onChanged: (v) {},
+                        onChanged: (v) {
+                          setState(() {
+                            _seekPos = v;
+                          });
+                        },
+                        onChangeEnd: (v) {
+                          setState(() {
+                            player.seekTo(v.toInt() );
+                            print("seek to $v");
+                            _currentPos = Duration(milliseconds: _seekPos.toInt());
+                            _seekPos = -1;
+
+                          });
+
+                        },
                       ),
                     ),
                   ),

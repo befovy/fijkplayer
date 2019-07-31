@@ -139,18 +139,15 @@ static int atomicId = 0;
     return [NSNumber numberWithLongLong:_vid];
 }
 
-- (void)onEvent4Player:(IJKFFMediaPlayer *)player
-              withType:(int)what
-               andArg1:(int)arg1
-               andArg2:(int)arg2
-              andExtra:(void *)extra {
+- (void)handleEvent:(int)what
+            andArg1:(int)arg1
+            andArg2:(int)arg2
+           andExtra:(void *)extra {
     switch (what) {
     case IJKMPET_PREPARED: {
         long duration = [_ijkMediaPlayer getDuration];
-        [_eventSink success:@{
-            @"event" : @"prepared",
-            @"duration" : @(duration)
-        }];
+        [_eventSink
+            success:@{@"event" : @"prepared", @"duration" : @(duration)}];
     } break;
     case IJKMPET_PLAYBACK_STATE_CHANGED:
         [_eventSink success:@{
@@ -179,6 +176,25 @@ static int atomicId = 0;
             @"width" : @(arg1),
             @"height" : @(arg2)
         }];
+    default:
+        break;
+    }
+}
+
+- (void)onEvent4Player:(IJKFFMediaPlayer *)player
+              withType:(int)what
+               andArg1:(int)arg1
+               andArg2:(int)arg2
+              andExtra:(void *)extra {
+    switch (what) {
+    case IJKMPET_PREPARED:
+    case IJKMPET_PLAYBACK_STATE_CHANGED:
+    case IJKMPET_BUFFERING_START:
+    case IJKMPET_BUFFERING_END:
+    case IJKMPET_BUFFERING_UPDATE:
+    case IJKMPET_VIDEO_SIZE_CHANGED:
+        [self handleEvent:what andArg1:arg1 andArg2:arg2 andExtra:extra];
+        break;
     default:
         break;
     }
@@ -231,12 +247,12 @@ static int atomicId = 0;
         long pos = [_ijkMediaPlayer getCurrentPosition];
         // [_eventSink success:@{@"event" : @"current_pos", @"pos" : @(pos)}];
         result(@(pos));
-    } else if ([@"setVolume" isEqualToString:call.method]){
+    } else if ([@"setVolume" isEqualToString:call.method]) {
         double volume = [argsMap[@"volume"] doubleValue];
-        [_ijkMediaPlayer setPlaybackVolume:(float) volume];
+        [_ijkMediaPlayer setPlaybackVolume:(float)volume];
         result(@(0));
     } else if ([@"seekTo" isEqualToString:call.method]) {
-        long pos = [argsMap[@"pos"] longValue];
+        long pos = [argsMap[@"msec"] longValue];
         int ret = [_ijkMediaPlayer seekTo:pos];
         result(@(ret));
     } else {
