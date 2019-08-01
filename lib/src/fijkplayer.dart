@@ -463,6 +463,14 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     return Future.value(0);
   }
 
+  Future<int> seekTo(int msec) async {
+    await _nativeSetup.future;
+
+    // if (_epState == )
+    await _channel.invokeMethod("seekTo", <String, dynamic>{"msec": msec});
+    return Future.value(0);
+  }
+
   Future<void> release() async {
     await _nativeSetup.future;
     await this.stop();
