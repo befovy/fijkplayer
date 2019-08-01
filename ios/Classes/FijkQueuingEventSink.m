@@ -64,4 +64,11 @@
     [self maybeFlush];
 }
 
+- (void)dealloc {
+    if (_eventQueue) {
+        [_eventQueue removeAllObjects];
+        _eventQueue = nil;
+    }
+}
+
 @end
