@@ -176,7 +176,6 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
   @override
   void dispose() {
     super.dispose();
-
     _hideTimer?.cancel();
 
     player.removeListener(_playerValueChanged);

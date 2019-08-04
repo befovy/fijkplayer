@@ -25,10 +25,11 @@
 import 'package:fijkplayer/src/fijkpanel.dart';
 import 'package:fijkplayer/src/fijkplugin.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
-import 'fijkplayer.dart';
 import 'fijkpanel.dart';
+import 'fijkplayer.dart';
 
 /// [FijkView] is a widget that can display the video frame of [FijkPlayer].
 ///
@@ -212,7 +213,7 @@ class _FijkViewState extends State<FijkView> {
   Widget buildInterior() {
     if (widget.panelBuilder == null ||
         widget.panelBuilder.panelSize == FijkPanelSize.sameAsFijkView) {
-      return buildTexture();
+      return Container(child: buildTexture());
     } else {
       return Stack(
         children: <Widget>[
@@ -229,6 +230,7 @@ class _FijkViewState extends State<FijkView> {
   // build child of External Container, maybe include Panel
   Widget buildExterior() {
     if (_fullScreen) return Container();
+
     return LayoutBuilder(builder: (ctx, constraints) {
       return widget.panelBuilder != null &&
               widget.panelBuilder.panelSize == FijkPanelSize.sameAsFijkView
@@ -246,13 +248,106 @@ class _FijkViewState extends State<FijkView> {
     });
   }
 
+  // @override
+  Widget oldBuild(BuildContext context) {
+    return Container(
+      color: Colors.green,
+      width: 414,
+      height: 807,
+      alignment: widget.alignment,
+      //child: buildExterior(),
+      child: LayoutBuilder(builder: (ctx, constraints) {
+        print("constraints $constraints");
+        return AspectRatio(
+          aspectRatio: getAspectRatio(constraints),
+          child: Container(
+            child: buildTexture(),
+          ),
+        );
+      }),
+    );
+  }
+
+  Size applyAspectRatio(BoxConstraints constraints) {
+    assert(constraints.hasBoundedHeight && constraints.hasBoundedWidth);
+
+    if (constraints.isTight) return constraints.smallest;
+
+    double width = constraints.maxWidth;
+    double height = width;
+
+    // We default to picking the height based on the width, but if the width
+    // would be infinite, that's not sensible so we try to infer the height
+    // from the width.
+
+    double aspectRatio = getAspectRatio(constraints);
+
+    if (width.isFinite) {
+      height = width / aspectRatio;
+    } else {
+      height = constraints.maxHeight;
+      width = height * aspectRatio;
+    }
+
+    // Similar to RenderImage, we iteratively attempt to fit within the given
+    // constraints while maintaining the given aspect ratio. The order of
+    // applying the constraints is also biased towards inferring the height
+    // from the width.
+
+    if (width > constraints.maxWidth) {
+      width = constraints.maxWidth;
+      height = width / aspectRatio;
+    }
+
+    if (height > constraints.maxHeight) {
+      height = constraints.maxHeight;
+      width = height * aspectRatio;
+    }
+
+    if (width < constraints.minWidth) {
+      width = constraints.minWidth;
+      height = width / aspectRatio;
+    }
+
+    if (height < constraints.minHeight) {
+      height = constraints.minHeight;
+      width = height * aspectRatio;
+    }
+
+    return constraints.constrain(Size(width, height));
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-        color: widget.color,
-        width: widget.width,
-        height: widget.height,
-        alignment: widget.alignment,
-        child: buildExterior());
+    // return oldBuild(context);
+    return LayoutBuilder(builder: (ctx, constraints) {
+      // get child size
+
+      Size childSize = applyAspectRatio(constraints);
+
+      childSize = childSize * 1.5;
+      // get offset
+      Alignment resolvedAlignment = widget.alignment.resolve(null);
+      Offset diff = constraints.biggest - childSize;
+      Offset offset = resolvedAlignment.alongOffset(diff);
+
+      Rect pos = Rect.fromLTWH(
+          offset.dx, offset.dy, childSize.width, childSize.height);
+
+      debugPrint("size ${constraints.biggest} childSize $childSize, pos $pos diff $diff");
+      return Stack(
+        children: <Widget>[
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            color: Colors.blueGrey,
+          ),
+          Positioned.fromRect(
+            rect: pos,
+            child: buildTexture(),
+          )
+        ],
+      );
+    });
   }
 }

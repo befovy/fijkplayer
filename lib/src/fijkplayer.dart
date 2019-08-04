@@ -174,7 +174,7 @@ class FijkValue {
   /// Is [FijkSourceType.unknown] when [prepared] is false.
   final FijkSourceType dateSourceType;
 
-  /// whether if player should be displayed as in full screen
+  /// whether if player should be displayed in full screen mode
   final bool fullScreen;
 
   /// A constructor requires all value.
@@ -468,6 +468,14 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
 
     // if (_epState == )
     await _channel.invokeMethod("seekTo", <String, dynamic>{"msec": msec});
+    return Future.value(0);
+  }
+
+  Future<int> setSpeed(double speed) async {
+    await _nativeSetup.future;
+
+    await _channel.invokeMethod("setSpeec", <String, dynamic>{"speed": speed});
+
     return Future.value(0);
   }
 
