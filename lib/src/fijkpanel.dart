@@ -21,6 +21,7 @@
 //SOFTWARE.
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -45,7 +46,6 @@ Widget defaultFijkPanelBuilder(
       viewSize: viewSize,
       texturePos: texturePos);
 }
-
 
 /// Default Panel Widget
 class DefaultFijkPanel extends StatefulWidget {
@@ -240,7 +240,7 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
                     child: Padding(
                       padding: EdgeInsets.only(right: 0, left: 0),
                       child: Slider(
-                        value: 0,
+                        value: currentValue,
                         min: 0.0,
                         max: _duration.inMilliseconds.toDouble(),
                         label: '$currentValue',
@@ -294,10 +294,15 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
 
   @override
   Widget build(BuildContext context) {
+    Rect rect = player.value.fullScreen
+        ? Rect.fromLTWH(0, 0, widget.viewSize.width, widget.viewSize.height)
+        : Rect.fromLTRB(
+            max(0.0, widget.texturePos.left),
+            max(0.0, widget.texturePos.top),
+            min(widget.viewSize.width, widget.texturePos.right),
+            min(widget.viewSize.height, widget.texturePos.bottom));
     return Positioned.fromRect(
-      rect: player.value.fullScreen
-          ? Rect.fromLTWH(0, 0, widget.viewSize.width, widget.viewSize.height)
-          : widget.texturePos,
+      rect: rect,
       child: GestureDetector(
         onTap: _cancelAndRestartTimer,
         child: AbsorbPointer(
