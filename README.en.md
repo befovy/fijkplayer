@@ -57,10 +57,6 @@ class _VideoScreenState extends State<VideoScreen> {
           alignment: Alignment.center,
           child: FijkView(
             player: player,
-            // alignment: Alignment.center,
-            // aspectRatio: 1,
-            // width: 320,
-            // height: 180,
           ),
         ));
   }

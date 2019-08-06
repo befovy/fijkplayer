@@ -28,27 +28,41 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 import 'fijkplayer.dart';
-import 'fijkview.dart';
-
-/// Which area the panel should be rendered.
-enum FijkPanelSize {
-  /// same size as [FijkView]
-  sameAsFijkView,
-
-  /// same size as video(Texture) in[FijkView]
-  sameAsVideo,
-}
 
 /// The signature of the [LayoutBuilder] builder function.
+///
 /// Must not return null.
+/// The return widget is placed as one of [Stack]'s children.
 typedef FijkPanelWidgetBuilder = Widget Function(
-    FijkPlayer player, BuildContext context, BoxConstraints constraints);
+    FijkPlayer player, BuildContext context, Size viewSize, Rect texturePos);
 
 /// Default builder generate default [FijkPanel] UI
 Widget defaultFijkPanelBuilder(
-    FijkPlayer player, BuildContext context, BoxConstraints constraints) {
+    FijkPlayer player, BuildContext context, Size viewSize, Rect texturePos) {
   return DefaultFijkPanel(
-      player: player, buildContext: context, boxConstraints: constraints);
+      player: player,
+      buildContext: context,
+      viewSize: viewSize,
+      texturePos: texturePos);
+}
+
+
+/// Default Panel Widget
+class DefaultFijkPanel extends StatefulWidget {
+  final FijkPlayer player;
+  final BuildContext buildContext;
+  final Size viewSize;
+  final Rect texturePos;
+
+  const DefaultFijkPanel({
+    @required this.player,
+    this.buildContext,
+    this.viewSize,
+    this.texturePos,
+  });
+
+  @override
+  _DefaultFijkPanelState createState() => _DefaultFijkPanelState();
 }
 
 String _duration2String(Duration duration) {
@@ -65,21 +79,6 @@ String _duration2String(Duration duration) {
   return inHours > 0
       ? "$inHours:$twoDigitMinutes:$twoDigitSeconds"
       : "$twoDigitMinutes:$twoDigitSeconds";
-}
-
-class DefaultFijkPanel extends StatefulWidget {
-  final FijkPlayer player;
-  final BuildContext buildContext;
-  final BoxConstraints boxConstraints;
-
-  const DefaultFijkPanel({
-    @required this.player,
-    this.buildContext,
-    this.boxConstraints,
-  });
-
-  @override
-  _DefaultFijkPanelState createState() => _DefaultFijkPanelState();
 }
 
 class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
@@ -241,7 +240,7 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
                     child: Padding(
                       padding: EdgeInsets.only(right: 0, left: 0),
                       child: Slider(
-                        value: currentValue,
+                        value: 0,
                         min: 0.0,
                         max: _duration.inMilliseconds.toDouble(),
                         label: '$currentValue',
@@ -295,8 +294,10 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      constraints: widget.boxConstraints,
+    return Positioned.fromRect(
+      rect: player.value.fullScreen
+          ? Rect.fromLTWH(0, 0, widget.viewSize.width, widget.viewSize.height)
+          : widget.texturePos,
       child: GestureDetector(
         onTap: _cancelAndRestartTimer,
         child: AbsorbPointer(
@@ -344,19 +345,5 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
         ),
       ),
     );
-  }
-}
-
-class FijkPanelBuilder {
-  const FijkPanelBuilder(
-      {@required this.builder, this.panelSize = FijkPanelSize.sameAsFijkView})
-      : assert(builder != null);
-
-  final FijkPanelWidgetBuilder builder;
-  final FijkPanelSize panelSize;
-
-  Widget build(
-      FijkPlayer player, BuildContext context, BoxConstraints constraints) {
-    return builder(player, context, constraints);
   }
 }

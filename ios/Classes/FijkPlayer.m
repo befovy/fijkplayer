@@ -127,8 +127,7 @@ static atomic_int atomicId = 0;
 }
 
 - (CVPixelBufferRef _Nullable)copyPixelBuffer {
-    CVPixelBufferRef pixelBuffer =
-        atomic_exchange(&_pixelBuffer, nil);
+    CVPixelBufferRef pixelBuffer = atomic_exchange(&_pixelBuffer, nil);
     if (pixelBuffer)
         CFRetain(pixelBuffer);
 

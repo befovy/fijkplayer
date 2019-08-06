@@ -28,19 +28,8 @@ class _VideoScreenState extends State<VideoScreen> {
     return Scaffold(
         appBar: FijkAppBar.defaultSetting(title: "Video"),
         body: Container(
-          alignment: Alignment.center,
-          width: 200,
-          height: 300,
           child: FijkView(
             player: player,
-            aspectRatio: 1.5,
-            alignment: Alignment.center
-            // panelSize: FijkPanelSize.MatchView,
-            // alignment: Alignment.center,
-            // aspectRatio: 1,
-            // width: 320,
-            // height: 180,
-            // builder: defaultFijkPanelBuilder,
           ),
         ));
   }

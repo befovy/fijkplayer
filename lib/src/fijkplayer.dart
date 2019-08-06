@@ -474,7 +474,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   Future<int> setSpeed(double speed) async {
     await _nativeSetup.future;
 
-    await _channel.invokeMethod("setSpeec", <String, dynamic>{"speed": speed});
+    await _channel.invokeMethod("setSpeed", <String, dynamic>{"speed": speed});
 
     return Future.value(0);
   }
