@@ -174,7 +174,7 @@ class FijkValue {
   /// Is [FijkSourceType.unknown] when [prepared] is false.
   final FijkSourceType dateSourceType;
 
-  /// whether if player should be displayed as in full screen
+  /// whether if player should be displayed in full screen mode
   final bool fullScreen;
 
   /// A constructor requires all value.
