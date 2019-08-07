@@ -17,7 +17,7 @@
 
 ```yaml
 dependencies:
-  fijkplayer: ^0.0.6
+  fijkplayer: ^0.0.7
 ```
 
 ## 基础用法

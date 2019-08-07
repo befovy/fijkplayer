@@ -1,6 +1,7 @@
-## next version
+## 0.0.7
 
 - Update FijkView widget tree, add FijkFit (scaling mode)
+- fix pixelbuffer leak on iOS
 
 ## 0.0.6
 
