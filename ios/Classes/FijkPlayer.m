@@ -13,9 +13,9 @@
 #import <FIJKPlayer/IJKFFMoviePlayerController.h>
 #import <Flutter/Flutter.h>
 #import <Foundation/Foundation.h>
-#include <libkern/OSAtomic.h>
+#import <stdatomic.h>
 
-static int atomicId = 0;
+static atomic_int atomicId = 0;
 
 @implementation FijkPlayer {
     IJKFFMediaPlayer *_ijkMediaPlayer;
@@ -27,7 +27,7 @@ static int atomicId = 0;
     id<FlutterPluginRegistrar> _registrar;
     id<FlutterTextureRegistry> _textureRegistry;
     CVPixelBufferRef _cachePixelBufer;
-    NSRecursiveLock *_cvPbLock;
+    CVPixelBufferRef _Atomic _pixelBuffer;
 
     int _pid;
     int64_t _vid;
@@ -37,13 +37,13 @@ static int atomicId = 0;
     self = [super init];
     if (self) {
         _registrar = registrar;
-        int pid = OSAtomicIncrement32(&atomicId);
+        int pid = atomic_fetch_add(&atomicId, 1);
         _playerId = @(pid);
         _pid = pid;
         _eventSink = [[FijkQueuingEventSink alloc] init];
         _ijkMediaPlayer = [[IJKFFMediaPlayer alloc] init];
-        _cvPbLock = [[NSRecursiveLock alloc] init];
         _cachePixelBufer = nil;
+        _pixelBuffer = nil;
         _vid = -1;
 
         [_ijkMediaPlayer addIJKMPEventHandler:self];
@@ -83,12 +83,20 @@ static int atomicId = 0;
 }
 
 - (void)shutdown {
-    [_ijkMediaPlayer stop];
-    [_ijkMediaPlayer shutdown];
+    if (_ijkMediaPlayer) {
+        [_ijkMediaPlayer stop];
+        [_ijkMediaPlayer shutdown];
+        _ijkMediaPlayer = nil;
+    }
     if (_vid >= 0) {
         [_textureRegistry unregisterTexture:_vid];
         _vid = -1;
         _textureRegistry = nil;
+    }
+
+    if (_cachePixelBufer) {
+        CFRelease(_cachePixelBufer);
+        _cachePixelBufer = nil;
     }
 }
 
@@ -105,28 +113,25 @@ static int atomicId = 0;
 }
 
 - (void)display_pixelbuffer:(CVPixelBufferRef)pixelbuffer {
-    [_cvPbLock lock];
     if (_cachePixelBufer != nil)
-        CVBufferRelease(_cachePixelBufer);
+        CFRelease(_cachePixelBufer);
 
-    // NSLog(@"display_pixelbuffer %@ %d", pixelbuffer, (int)_vid);
     if (pixelbuffer != nil) {
-        _cachePixelBufer = CVBufferRetain(pixelbuffer);
-        if (_vid >= 0) {
-            [_textureRegistry textureFrameAvailable:_vid];
-        }
+        CFRetain(pixelbuffer);
+        _cachePixelBufer = pixelbuffer;
     }
-    [_cvPbLock unlock];
+    atomic_exchange(&_pixelBuffer, _cachePixelBufer);
+    if (_vid >= 0) {
+        [_textureRegistry textureFrameAvailable:_vid];
+    }
 }
 
 - (CVPixelBufferRef _Nullable)copyPixelBuffer {
-    [_cvPbLock lock];
-    CVPixelBufferRef buffer = _cachePixelBufer;
+    CVPixelBufferRef pixelBuffer = atomic_exchange(&_pixelBuffer, nil);
+    if (pixelBuffer)
+        CFRetain(pixelBuffer);
 
-    if (buffer)
-        CFRetain(buffer);
-    [_cvPbLock unlock];
-    return buffer;
+    return pixelBuffer;
 }
 
 - (NSNumber *)setupSurface {
@@ -139,18 +144,15 @@ static int atomicId = 0;
     return [NSNumber numberWithLongLong:_vid];
 }
 
-- (void)onEvent4Player:(IJKFFMediaPlayer *)player
-              withType:(int)what
-               andArg1:(int)arg1
-               andArg2:(int)arg2
-              andExtra:(void *)extra {
+- (void)handleEvent:(int)what
+            andArg1:(int)arg1
+            andArg2:(int)arg2
+           andExtra:(void *)extra {
     switch (what) {
     case IJKMPET_PREPARED: {
         long duration = [_ijkMediaPlayer getDuration];
-        [_eventSink success:@{
-            @"event" : @"prepared",
-            @"duration" : @(duration)
-        }];
+        [_eventSink
+            success:@{@"event" : @"prepared", @"duration" : @(duration)}];
     } break;
     case IJKMPET_PLAYBACK_STATE_CHANGED:
         [_eventSink success:@{
@@ -161,6 +163,7 @@ static int atomicId = 0;
         break;
     case IJKMPET_BUFFERING_START:
     case IJKMPET_BUFFERING_END:
+        //        _displayLink.paused = what == IJKMPET_BUFFERING_START;
         [_eventSink success:@{
             @"event" : @"freeze",
             @"value" : [NSNumber numberWithBool:what == IJKMPET_BUFFERING_START]
@@ -179,6 +182,25 @@ static int atomicId = 0;
             @"width" : @(arg1),
             @"height" : @(arg2)
         }];
+    default:
+        break;
+    }
+}
+
+- (void)onEvent4Player:(IJKFFMediaPlayer *)player
+              withType:(int)what
+               andArg1:(int)arg1
+               andArg2:(int)arg2
+              andExtra:(void *)extra {
+    switch (what) {
+    case IJKMPET_PREPARED:
+    case IJKMPET_PLAYBACK_STATE_CHANGED:
+    case IJKMPET_BUFFERING_START:
+    case IJKMPET_BUFFERING_END:
+    case IJKMPET_BUFFERING_UPDATE:
+    case IJKMPET_VIDEO_SIZE_CHANGED:
+        [self handleEvent:what andArg1:arg1 andArg2:arg2 andExtra:extra];
+        break;
     default:
         break;
     }
@@ -231,12 +253,12 @@ static int atomicId = 0;
         long pos = [_ijkMediaPlayer getCurrentPosition];
         // [_eventSink success:@{@"event" : @"current_pos", @"pos" : @(pos)}];
         result(@(pos));
-    } else if ([@"setVolume" isEqualToString:call.method]){
+    } else if ([@"setVolume" isEqualToString:call.method]) {
         double volume = [argsMap[@"volume"] doubleValue];
-        [_ijkMediaPlayer setPlaybackVolume:(float) volume];
+        [_ijkMediaPlayer setPlaybackVolume:(float)volume];
         result(@(0));
     } else if ([@"seekTo" isEqualToString:call.method]) {
-        long pos = [argsMap[@"pos"] longValue];
+        long pos = [argsMap[@"msec"] longValue];
         int ret = [_ijkMediaPlayer seekTo:pos];
         result(@(ret));
     } else {

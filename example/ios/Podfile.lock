@@ -1,15 +1,21 @@
 PODS:
   - fijkplayer (0.0.3):
-    - FIJKPlayer (~> 0.3.1)
+    - FIJKPlayer (~> 0.3.2)
     - Flutter
-  - FIJKPlayer (0.3.1)
+  - FIJKPlayer (0.3.2)
   - Flutter (1.0.0)
+  - path_provider (0.0.1):
+    - Flutter
+  - "permission_handler (3.2.1+1)":
+    - Flutter
   - shared_preferences (0.0.1):
     - Flutter
 
 DEPENDENCIES:
   - fijkplayer (from `.symlinks/plugins/fijkplayer/ios`)
   - Flutter (from `.symlinks/flutter/ios`)
+  - path_provider (from `.symlinks/plugins/path_provider/ios`)
+  - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
   - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
 
 SPEC REPOS:
@@ -21,13 +27,19 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/fijkplayer/ios"
   Flutter:
     :path: ".symlinks/flutter/ios"
+  path_provider:
+    :path: ".symlinks/plugins/path_provider/ios"
+  permission_handler:
+    :path: ".symlinks/plugins/permission_handler/ios"
   shared_preferences:
     :path: ".symlinks/plugins/shared_preferences/ios"
 
 SPEC CHECKSUMS:
-  FIJKPlayer: 0a7d96394af1a697ada7bbf64972ef342be5b3df
-  fijkplayer: 76a82cd602f9583cf679236e20098837f5399fd9
+  FIJKPlayer: 1e82c5f6a12168eab3e10633ede475d20f9e80ed
+  fijkplayer: a0a26ecc2e4345ff8dde1e43841f9050e11069af
   Flutter: 58dd7d1b27887414a370fcccb9e645c08ffd7a6a
+  path_provider: f96fff6166a8867510d2c25fdcc346327cc4b259
+  permission_handler: 6a1b2f94f866da8bd19fa67f3c8f4b9f38580efb
   shared_preferences: 1feebfa37bb57264736e16865e7ffae7fc99b523
 
 PODFILE CHECKSUM: 3389836f37640698630b8f0670315d626d5f1469

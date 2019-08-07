@@ -174,7 +174,7 @@ class FijkValue {
   /// Is [FijkSourceType.unknown] when [prepared] is false.
   final FijkSourceType dateSourceType;
 
-  /// whether if player should be displayed as in full screen
+  /// whether if player should be displayed in full screen mode
   final bool fullScreen;
 
   /// A constructor requires all value.
@@ -281,8 +281,6 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
 
   Stream<Duration> get onBufferPosUpdate => _bufferPosController.stream;
 
-
-
   Duration _currentPos = Duration();
 
   /// return the current playing position
@@ -293,8 +291,6 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
 
   /// stream of current playing position, update every 200ms.
   Stream<Duration> get onCurrentPosUpdate => _currentPosController.stream;
-
-
 
   bool _buffering = false;
 
@@ -464,6 +460,14 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     await _nativeSetup.future;
 
     await _channel.invokeMethod("reset");
+    return Future.value(0);
+  }
+
+  Future<int> seekTo(int msec) async {
+    await _nativeSetup.future;
+
+    // if (_epState == )
+    await _channel.invokeMethod("seekTo", <String, dynamic>{"msec": msec});
     return Future.value(0);
   }
 

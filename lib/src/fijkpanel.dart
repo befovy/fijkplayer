@@ -21,6 +21,7 @@
 //SOFTWARE.
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -30,15 +31,38 @@ import 'package:flutter/widgets.dart';
 import 'fijkplayer.dart';
 
 /// The signature of the [LayoutBuilder] builder function.
+///
 /// Must not return null.
+/// The return widget is placed as one of [Stack]'s children.
 typedef FijkPanelWidgetBuilder = Widget Function(
-    FijkPlayer player, BuildContext context, BoxConstraints constraints);
+    FijkPlayer player, BuildContext context, Size viewSize, Rect texturePos);
 
 /// Default builder generate default [FijkPanel] UI
 Widget defaultFijkPanelBuilder(
-    FijkPlayer player, BuildContext context, BoxConstraints constraints) {
+    FijkPlayer player, BuildContext context, Size viewSize, Rect texturePos) {
   return DefaultFijkPanel(
-      player: player, buildContext: context, boxConstraints: constraints);
+      player: player,
+      buildContext: context,
+      viewSize: viewSize,
+      texturePos: texturePos);
+}
+
+/// Default Panel Widget
+class DefaultFijkPanel extends StatefulWidget {
+  final FijkPlayer player;
+  final BuildContext buildContext;
+  final Size viewSize;
+  final Rect texturePos;
+
+  const DefaultFijkPanel({
+    @required this.player,
+    this.buildContext,
+    this.viewSize,
+    this.texturePos,
+  });
+
+  @override
+  _DefaultFijkPanelState createState() => _DefaultFijkPanelState();
 }
 
 String _duration2String(Duration duration) {
@@ -57,21 +81,6 @@ String _duration2String(Duration duration) {
       : "$twoDigitMinutes:$twoDigitSeconds";
 }
 
-class DefaultFijkPanel extends StatefulWidget {
-  final FijkPlayer player;
-  final BuildContext buildContext;
-  final BoxConstraints boxConstraints;
-
-  const DefaultFijkPanel({
-    @required this.player,
-    this.buildContext,
-    this.boxConstraints,
-  });
-
-  @override
-  _DefaultFijkPanelState createState() => _DefaultFijkPanelState();
-}
-
 class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
   FijkPlayer get player => widget.player;
 
@@ -84,7 +93,7 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
 
   // bool _buffering = false;
 
-  //double _seekPos = -1.0;
+  double _seekPos = -1.0;
 
   StreamSubscription _currentPosSubs;
 
@@ -166,7 +175,6 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
   @override
   void dispose() {
     super.dispose();
-
     _hideTimer?.cancel();
 
     player.removeListener(_playerValueChanged);
@@ -195,7 +203,8 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
   }
 
   AnimatedOpacity _buildBottomBar(BuildContext context) {
-    double currentValue = _currentPos.inSeconds.toDouble();
+    double currentValue =
+        _seekPos > 0 ? _seekPos : _currentPos.inMilliseconds.toDouble();
 
     return AnimatedOpacity(
       opacity: _hideStuff ? 0.0 : 0.8,
@@ -233,9 +242,22 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
                       child: Slider(
                         value: currentValue,
                         min: 0.0,
-                        max: _duration.inSeconds.toDouble(),
+                        max: _duration.inMilliseconds.toDouble(),
                         label: '$currentValue',
-                        onChanged: (v) {},
+                        onChanged: (v) {
+                          setState(() {
+                            _seekPos = v;
+                          });
+                        },
+                        onChangeEnd: (v) {
+                          setState(() {
+                            player.seekTo(v.toInt());
+                            print("seek to $v");
+                            _currentPos =
+                                Duration(milliseconds: _seekPos.toInt());
+                            _seekPos = -1;
+                          });
+                        },
                       ),
                     ),
                   ),
@@ -272,8 +294,15 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      constraints: widget.boxConstraints,
+    Rect rect = player.value.fullScreen
+        ? Rect.fromLTWH(0, 0, widget.viewSize.width, widget.viewSize.height)
+        : Rect.fromLTRB(
+            max(0.0, widget.texturePos.left),
+            max(0.0, widget.texturePos.top),
+            min(widget.viewSize.width, widget.texturePos.right),
+            min(widget.viewSize.height, widget.texturePos.bottom));
+    return Positioned.fromRect(
+      rect: rect,
       child: GestureDetector(
         onTap: _cancelAndRestartTimer,
         child: AbsorbPointer(
