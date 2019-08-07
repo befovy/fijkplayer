@@ -1,3 +1,7 @@
+## next version
+
+- Update FijkView widget tree, add FijkFit (scaling mode)
+
 ## 0.0.6
 
 - FijkSourceType as a option argument
