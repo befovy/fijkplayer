@@ -97,7 +97,8 @@ android screenshots
 修改后在 CocoaPods 和 http://bintray.com 进行了发布。
 
 单独引入方式如下
-``
+
+```
 # support arm64 armv7 armv7s x86_64 i386
 pod 'FIJKPlayer'
 ```
