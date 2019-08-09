@@ -115,8 +115,8 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
     _duration = player.value.duration;
     _currentPos = player.currentPos;
     //_bufferPos = player.bufferPos;
-    _prepared = player.state.index >= FijkState.PREPARED.index;
-    _playing = player.state == FijkState.STARTED;
+    _prepared = player.state.index >= FijkState.prepared.index;
+    _playing = player.state == FijkState.started;
     // _buffering = player.isBuffering;
 
     player.addListener(_playerValueChanged);
@@ -144,8 +144,8 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
     */
 
     _fijkStateSubs = player.onPlayerStateChange.listen((v) {
-      bool playing = v == FijkState.STARTED;
-      bool prepared = v.index >= FijkState.PREPARED.index;
+      bool playing = v == FijkState.started;
+      bool prepared = v.index >= FijkState.prepared.index;
       if (playing != _playing || prepared != _prepared) {
         setState(() {
           _playing = playing;
