@@ -57,14 +57,14 @@ enum FijkSourceType {
 enum FijkState {
   /// The state when a [FijkPlayer] is just created.
   /// Native ijkplayer memory and objects also be alloced or created when a [FijkPlayer] is created.
-  /// 
+  ///
   /// * setDataSource()  -> [initialized]
   /// * reset()          -> self
   /// * release()        -> [end]
   idle,
 
-  /// After call [FijkPlayer.setDataSource] on state [idle], the state becomes [initialized]. 
-  /// 
+  /// After call [FijkPlayer.setDataSource] on state [idle], the state becomes [initialized].
+  ///
   /// * prepareAsync()   -> [asyncPreparing]
   /// * reset()          -> [idle]
   /// * release()        -> [end]
@@ -75,17 +75,16 @@ enum FijkState {
   /// When [FijkPlayer.prepareAsync] is called on state [initialized], ths state changed to [asyncPreparing] immediately.
   /// After all task in prepare have finished, the state changed to [prepared].
   /// Additionally, if any error occurs during prepare, the state will change to [error].
-  /// 
+  ///
   /// * .....            -> [prepared]
   /// * .....            -> [error]
   /// * reset()          -> [idle]
   /// * release()        -> [end]
   asyncPreparing,
 
-  /// After finish all the heavy tasks during [FijkPlayer.prepareAsync], 
+  /// After finish all the heavy tasks during [FijkPlayer.prepareAsync],
   /// the state becomes [prepared] from [asyncPreparing].
-  /// 
-  /// 
+  ///
   /// * start()          -> [started]
   /// * reset()          -> [idle]
   /// * release()        -> [end]
@@ -128,7 +127,14 @@ enum FijkState {
   end
 }
 
-/// FijkValue include the not frequent updated properties of a [FijkPlayer]
+/// FijkValue include the properties of a [FijkPlayer] which update not frequently.
+///
+/// To get the updated value of other frequently updated properties,
+/// add listener of the value stream.
+/// See
+///  * [FijkPlayer.onBufferPosUpdate]
+///  * [FijkPlayer.onCurrentPosUpdate]
+///  * [FijkPlayer.onBufferStateUpdate]
 @immutable
 class FijkValue {
   /// Indicates if the player is ready
@@ -138,6 +144,9 @@ class FijkValue {
   ///
   /// If the playback stream is realtime/live, [completed] never be true.
   final bool completed;
+
+  /// Current state of the player
+  final FijkState state;
 
   /// The pixel [size] of current video
   ///
@@ -163,6 +172,7 @@ class FijkValue {
   const FijkValue({
     @required this.prepared,
     @required this.completed,
+    @required this.state,
     @required this.size,
     @required this.duration,
     @required this.dateSourceType,
@@ -172,24 +182,29 @@ class FijkValue {
   /// Construct FijkValue with uninitialized value
   const FijkValue.uninitialized()
       : this(
-            prepared: false,
-            completed: false,
-            size: null,
-            duration: const Duration(),
-            dateSourceType: FijkSourceType.unknown,
-            fullScreen: false);
+          prepared: false,
+          completed: false,
+          state: FijkState.idle,
+          size: null,
+          duration: const Duration(),
+          dateSourceType: FijkSourceType.unknown,
+          fullScreen: false,
+        );
 
   /// Return new FijkValue which combines the old value and the assigned new value
-  FijkValue copyWith(
-      {bool prepared,
-      bool completed,
-      Size size,
-      Duration duration,
-      FijkSourceType dateSourceType,
-      bool fullScreen}) {
+  FijkValue copyWith({
+    bool prepared,
+    bool completed,
+    FijkState state,
+    Size size,
+    Duration duration,
+    FijkSourceType dateSourceType,
+    bool fullScreen,
+  }) {
     return FijkValue(
       prepared: prepared ?? this.prepared,
       completed: completed ?? this.completed,
+      state: state ?? this.state,
       size: size ?? this.size,
       duration: duration ?? this.duration,
       dateSourceType: dateSourceType ?? this.dateSourceType,
@@ -206,11 +221,11 @@ class FijkValue {
 
   @override
   int get hashCode => hashValues(
-      prepared, completed, size, duration, dateSourceType, fullScreen);
+      prepared, completed, state, size, duration, dateSourceType, fullScreen);
 
   @override
   String toString() {
-    return "prepared:$prepared, completed:$completed, size:$size, "
+    return "prepared:$prepared, completed:$completed, state:$state, size:$size, "
         "dataType:$dateSourceType duration:$duration, fullScreen:$fullScreen";
   }
 }
@@ -231,13 +246,12 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
 
   bool _startAfterSetup = false;
 
+  FijkValue _value;
   FijkState _epState;
-  FijkState _fpState;
 
   /// return the current state
-  FijkState get state => _fpState;
+  FijkState get state => _value.state;
 
-  FijkValue _value;
 
   @override
   FijkValue get value => _value;
@@ -247,11 +261,6 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     _value = newValue;
     notifyListeners();
   }
-
-  final StreamController<FijkState> _playerStateController =
-      StreamController.broadcast();
-
-  Stream<FijkState> get onPlayerStateChange => _playerStateController.stream;
 
   Duration _bufferPos = Duration();
 
@@ -292,7 +301,6 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
       : _nativeSetup = Completer(),
         super() {
     _value = FijkValue.uninitialized();
-    _fpState = FijkState.idle;
     _epState = FijkState.error;
     _doNativeSetup();
   }
@@ -479,23 +487,24 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
         break;
       case 'state_change':
         int newState = map['new'];
-        _fpState = FijkState.values[newState];
+        FijkState fpState = FijkState.values[newState];
 
-        if (_fpState == FijkState.started) {
+        if (fpState == FijkState.started) {
           _looperSub.resume();
         } else {
           if (!_looperSub.isPaused) _looperSub.pause();
         }
 
-        if (_fpState == FijkState.error) {
+        if (fpState == FijkState.error) {
           _epState = FijkState.error;
         }
-        _playerStateController.add(_fpState);
 
         if (newState == FijkState.prepared.index) {
-          _setValue(value.copyWith(prepared: true));
+          _setValue(value.copyWith(prepared: true, state: fpState));
         } else if (newState < FijkState.prepared.index) {
-          _setValue(value.copyWith(prepared: false));
+          _setValue(value.copyWith(prepared: false, state: fpState));
+        } else {
+          _setValue(value.copyWith(state: fpState));
         }
         break;
       case 'freeze':

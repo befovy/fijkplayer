@@ -143,16 +143,6 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
     });
     */
 
-    _fijkStateSubs = player.onPlayerStateChange.listen((v) {
-      bool playing = v == FijkState.started;
-      bool prepared = v.index >= FijkState.prepared.index;
-      if (playing != _playing || prepared != _prepared) {
-        setState(() {
-          _playing = playing;
-          _prepared = prepared;
-        });
-      }
-    });
   }
 
   void _playerValueChanged() {
@@ -160,6 +150,15 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
     if (value.duration != _duration) {
       setState(() {
         _duration = value.duration;
+      });
+    }
+
+    bool playing = (value.state == FijkState.started);
+    bool prepared = value.prepared;
+    if (playing != _playing || prepared != _prepared) {
+      setState(() {
+        _playing = playing;
+        _prepared = prepared;
       });
     }
   }
@@ -181,7 +180,7 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
     _currentPosSubs?.cancel();
     //_bufferPosSubs.cancel();
     //_bufferingSubs.cancel();
-    _fijkStateSubs.cancel();
+    _fijkStateSubs?.cancel();
   }
 
   void _startHideTimer() {
