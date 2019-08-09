@@ -415,18 +415,21 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   Future<int> start() async {
     await _nativeSetup.future;
     int ret = 0;
+
     if (_epState == FijkState.initialized) {
       await _channel.invokeMethod("prepareAsync");
       await _channel.invokeMethod("start");
       _epState = FijkState.started;
-    } else if (_epState == FijkState.prepared || _epState == FijkState.paused) {
+    } else if (_epState == FijkState.prepared ||
+        _epState == FijkState.paused ||
+        value.state == FijkState.completed) {
       await _channel.invokeMethod("start");
       _epState = FijkState.started;
-    } else if (_epState == FijkState.paused) {
+    } else {
       ret = -1;
     }
 
-    print("call start $_epState");
+    print("call start $_epState ${value.state} ret:$ret");
     return Future.value(ret);
   }
 
