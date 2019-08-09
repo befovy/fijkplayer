@@ -1,3 +1,7 @@
+##
+
+- Add diagram about FijkState, update FijkState document
+
 ## 0.0.7
 
 - Update FijkView widget tree, add FijkFit (scaling mode)
