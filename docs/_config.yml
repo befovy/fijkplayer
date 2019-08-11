@@ -1,0 +1,128 @@
+## => Site Settings
+##############################
+text_skin: default # "default" (default), "dark", "forest", "ocean", "chocolate", "orange"
+highlight_theme: default # "default" (default), "tomorrow", "tomorrow-night", "tomorrow-night-eighties", "tomorrow-night-blue", "tomorrow-night-bright"
+url: https://befovy.github.io
+# baseurl: /fijkplayer
+title: fijkplayer 
+description: Flutter media player plugin for android/iOS based on https://github.com/befovy/ijkplayer
+
+
+## => Link roots
+##############################
+# release_v2: https://github.com/google/ExoPlayer/tree/release-v2
+# exo_sdk: /doc/reference/com/google/android/exoplayer2
+# android_sdk: https://developer.android.com/reference
+
+
+## => GitHub Repository (if the site is hosted by GitHub)
+##############################
+repository: befovy/fijkplayer
+repository_tree: master/docs
+
+
+## => Author and Social
+##############################
+author:
+  name      : "Befovy"
+  # email     : "befovy@gmail.com"
+  github    : "befovy/fijkplayer"
+
+## => Paths
+##############################
+paths:
+  root    : # title link url, "/" (default)
+  home    : # home layout url, "/" (default)
+  archive : # "/archive.html" (default)
+  rss     : # "/feed.xml" (default)
+
+
+## => Post
+##############################
+excerpt_separator: <!--more-->
+
+
+## => Analytics
+##############################
+# analytics:
+#   provider: google
+#   google:
+#     tracking_id : UA-68257324-1
+#     anonymize_ip: true
+
+
+## => Search
+##############################
+# search:
+#   provider: google # "default" (default), false, "google", "custom"
+
+#   ## Google Custom Search Engine
+#   google:
+#     custom_search_engine_id: 009764199895742571316:nuhckqry2_e
+
+
+## => Build
+##############################
+markdown    : kramdown
+highlighter : rouge
+permalink   : date
+
+exclude:
+  - Gemfile
+  - README.md
+  - vendor
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      footer: true
+      show_date: false
+      layout: article
+      sidebar:
+        nav: en
+  - scope:
+      path: "_docs/en"
+    values:
+      layout: article
+      nav_key: docs
+      sidebar:
+        nav: docs-en
+      license: true
+      aside:
+        toc: true
+      show_edit_on_github: false
+      show_date: false
+  - scope:
+      path: "_docs/zh"
+    values:
+      layout: article
+      nav_key: docs
+      sidebar:
+        nav: docs-zh
+      license: true
+      lang: zh
+      aside:
+        toc: true
+      show_edit_on_github: false
+      show_date: false
+
+
+## => Plugins
+##############################
+plugins:
+  - jekyll-feed
+  - jekyll-paginate
+  - jekyll-sitemap
+  - jekyll-redirect-from
+  - jemoji
+
+
+include:
+  - /_docs
+
+exclude:
+  - /api
+  - README.md
+
+# data_dir: /docs/_data

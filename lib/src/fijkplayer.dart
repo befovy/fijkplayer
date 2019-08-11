@@ -32,8 +32,8 @@ import 'fijkplugin.dart';
 /// The data source type for fijkplayer
 /// [asset] [network] and [file]
 enum FijkSourceType {
-  /// [asset] means source from app asset files
-  /// asset,
+  // [asset] means source from app asset files
+  // asset,
 
   /// [network] means source from network. it supports many protocols, like `http` and `rtmp` etc.
   network,
@@ -45,108 +45,96 @@ enum FijkSourceType {
   unknown,
 }
 
-/// State of the Player
+/// State of the [FijkPlayer]
 ///
-/// This is the state machine of player.
+/// This is the state machine of ijkplayer. FijkPlayer has the same state as native ijkplayer.
 /// The state changed after method called or when some error occurs.
 /// One state can only change into the new state it can reach.
 ///
-/// For example, [IDLE] can't becomes [ASYNC_PREPARING] directly.
+/// For example, [idle] can't becomes [asyncPreparing] directly.
 ///
-/// Todo, make a picture which can show the state change
+/// <img width="800" src="https://user-images.githubusercontent.com/51129600/62750997-ab195100-ba94-11e9-941b-57509e2bd677.png" />
 enum FijkState {
-  /// setDataSource  -> [INITIALIZED]
+  /// The state when a [FijkPlayer] is just created.
+  /// Native ijkplayer memory and objects also be alloced or created when a [FijkPlayer] is created.
   ///
-  /// reset          -> self
-  ///
-  /// release        -> [END]
-  ///
-  IDLE,
+  /// * setDataSource()  -> [initialized]
+  /// * reset()          -> self
+  /// * release()        -> [end]
+  idle,
 
+  /// After call [FijkPlayer.setDataSource] on state [idle], the state becomes [initialized].
   ///
-  /// prepareAsync   -> [ASYNC_PREPARING]
-  ///
-  /// reset          -> [IDLE]
-  ///
-  /// release        -> [END]
-  ///
-  INITIALIZED,
+  /// * prepareAsync()   -> [asyncPreparing]
+  /// * reset()          -> [idle]
+  /// * release()        -> [end]
+  initialized,
 
+  /// There're many tasks to do during prepare, such as detect stream info in datasource, find and open decoder, start decode and refresh thread.
+  /// So ijkplayer export a async api prepareAsync.
+  /// When [FijkPlayer.prepareAsync] is called on state [initialized], ths state changed to [asyncPreparing] immediately.
+  /// After all task in prepare have finished, the state changed to [prepared].
+  /// Additionally, if any error occurs during prepare, the state will change to [error].
   ///
-  /// .....          -> [PREPARED]
-  ///
-  /// .....          -> [ERROR]
-  ///
-  /// reset          -> [IDLE]
-  ///
-  /// release        -> [END]
-  ///
-  ASYNC_PREPARING,
+  /// * .....            -> [prepared]
+  /// * .....            -> [error]
+  /// * reset()          -> [idle]
+  /// * release()        -> [end]
+  asyncPreparing,
 
+  /// After finish all the heavy tasks during [FijkPlayer.prepareAsync],
+  /// the state becomes [prepared] from [asyncPreparing].
   ///
-  /// start          -> [STARTED]
-  ///
-  /// reset          -> [IDLE]
-  ///
-  /// release        -> [END]
-  PREPARED,
+  /// * start()          -> [started]
+  /// * reset()          -> [idle]
+  /// * release()        -> [end]
+  prepared,
 
-  /// start          -> self
-  ///
-  /// pause          -> [PAUSED]
-  ///
-  /// stop           -> [STOPPED]
-  ///
-  /// ......         -> [COMPLETED]
-  ///
-  /// ......         -> [ERROR]
-  ///
-  /// reset          -> [IDLE]
-  ///
-  /// release        -> [END]
-  STARTED,
+  /// * start()          -> self
+  /// * pause()          -> [paused]
+  /// * stop()           -> [stopped]
+  /// * ......           -> [completed]
+  /// * ......           -> [error]
+  /// * reset()          -> [idle]
+  /// * release()        -> [end]
+  started,
 
-  /// start          -> [STARTED]
-  ///
-  /// pause          -> self
-  ///
-  /// stop           -> [STOPPED]
-  ///
-  /// reset          -> [IDLE]
-  ///
-  /// release        -> [END]
-  PAUSED,
+  /// * start()          -> [started]
+  /// * pause()          -> self
+  /// * stop()           -> [stopped]
+  /// * reset()          -> [idle]
+  /// * release()        -> [end]
+  paused,
 
-  /// start          -> [STARTED] (from beginning)
-  ///
-  /// pause          -> self
-  ///
-  /// stop           -> [STOPPED]
-  ///
-  /// reset          -> [IDLE]
-  ///
-  /// release        -> [END]
-  COMPLETED,
+  /// * start()          -> [started] (from beginning)
+  /// * pause()          -> self
+  /// * stop()           -> [stopped]
+  /// * reset()          -> [idle]
+  /// * release()        -> [end]
+  completed,
 
-  /// stop           -> self
-  ///
-  /// prepareAsync   -> [ASYNC_PREPARING]
-  ///
-  /// reset          -> [IDLE]
-  ///
-  /// release        -> [END]
-  STOPPED,
+  /// * stop()           -> self
+  /// * prepareAsync()   -> [asyncPreparing]
+  /// * reset()          -> [idle]
+  /// * release()        -> [end]
+  stopped,
 
-  /// reset          -> [IDLE]
-  ///
-  /// release        -> [END]
-  ERROR,
+  /// * reset()          -> [idle]
+  /// * release()        -> [end]
+  error,
 
-  /// release        -> self
-  END
+  /// * release()        -> self
+  end
 }
 
-/// FijkValue include the not frequent updated properties of a [FijkPlayer]
+/// FijkValue include the properties of a [FijkPlayer] which update not frequently.
+///
+/// To get the updated value of other frequently updated properties,
+/// add listener of the value stream.
+/// See
+///  * [FijkPlayer.onBufferPosUpdate]
+///  * [FijkPlayer.onCurrentPosUpdate]
+///  * [FijkPlayer.onBufferStateUpdate]
 @immutable
 class FijkValue {
   /// Indicates if the player is ready
@@ -156,6 +144,9 @@ class FijkValue {
   ///
   /// If the playback stream is realtime/live, [completed] never be true.
   final bool completed;
+
+  /// Current state of the player
+  final FijkState state;
 
   /// The pixel [size] of current video
   ///
@@ -181,6 +172,7 @@ class FijkValue {
   const FijkValue({
     @required this.prepared,
     @required this.completed,
+    @required this.state,
     @required this.size,
     @required this.duration,
     @required this.dateSourceType,
@@ -190,24 +182,29 @@ class FijkValue {
   /// Construct FijkValue with uninitialized value
   const FijkValue.uninitialized()
       : this(
-            prepared: false,
-            completed: false,
-            size: null,
-            duration: const Duration(),
-            dateSourceType: FijkSourceType.unknown,
-            fullScreen: false);
+          prepared: false,
+          completed: false,
+          state: FijkState.idle,
+          size: null,
+          duration: const Duration(),
+          dateSourceType: FijkSourceType.unknown,
+          fullScreen: false,
+        );
 
   /// Return new FijkValue which combines the old value and the assigned new value
-  FijkValue copyWith(
-      {bool prepared,
-      bool completed,
-      Size size,
-      Duration duration,
-      FijkSourceType dateSourceType,
-      bool fullScreen}) {
+  FijkValue copyWith({
+    bool prepared,
+    bool completed,
+    FijkState state,
+    Size size,
+    Duration duration,
+    FijkSourceType dateSourceType,
+    bool fullScreen,
+  }) {
     return FijkValue(
       prepared: prepared ?? this.prepared,
       completed: completed ?? this.completed,
+      state: state ?? this.state,
       size: size ?? this.size,
       duration: duration ?? this.duration,
       dateSourceType: dateSourceType ?? this.dateSourceType,
@@ -224,11 +221,11 @@ class FijkValue {
 
   @override
   int get hashCode => hashValues(
-      prepared, completed, size, duration, dateSourceType, fullScreen);
+      prepared, completed, state, size, duration, dateSourceType, fullScreen);
 
   @override
   String toString() {
-    return "prepared:$prepared, completed:$completed, size:$size, "
+    return "prepared:$prepared, completed:$completed, state:$state, size:$size, "
         "dataType:$dateSourceType duration:$duration, fullScreen:$fullScreen";
   }
 }
@@ -249,13 +246,12 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
 
   bool _startAfterSetup = false;
 
+  FijkValue _value;
   FijkState _epState;
-  FijkState _fpState;
 
   /// return the current state
-  FijkState get state => _fpState;
+  FijkState get state => _value.state;
 
-  FijkValue _value;
 
   @override
   FijkValue get value => _value;
@@ -265,11 +261,6 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     _value = newValue;
     notifyListeners();
   }
-
-  final StreamController<FijkState> _playerStateController =
-      StreamController.broadcast();
-
-  Stream<FijkState> get onPlayerStateChange => _playerStateController.stream;
 
   Duration _bufferPos = Duration();
 
@@ -310,26 +301,25 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
       : _nativeSetup = Completer(),
         super() {
     _value = FijkValue.uninitialized();
-    _fpState = FijkState.IDLE;
-    _epState = FijkState.ERROR;
+    _epState = FijkState.error;
     _doNativeSetup();
   }
 
   Future<void> _startFromAnyState() async {
     await _nativeSetup.future;
 
-    if (_epState == FijkState.ERROR || _epState == FijkState.STOPPED) {
+    if (_epState == FijkState.error || _epState == FijkState.stopped) {
       await reset();
     }
-    if (_epState == FijkState.IDLE) {
+    if (_epState == FijkState.idle) {
       await setDataSource(_dataSource, type: _dateSourceType);
     }
-    if (_epState == FijkState.INITIALIZED) {
+    if (_epState == FijkState.initialized) {
       await prepareAsync();
     }
-    if (_epState == FijkState.PREPARED ||
-        _epState == FijkState.COMPLETED ||
-        _epState == FijkState.PAUSED) {
+    if (_epState == FijkState.prepared ||
+        _epState == FijkState.completed ||
+        _epState == FijkState.paused) {
       await start();
     }
     return Future.value();
@@ -338,7 +328,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   Future<void> _doNativeSetup() async {
     _playerId = await FijkPlugin.createPlayer();
     _channel = MethodChannel('befovy.com/fijkplayer/' + _playerId.toString());
-    _epState = FijkState.IDLE;
+    _epState = FijkState.idle;
 
     print("native player id: $_playerId");
 
@@ -367,7 +357,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
       bool autoPlay = false}) async {
     await _nativeSetup.future;
     int ret = 0;
-    if (_epState == FijkState.IDLE) {
+    if (_epState == FijkState.idle) {
       Map<String, dynamic> dataSourceDescription;
       _dateSourceType = type;
       _dataSource = path;
@@ -382,7 +372,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
         case FijkSourceType.unknown:
           break;
       }
-      _epState = FijkState.INITIALIZED;
+      _epState = FijkState.initialized;
       _setValue(value.copyWith(dateSourceType: type));
       await _channel.invokeMethod("setDateSource", dataSourceDescription);
 
@@ -399,8 +389,8 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     // ckeck state
     await _nativeSetup.future;
     int ret = 0;
-    if (_epState == FijkState.INITIALIZED) {
-      _epState = FijkState.PREPARED;
+    if (_epState == FijkState.initialized) {
+      _epState = FijkState.prepared;
       await _channel.invokeMethod("prepareAsync");
     } else {
       ret = -1;
@@ -425,24 +415,27 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   Future<int> start() async {
     await _nativeSetup.future;
     int ret = 0;
-    if (_epState == FijkState.INITIALIZED) {
+
+    if (_epState == FijkState.initialized) {
       await _channel.invokeMethod("prepareAsync");
       await _channel.invokeMethod("start");
-      _epState = FijkState.STARTED;
-    } else if (_epState == FijkState.PREPARED || _epState == FijkState.PAUSED) {
+      _epState = FijkState.started;
+    } else if (_epState == FijkState.prepared ||
+        _epState == FijkState.paused ||
+        value.state == FijkState.completed) {
       await _channel.invokeMethod("start");
-      _epState = FijkState.STARTED;
-    } else if (_epState == FijkState.PAUSED) {
+      _epState = FijkState.started;
+    } else {
       ret = -1;
     }
 
-    print("call start $_epState");
+    print("call start $_epState ${value.state} ret:$ret");
     return Future.value(ret);
   }
 
   Future<int> pause() async {
     await _nativeSetup.future;
-    _epState = FijkState.PAUSED;
+    _epState = FijkState.paused;
     await _channel.invokeMethod("pause");
     print("call pause");
     return Future.value(0);
@@ -451,7 +444,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   Future<int> stop() async {
     await _nativeSetup.future;
 
-    _epState = FijkState.STOPPED;
+    _epState = FijkState.stopped;
     await _channel.invokeMethod("stop");
     return Future.value(0);
   }
@@ -497,23 +490,24 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
         break;
       case 'state_change':
         int newState = map['new'];
-        _fpState = FijkState.values[newState];
+        FijkState fpState = FijkState.values[newState];
 
-        if (_fpState == FijkState.STARTED) {
+        if (fpState == FijkState.started) {
           _looperSub.resume();
         } else {
           if (!_looperSub.isPaused) _looperSub.pause();
         }
 
-        if (_fpState == FijkState.ERROR) {
-          _epState = FijkState.ERROR;
+        if (fpState == FijkState.error) {
+          _epState = FijkState.error;
         }
-        _playerStateController.add(_fpState);
 
-        if (newState == FijkState.PREPARED.index) {
-          _setValue(value.copyWith(prepared: true));
-        } else if (newState < FijkState.PREPARED.index) {
-          _setValue(value.copyWith(prepared: false));
+        if (newState == FijkState.prepared.index) {
+          _setValue(value.copyWith(prepared: true, state: fpState));
+        } else if (newState < FijkState.prepared.index) {
+          _setValue(value.copyWith(prepared: false, state: fpState));
+        } else {
+          _setValue(value.copyWith(state: fpState));
         }
         break;
       case 'freeze':
