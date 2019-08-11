@@ -1,0 +1,29 @@
+header:
+  # - title:      Flutter dartdoc
+  #   url:        doc/reference/
+  - title:      GitHub
+    url:        https://github.com/befovy/fijkplayer
+  # - title:      Blog
+  #   url:        https://medium.com/google-exoplayer
+
+docs-en:
+  - title: Start
+    children:
+      - title: Quick Start
+        url:   /docs/en/quick-start
+  - title: Languages
+    children:
+      - title: 中文
+        url:   /docs/zh/install
+
+docs-zh:
+  - title: 开始
+    children:
+      - title: 安装
+        url:   /docs/zh/install
+      - title: Hello World
+        url:   /docs/zh/hello-world
+  - title: 其他语言
+    children:
+      - title: English
+        url:   /docs/en/quick-start
