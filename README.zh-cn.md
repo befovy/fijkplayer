@@ -10,6 +10,11 @@
 
 *README 其他语言版本: [English](README.en.md), [简体中文](README.zh-cn.md).*
 
+## 文档
+
+* 开发文档  https://fijkplayer.befovy.com 包含快速开始、使用指南
+* dart api 文档  https://pub.dev/documentation/fijkplayer/latest/ 中有详细的接口文档和参数说明
+* release notes https://github.com/befovy/fijkplayer/releases &nbsp; [./CHANGELOG.md](./CHANGELOG.md) 包含每次的发版记录和说明
 
 ## 安装
 
