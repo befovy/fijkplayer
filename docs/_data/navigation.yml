@@ -21,13 +21,25 @@ docs-zh:
     children:
       - title: 首页
         url:   /index
-  - title: 开始
+  - title: 入门指南
+    url: /docs/en/install
     children:
       - title: 安装
         url:   /docs/zh/install
       - title: Hello World
         url:   /docs/zh/hello-world
+  - title: 了解更多
+    children:
+      - title: 播放器状态
+        url:   /docs/zh/fijkstate
+      - title: 填充与裁剪
+        url:   /docs/zh/fijkfit
+      - title: 播放器接口
+        url:   /docs/zh/fijkplayer-api
+      - title: 个性化 UI
+        url:   /docs/zh/custom-ui
   # - title: 其他语言
   #   children:
   #     - title: English
   #       url:   /docs/en/quick-start
+

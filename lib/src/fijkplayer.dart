@@ -85,11 +85,13 @@ enum FijkState {
   /// After finish all the heavy tasks during [FijkPlayer.prepareAsync],
   /// the state becomes [prepared] from [asyncPreparing].
   ///
+  /// * seekTo()         -> self
   /// * start()          -> [started]
   /// * reset()          -> [idle]
   /// * release()        -> [end]
   prepared,
 
+  /// * seekTo()         -> self
   /// * start()          -> self
   /// * pause()          -> [paused]
   /// * stop()           -> [stopped]
@@ -99,6 +101,7 @@ enum FijkState {
   /// * release()        -> [end]
   started,
 
+  /// * seekTo()         -> self
   /// * start()          -> [started]
   /// * pause()          -> self
   /// * stop()           -> [stopped]
@@ -106,6 +109,7 @@ enum FijkState {
   /// * release()        -> [end]
   paused,
 
+  /// * seekTo()         -> [paused]
   /// * start()          -> [started] (from beginning)
   /// * pause()          -> self
   /// * stop()           -> [stopped]

@@ -25,3 +25,10 @@ fijkplayer 具有和 ijkplayer 一样的播放能力，并且开箱即用，API�
 <!-- * Browse the library [Javadoc][]. -->
 <!-- * Browse the source code for the [latest release][] and current [tip of tree][]. -->
 
+
+&nbsp; &nbsp;
+
+------
+
+<span><small> 由于个人能力限制，文档中难免不出现纰漏。  
+如果您在阅读时发现任何不当或者错误内容，请在 [github issues](https://github.com/befovy/fijkplayer/issues) 上进行指正，或直接提交 [pull request](https://github.com/befovy/fijkplayer/pulls)。 </small></span>
