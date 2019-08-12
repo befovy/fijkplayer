@@ -23,7 +23,7 @@ docs-zh:
         url:   /docs/zh/install
       - title: Hello World
         url:   /docs/zh/hello-world
-  - title: 其他语言
-    children:
-      - title: English
-        url:   /docs/en/quick-start
+  # - title: 其他语言
+  #   children:
+  #     - title: English
+  #       url:   /docs/en/quick-start
