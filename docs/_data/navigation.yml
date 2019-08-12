@@ -9,14 +9,18 @@ header:
 docs-en:
   - title: Start
     children:
-      - title: Quick Start
-        url:   /docs/en/quick-start
+      - title: Install
+        url:   /docs/en/install
   - title: Languages
     children:
       - title: 中文
         url:   /docs/zh/install
 
 docs-zh:
+  - title:
+    children:
+      - title: 首页
+        url:   /index
   - title: 开始
     children:
       - title: 安装
