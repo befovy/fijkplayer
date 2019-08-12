@@ -34,6 +34,10 @@ docs-zh:
         url:   /docs/zh/fijkstate
       - title: 填充与裁剪
         url:   /docs/zh/fijkfit
+      - title: 播放器接口
+        url:   /docs/zh/fijkplayer-api
+      - title: 个性化 UI
+        url:   /docs/zh/custom-ui
   # - title: 其他语言
   #   children:
   #     - title: English
