@@ -91,7 +91,7 @@ defaults:
       license: true
       aside:
         toc: true
-      show_edit_on_github: false
+      show_edit_on_github: true
       show_date: false
   - scope:
       path: "_docs/zh"
@@ -104,7 +104,7 @@ defaults:
       lang: zh
       aside:
         toc: true
-      show_edit_on_github: false
+      show_edit_on_github: true
       show_date: false
 
 
@@ -124,5 +124,7 @@ include:
 exclude:
   - /api
   - README.md
+  - LICENSE
+  - run_locally.sh
 
 # data_dir: /docs/_data
