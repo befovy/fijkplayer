@@ -200,7 +200,7 @@ class _FijkViewState extends State<FijkView> {
     double ar = widget.fit.aspectRatio;
     if (ar == null || ar < 0) {
       ar = _vWidth / _vHeight;
-    } else if (ar >= double.infinity) {
+    } else if (ar.isInfinite) {
       ar = constraints.maxWidth / constraints.maxHeight;
     }
     return ar;
