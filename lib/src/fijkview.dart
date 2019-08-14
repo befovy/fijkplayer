@@ -74,14 +74,26 @@ class FijkFit {
   final double sizeFactor;
 
   /// Fill the target FijkView box by distorting the video's aspect ratio.
-  static const FijkFit fill = FijkFit(aspectRatio: double.infinity);
+  static const FijkFit fill = FijkFit(
+    sizeFactor: 1.0,
+    aspectRatio: double.infinity,
+    alignment: Alignment.center,
+  );
 
   /// As large as possible while still containing the video entirely within the
   /// target FijkView box.
-  static const FijkFit contain = FijkFit();
+  static const FijkFit contain = FijkFit(
+    sizeFactor: 1.0,
+    aspectRatio: -1,
+    alignment: Alignment.center,
+  );
 
   /// As small as possible while still covering the entire target FijkView box.
-  static const FijkFit cover = FijkFit(sizeFactor: -0.5);
+  static const FijkFit cover = FijkFit(
+    sizeFactor: -0.5,
+    aspectRatio: -1,
+    alignment: Alignment.center,
+  );
 
   /// Make sure the full width of the source is shown, regardless of
   /// whether this means the source overflows the target box vertically.
