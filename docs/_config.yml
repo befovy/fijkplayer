@@ -4,8 +4,8 @@ text_skin: default # "default" (default), "dark", "forest", "ocean", "chocolate"
 highlight_theme: default # "default" (default), "tomorrow", "tomorrow-night", "tomorrow-night-eighties", "tomorrow-night-blue", "tomorrow-night-bright"
 url: https://fijkplayer/befovy.com
 # baseurl: /fijkplayer
-title: fijkplayer 
-description: Flutter media player plugin for android/iOS based on https://github.com/befovy/ijkplayer
+title: fijkplayer  --  Flutter plugin for ijkplayer
+description: Flutter media player plugin for android/iOS based on ijkplayer https://github.com/befovy/ijkplayer
 
 
 ## => Link roots
@@ -44,21 +44,21 @@ excerpt_separator: <!--more-->
 
 ## => Analytics
 ##############################
-# analytics:
-#   provider: google
-#   google:
-#     tracking_id : UA-68257324-1
-#     anonymize_ip: true
+analytics:
+  provider: google
+  google:
+    tracking_id : UA-145687772-1
+    anonymize_ip: true
 
 
 ## => Search
 ##############################
-# search:
-#   provider: google # "default" (default), false, "google", "custom"
+search:
+  provider: google # "default" (default), false, "google", "custom"
 
-#   ## Google Custom Search Engine
-#   google:
-#     custom_search_engine_id: 009764199895742571316:nuhckqry2_e
+  ## Google Custom Search Engine
+  google:
+    custom_search_engine_id: 016297657144784014488:vlyjmm8ctoa
 
 
 ## => Build

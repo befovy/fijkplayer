@@ -10,34 +10,34 @@ docs-en:
   - title: Start
     children:
       - title: Install
-        url:   /docs/en/install
+        url:   /docs/en/install.html
   - title: Languages
     children:
       - title: 中文
-        url:   /docs/zh/install
+        url:   /docs/zh/install.html
 
 docs-zh:
   - title:
     children:
       - title: 首页
-        url:   /index
+        url:   /index.html
   - title: 入门指南
-    url: /docs/en/install
+    url: /docs/en/install.html
     children:
       - title: 安装
-        url:   /docs/zh/install
+        url:   /docs/zh/install.html
       - title: Hello World
-        url:   /docs/zh/hello-world
+        url:   /docs/zh/hello-world.html
   - title: 了解更多
     children:
       - title: 播放器状态
-        url:   /docs/zh/fijkstate
+        url:   /docs/zh/fijkstate.html
       - title: 填充与裁剪
-        url:   /docs/zh/fijkfit
+        url:   /docs/zh/fijkfit.html
       - title: 播放器接口
-        url:   /docs/zh/fijkplayer-api
+        url:   /docs/zh/fijkplayer-api.html
       - title: 个性化 UI
-        url:   /docs/zh/custom-ui
+        url:   /docs/zh/custom-ui.html
   # - title: 其他语言
   #   children:
   #     - title: English

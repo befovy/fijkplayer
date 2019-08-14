@@ -1,6 +1,6 @@
 ---
 layout: page
-permalink: /index
+permalink: /index.html
 key: index
 ---
 
@@ -17,8 +17,8 @@ fijkplayer 具有和 ijkplayer 一样的播放能力，并且开箱即用，API�
 
 开启你的 fijklayer 之旅：
 
-* 中文版 [开始使用](/docs/zh/install)  
-* English Version [Getting Started](/docs/en/install)
+* 中文版 [开始使用](/docs/zh/install.html)  
+* English Version [Getting Started](/docs/en/install.html)
 
 <!-- * Read news, hints and tips on our [developer blog][]. -->
 <!-- * Read the latest [release notes][]. -->
