@@ -124,5 +124,7 @@ include:
 exclude:
   - /api
   - README.md
+  - LICENSE
+  - run_locally.sh
 
 # data_dir: /docs/_data
