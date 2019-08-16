@@ -455,7 +455,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
 
   Future<int> reset() async {
     await _nativeSetup.future;
-
+    _epState = FijkState.idle;
     await _channel.invokeMethod("reset");
     return Future.value(0);
   }

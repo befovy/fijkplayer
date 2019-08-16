@@ -2,7 +2,7 @@ name: fijkplayer
 description: A Video Player Flutter plugin based on ijkplayer, support most popular protocols and codecs
 version: 0.0.7
 author: befovy <befovy@gmail.com>
-homepage: https://github.com/befovy/fijkplayer
+homepage: https://fijkplayer.befovy.com
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
