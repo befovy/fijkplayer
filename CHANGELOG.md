@@ -1,5 +1,11 @@
-##
+## next 
+-----------------------------
 
+## 0.8.8
+
+- update ijkplayer to f0.3.3
+- fix reset bug, #26
+- Add doc website, https://fijkplayer.befovy.com
 - Add diagram about FijkState, update FijkState document
 
 ## 0.0.7
