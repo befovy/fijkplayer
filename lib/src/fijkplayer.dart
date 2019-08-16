@@ -256,7 +256,6 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   /// return the current state
   FijkState get state => _value.state;
 
-
   @override
   FijkValue get value => _value;
 

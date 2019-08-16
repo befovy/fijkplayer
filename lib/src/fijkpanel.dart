@@ -142,7 +142,6 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
       });
     });
     */
-
   }
 
   void _playerValueChanged() {
