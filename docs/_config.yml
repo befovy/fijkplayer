@@ -8,13 +8,6 @@ title: fijkplayer  --  Flutter plugin for ijkplayer
 description: Flutter media player plugin for android/iOS based on ijkplayer https://github.com/befovy/ijkplayer
 
 
-## => Link roots
-##############################
-# release_v2: https://github.com/google/ExoPlayer/tree/release-v2
-# exo_sdk: /doc/reference/com/google/android/exoplayer2
-# android_sdk: https://developer.android.com/reference
-
-
 ## => GitHub Repository (if the site is hosted by GitHub)
 ##############################
 repository: befovy/fijkplayer

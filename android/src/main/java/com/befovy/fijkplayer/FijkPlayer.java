@@ -67,14 +67,15 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
     }
 
     long setupSurface() {
-        TextureRegistry textureRegistry = mRegistrar.textures();
-        TextureRegistry.SurfaceTextureEntry surfaceTextureEntry = textureRegistry.createSurfaceTexture();
-        mSurfaceTextureEntry = surfaceTextureEntry;
-        long vid = surfaceTextureEntry.id();
-        mSurfaceTexture = surfaceTextureEntry.surfaceTexture();
-        mSurface = new Surface(mSurfaceTexture);
-        mIjkMediaPlayer.setSurface(mSurface);
-        return vid;
+        if (mSurfaceTextureEntry == null) {
+            TextureRegistry textureRegistry = mRegistrar.textures();
+            TextureRegistry.SurfaceTextureEntry surfaceTextureEntry = textureRegistry.createSurfaceTexture();
+            mSurfaceTextureEntry = surfaceTextureEntry;
+            mSurfaceTexture = surfaceTextureEntry.surfaceTexture();
+            mSurface = new Surface(mSurfaceTexture);
+            mIjkMediaPlayer.setSurface(mSurface);
+        }
+        return mSurfaceTextureEntry.id();
     }
 
     void release() {

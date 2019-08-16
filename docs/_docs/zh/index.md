@@ -1,8 +1,10 @@
 ---
+title: fijkplayer -- Flutter plugin for ijkplayer
 layout: page
 permalink: /index.html
 key: index
 ---
+
 
 fijkplayer 是一个 Flutter 生态的媒体播放器，支持 Android 和 iOS。
 fijkplayer 使用 ijkplayer 作为播放器内核。ijkplayer 使用 ffmpeg 进行音视频解封装和解码，同时添加了 Android 和 iOS 平台特有的硬件加速解码能力。  
