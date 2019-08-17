@@ -6,6 +6,9 @@ import 'media_item.dart';
 
 const List<MediaUrl> samples = [
   MediaUrl(
+      title: "rtsp test",
+      url: "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov"),
+  MediaUrl(
       title: "Sample Video 360 * 240",
       url:
           "https://sample-videos.com/video123/flv/240/big_buck_bunny_240p_10mb.flv"),
