@@ -99,7 +99,6 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
 
   //StreamSubscription _bufferPosSubs;
   //StreamSubscription _bufferingSubs;
-  StreamSubscription _fijkStateSubs;
 
   Timer _hideTimer;
   bool _hideStuff = true;
@@ -179,7 +178,6 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
     _currentPosSubs?.cancel();
     //_bufferPosSubs.cancel();
     //_bufferingSubs.cancel();
-    _fijkStateSubs?.cancel();
   }
 
   void _startHideTimer() {
@@ -280,7 +278,9 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
               padding: EdgeInsets.only(left: 10.0, right: 10.0),
 //              color: Colors.transparent,
               onPressed: () {
-                player.toggleFullScreen();
+                widget.player.value.fullScreen
+                    ? player.exitFullScreen()
+                    : player.enterFullScreen();
               },
             )
             //
