@@ -338,7 +338,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     _nativeEventSubscription =
         EventChannel('befovy.com/fijkplayer/event/' + _playerId.toString())
             .receiveBroadcastStream()
-            .listen(_eventListener, onError: errorListener);
+            .listen(_eventListener, onError: _errorListener);
     _nativeSetup.complete(_playerId);
 
     if (_startAfterSetup) {
@@ -350,14 +350,26 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     _looperSub.pause();
   }
 
+  Future<int> setOption(int category, String key, String value) {
+    return _channel.invokeMethod("setOption",
+        <String, dynamic>{"cat": category, "key": key, "value": value});
+  }
+
+  Future<int> setIntOption(int category, String key, int value) {
+    return _channel.invokeMethod("setIntOption",
+        <String, dynamic>{"cat": category, "key": key, "value": value});
+  }
+
   Future<int> setupSurface() async {
     await _nativeSetup.future;
     return _channel.invokeMethod("setupSurface");
   }
 
-  Future<int> setDataSource(String path,
-      {FijkSourceType type = FijkSourceType.network,
-      bool autoPlay = false}) async {
+  Future<void> setDataSource(
+    String path, {
+    FijkSourceType type = FijkSourceType.network,
+    bool autoPlay = false,
+  }) async {
     await _nativeSetup.future;
     int ret = 0;
     if (_epState == FijkState.idle) {
@@ -385,10 +397,9 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     } else {
       ret = -1;
     }
-    return Future.value(ret);
   }
 
-  Future<int> prepareAsync() async {
+  Future<void> prepareAsync() async {
     // ckeck state
     await _nativeSetup.future;
     int ret = 0;
@@ -398,7 +409,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     } else {
       ret = -1;
     }
-    return Future.value(ret);
+    //return Future.value();
   }
 
   Future<void> setVolume(double volume) async {
@@ -407,15 +418,17 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
         .invokeMethod("setVolume", <String, dynamic>{"volume": volume});
   }
 
-  /// Toggle full screen value.
-  /// Return the value after toggle.
-  bool toggleFullScreen() {
-    bool full = value.fullScreen;
-    _setValue(value.copyWith(fullScreen: !full));
-    return !full;
+  /// enter full screen mode， set [FijkValue.fullScreen] to true
+  void enterFullScreen() {
+    _setValue(value.copyWith(fullScreen: true));
   }
 
-  Future<int> start() async {
+  /// exit full screen mode, set [FijkValue.fullScreen] to false
+  void exitFullScreen() {
+    _setValue(value.copyWith(fullScreen: false));
+  }
+
+  Future<void> start() async {
     await _nativeSetup.future;
     int ret = 0;
 
@@ -433,38 +446,33 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     }
 
     print("call start $_epState ${value.state} ret:$ret");
-    return Future.value(ret);
   }
 
-  Future<int> pause() async {
+  Future<void> pause() async {
     await _nativeSetup.future;
     _epState = FijkState.paused;
     await _channel.invokeMethod("pause");
     print("call pause");
-    return Future.value(0);
   }
 
-  Future<int> stop() async {
+  Future<void> stop() async {
     await _nativeSetup.future;
 
     _epState = FijkState.stopped;
     await _channel.invokeMethod("stop");
-    return Future.value(0);
   }
 
-  Future<int> reset() async {
+  Future<void> reset() async {
     await _nativeSetup.future;
     _epState = FijkState.idle;
     await _channel.invokeMethod("reset");
-    return Future.value(0);
   }
 
-  Future<int> seekTo(int msec) async {
+  Future<void> seekTo(int msec) async {
     await _nativeSetup.future;
 
     // if (_epState == )
     await _channel.invokeMethod("seekTo", <String, dynamic>{"msec": msec});
-    return Future.value(0);
   }
 
   Future<void> release() async {
@@ -474,6 +482,10 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     await _looperSub.cancel();
     return FijkPlugin.releasePlayer(_playerId);
   }
+
+  Future<void> setLoop(int loopCount) async {}
+
+  Future<void> setSpeed(double speed) async {}
 
   void _looper(int timer) {
     _channel.invokeMethod("getCurrentPosition").then((pos) {
@@ -535,7 +547,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     }
   }
 
-  void errorListener(Object obj) {
+  void _errorListener(Object obj) {
     final PlatformException e = obj;
     print("onError: $e");
   }

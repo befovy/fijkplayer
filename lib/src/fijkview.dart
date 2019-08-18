@@ -204,6 +204,7 @@ class _FijkViewState extends State<FijkView> {
   @override
   void dispose() {
     super.dispose();
+    widget.player.removeListener(_fijkValueListener);
     widget.player.release();
     print("FijkView dispose");
   }
@@ -272,9 +273,7 @@ class _FijkViewState extends State<FijkView> {
     await FijkPlugin.setOrientationLandscape(context: context);
     await Navigator.of(context).push(route);
     _fullScreen = false;
-    if (widget.player.value.fullScreen) {
-      widget.player.toggleFullScreen();
-    }
+    widget.player.exitFullScreen();
     await SystemChrome.setEnabledSystemUIOverlays(
         [SystemUiOverlay.top, SystemUiOverlay.bottom]);
     await FijkPlugin.setOrientationPortrait(context: context);
