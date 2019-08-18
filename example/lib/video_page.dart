@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:fijkplayer/fijkplayer.dart';
+import 'package:flutter/material.dart';
 
 import 'app_bar.dart';
 

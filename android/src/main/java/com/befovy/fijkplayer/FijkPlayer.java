@@ -161,6 +161,30 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
     }
 
 
+    private void applyOptions(Object options) {
+        if (options instanceof Map) {
+            Map optionsMap = (Map) options;
+            for (Object o : optionsMap.keySet()) {
+                Object option = optionsMap.get(o);
+                if (o instanceof Integer && option instanceof Map) {
+                    Integer cat = (Integer) o;
+                    Map optionMap = (Map) option;
+                    for (Object key : optionMap.keySet()) {
+                        Object value = optionMap.get(key);
+                        if (key instanceof String) {
+                            String name = (String) key;
+                            if (value instanceof Integer) {
+                                mIjkMediaPlayer.setOption(cat, name, (Integer) value);
+                            } else if (value instanceof String) {
+                                mIjkMediaPlayer.setOption(cat, name, (String) value);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     @Override
     public void onMethodCall(MethodCall call, MethodChannel.Result result) {
         if (call.method.equals("setupSurface")) {
@@ -178,6 +202,9 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
             } else {
                 Log.w("FIJKPLAYER", "error arguments for setOptions");
             }
+            result.success(null);
+        } else if (call.method.equals("applyOptions")) {
+            applyOptions(call.arguments);
             result.success(null);
         } else if (call.method.equals("setDateSource")) {
             String url = call.argument("url");
@@ -209,11 +236,20 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
             final Double volume = call.argument("volume");
             float vol = volume != null ? volume.floatValue() : 1.0f;
             mIjkMediaPlayer.setVolume(vol, vol);
-            result.success(0);
+            result.success(null);
         } else if (call.method.equals("seekTo")) {
             final Integer msec = call.argument("msec");
             mIjkMediaPlayer.seekTo(msec != null ? msec.longValue() : 0);
-            result.success(0);
+            result.success(null);
+        } else if (call.method.equals("setLoop")) {
+            final Integer loopCount = call.argument("loop");
+            // todo update ijkplayer, add set loop count
+            mIjkMediaPlayer.setLooping(loopCount != null && loopCount == 0);
+            result.success(null);
+        } else if (call.method.equals("setSpeed")) {
+            final Double speed = call.argument("speed");
+            mIjkMediaPlayer.setSpeed(speed != null ? speed.floatValue() : 1.0f);
+            result.success(null);
         } else {
             result.notImplemented();
         }

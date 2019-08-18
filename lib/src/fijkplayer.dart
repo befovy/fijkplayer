@@ -27,6 +27,7 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
+import 'fijkoption.dart';
 import 'fijkplugin.dart';
 
 /// The data source type for fijkplayer
@@ -350,14 +351,19 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     _looperSub.pause();
   }
 
-  Future<int> setOption(int category, String key, String value) {
+  Future<void> setOption(int category, String key, String value) {
     return _channel.invokeMethod("setOption",
-        <String, dynamic>{"cat": category, "key": key, "value": value});
+        <String, dynamic>{"cat": category, "key": key, "str": value});
   }
 
-  Future<int> setIntOption(int category, String key, int value) {
-    return _channel.invokeMethod("setIntOption",
-        <String, dynamic>{"cat": category, "key": key, "value": value});
+  Future<void> setIntOption(int category, String key, int value) {
+    return _channel.invokeMethod("setOption",
+        <String, dynamic>{"cat": category, "key": key, "long": value});
+  }
+
+  Future<void> applyOptions(FijkOption fijkOption) async {
+    await _nativeSetup.future;
+    return _channel.invokeMethod("applyOptions", fijkOption.data);
   }
 
   Future<int> setupSurface() async {
@@ -483,9 +489,16 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     return FijkPlugin.releasePlayer(_playerId);
   }
 
-  Future<void> setLoop(int loopCount) async {}
+  Future<void> setLoop(int loopCount) async {
+    await _nativeSetup.future;
+    return _channel
+        .invokeMethod("setLoop", <String, dynamic>{"loop": loopCount});
+  }
 
-  Future<void> setSpeed(double speed) async {}
+  Future<void> setSpeed(double speed) async {
+    await _nativeSetup.future;
+    return _channel.invokeMethod("setSpeed", <String, dynamic>{"speed": speed});
+  }
 
   void _looper(int timer) {
     _channel.invokeMethod("getCurrentPosition").then((pos) {

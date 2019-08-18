@@ -206,6 +206,26 @@ static atomic_int atomicId = 0;
     }
 }
 
+- (void)setOptions:(NSDictionary *)options {
+    for (id cat in options) {
+        NSDictionary *option = [options objectForKey:cat];
+        for (NSString *key in option) {
+            id optValue = [option objectForKey:key];
+            if ([optValue isKindOfClass:[NSNumber class]]) {
+                [_ijkMediaPlayer
+                    setOptionIntValue:[optValue longLongValue]
+                               forKey:key
+                           ofCategory:(IJKFFOptionCategory)[cat intValue]];
+            } else if ([optValue isKindOfClass:[NSString class]]) {
+                [_ijkMediaPlayer
+                    setOptionValue:optValue
+                            forKey:key
+                        ofCategory:(IJKFFOptionCategory)[cat intValue]];
+            }
+        }
+    }
+}
+
 - (void)handleMethodCall:(FlutterMethodCall *)call
                   result:(FlutterResult)result {
 
@@ -228,6 +248,9 @@ static atomic_int atomicId = 0;
         } else {
             NSLog(@"FIJKPLAYER: error arguments for setOptions");
         }
+        result(nil);
+    } else if ([@"applyOptions" isEqualToString:call.method]) {
+        [self setOptions:argsMap];
         result(nil);
     } else if ([@"setDateSource" isEqualToString:call.method]) {
         NSString *url = argsMap[@"url"];
@@ -256,11 +279,18 @@ static atomic_int atomicId = 0;
     } else if ([@"setVolume" isEqualToString:call.method]) {
         double volume = [argsMap[@"volume"] doubleValue];
         [_ijkMediaPlayer setPlaybackVolume:(float)volume];
-        result(@(0));
+        result(nil);
     } else if ([@"seekTo" isEqualToString:call.method]) {
         long pos = [argsMap[@"msec"] longValue];
-        int ret = [_ijkMediaPlayer seekTo:pos];
-        result(@(ret));
+        [_ijkMediaPlayer seekTo:pos];
+        result(nil);
+    } else if ([@"setLoop" isEqualToString:call.method]) {
+        int loopCount = [argsMap[@"loop"] intValue];
+        [_ijkMediaPlayer setLoop:loopCount];
+    } else if ([@"setSpeed" isEqualToString:call.method]) {
+        float speed = [argsMap[@"speed"] doubleValue];
+        [_ijkMediaPlayer setSpeed:speed];
+        result(nil);
     } else {
         result(FlutterMethodNotImplemented);
     }

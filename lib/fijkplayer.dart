@@ -26,3 +26,4 @@ library fijkplayer;
 export 'src/fijkplayer.dart';
 export 'src/fijkview.dart';
 export 'src/fijkpanel.dart';
+export 'src/fijkoption.dart';
