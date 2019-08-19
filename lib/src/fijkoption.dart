@@ -31,7 +31,15 @@ class FijkOption {
   final Map<String, dynamic> _playerOption = HashMap();
   final Map<String, dynamic> _swrOption = HashMap();
 
-  Map<int, Map<String, dynamic>> get data => _options;
+  Map<int, Map<String, dynamic>> get data {
+    final Map<int, Map<String, dynamic>> options = HashMap();
+    options[1] = Map.from(_formatOption);
+    options[2] = Map.from(_codecOption);
+    options[3] = Map.from(_swsOption);
+    options[4] = Map.from(_playerOption);
+    options[5] = Map.from(_swrOption);
+    return options;
+  }
 
   FijkOption() {
     _options[1] = _formatOption;
