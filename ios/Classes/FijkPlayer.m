@@ -254,6 +254,26 @@ static atomic_int atomicId = 0;
         result(nil);
     } else if ([@"setDateSource" isEqualToString:call.method]) {
         NSString *url = argsMap[@"url"];
+        NSURL *aUrl = [NSURL URLWithString:url];
+        if ([@"assets" isEqualToString:aUrl.scheme]) {
+            NSString *host = aUrl.host;
+            NSString *asset = [host length] == 0
+                                  ? [_registrar lookupKeyForAsset:aUrl.path]
+                                  : [_registrar lookupKeyForAsset:aUrl.path
+                                                      fromPackage:host];
+            if ([asset length] > 0) {
+                NSString *path = [[NSBundle mainBundle] pathForResource:asset
+                                                                 ofType:nil];
+                if ([path length] > 0)
+                    url = path;
+            }
+            if ([url isEqualToString:argsMap[@"url"]]) {
+                result([FlutterError errorWithCode:@"assets not found"
+                                           message:url
+                                           details:nil]);
+                return;
+            }
+        }
         [_ijkMediaPlayer setDataSource:url];
         result(nil);
     } else if ([@"prepareAsync" isEqualToString:call.method]) {
@@ -274,7 +294,6 @@ static atomic_int atomicId = 0;
         result(nil);
     } else if ([@"getCurrentPosition" isEqualToString:call.method]) {
         long pos = [_ijkMediaPlayer getCurrentPosition];
-        // [_eventSink success:@{@"event" : @"current_pos", @"pos" : @(pos)}];
         result(@(pos));
     } else if ([@"setVolume" isEqualToString:call.method]) {
         double volume = [argsMap[@"volume"] doubleValue];

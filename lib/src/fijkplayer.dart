@@ -30,22 +30,6 @@ import 'package:flutter/services.dart';
 import 'fijkoption.dart';
 import 'fijkplugin.dart';
 
-/// The data source type for fijkplayer
-/// [asset] [network] and [file]
-enum FijkSourceType {
-  // [asset] means source from app asset files
-  // asset,
-
-  /// [network] means source from network. it supports many protocols, like `http` and `rtmp` etc.
-  network,
-
-  /// [file] means source from the phone's storage
-  /// file,
-
-  /// player will try to detect data type when passed [unknown]
-  unknown,
-}
-
 /// State of the [FijkPlayer]
 ///
 /// This is the state machine of ijkplayer. FijkPlayer has the same state as native ijkplayer.
@@ -165,11 +149,6 @@ class FijkValue {
   /// Is zero when playback is realtime stream.
   final Duration duration;
 
-  /// The [dateSourceType] of current playback.
-  ///
-  /// Is [FijkSourceType.unknown] when [prepared] is false.
-  final FijkSourceType dateSourceType;
-
   /// whether if player should be displayed in full screen mode
   final bool fullScreen;
 
@@ -180,7 +159,6 @@ class FijkValue {
     @required this.state,
     @required this.size,
     @required this.duration,
-    @required this.dateSourceType,
     @required this.fullScreen,
   });
 
@@ -192,7 +170,6 @@ class FijkValue {
           state: FijkState.idle,
           size: null,
           duration: const Duration(),
-          dateSourceType: FijkSourceType.unknown,
           fullScreen: false,
         );
 
@@ -203,7 +180,6 @@ class FijkValue {
     FijkState state,
     Size size,
     Duration duration,
-    FijkSourceType dateSourceType,
     bool fullScreen,
   }) {
     return FijkValue(
@@ -212,7 +188,6 @@ class FijkValue {
       state: state ?? this.state,
       size: size ?? this.size,
       duration: duration ?? this.duration,
-      dateSourceType: dateSourceType ?? this.dateSourceType,
       fullScreen: fullScreen ?? this.fullScreen,
     );
   }
@@ -225,13 +200,13 @@ class FijkValue {
           hashCode == other.hashCode;
 
   @override
-  int get hashCode => hashValues(
-      prepared, completed, state, size, duration, dateSourceType, fullScreen);
+  int get hashCode =>
+      hashValues(prepared, completed, state, size, duration, fullScreen);
 
   @override
   String toString() {
     return "prepared:$prepared, completed:$completed, state:$state, size:$size, "
-        "dataType:$dateSourceType duration:$duration, fullScreen:$fullScreen";
+        "duration:$duration, fullScreen:$fullScreen";
   }
 }
 
@@ -240,8 +215,6 @@ class FijkValue {
 /// FijkPlayer invoke native method and receive native event.
 class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   String _dataSource;
-
-  FijkSourceType _dateSourceType;
 
   int _playerId;
   MethodChannel _channel;
@@ -316,7 +289,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
       await reset();
     }
     if (_epState == FijkState.idle) {
-      await setDataSource(_dataSource, type: _dateSourceType);
+      await setDataSource(_dataSource);
     }
     if (_epState == FijkState.initialized) {
       await prepareAsync();
@@ -373,35 +346,19 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
 
   Future<void> setDataSource(
     String path, {
-    FijkSourceType type = FijkSourceType.network,
     bool autoPlay = false,
   }) async {
     await _nativeSetup.future;
-    int ret = 0;
     if (_epState == FijkState.idle) {
-      Map<String, dynamic> dataSourceDescription;
-      _dateSourceType = type;
-      _dataSource = path;
-      switch (_dateSourceType) {
-        case FijkSourceType.network:
-          dataSourceDescription = <String, dynamic>{'url': _dataSource};
-          break;
-        //case FijkSourceType.asset:
-        //  break;
-        //case FijkSourceType.file:
-        //  break;
-        case FijkSourceType.unknown:
-          break;
-      }
       _epState = FijkState.initialized;
-      _setValue(value.copyWith(dateSourceType: type));
-      await _channel.invokeMethod("setDateSource", dataSourceDescription);
+      await _channel
+          .invokeMethod("setDateSource", <String, dynamic>{'url': path});
 
       if (autoPlay == true) {
         await this.start();
       }
     } else {
-      ret = -1;
+      return Future.error(StateError("setDataSource at illegal state"));
     }
   }
 

@@ -1,13 +1,17 @@
 package com.befovy.fijkplayer;
 
 import android.content.Context;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
 import android.graphics.SurfaceTexture;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,6 +24,7 @@ import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.view.TextureRegistry;
 import tv.danmaku.ijk.media.player.IjkEventListener;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
+import tv.danmaku.ijk.media.player.misc.IMediaDataSource;
 
 public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventListener {
 
@@ -29,8 +34,11 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
     final private IjkMediaPlayer mIjkMediaPlayer;
     final private Context mContext;
 
+    // non-local field prevent GC
     @SuppressWarnings("FieldCanBeLocal")
     final private EventChannel mEventChannel;
+
+    // non-local field prevent GC
     @SuppressWarnings("FieldCanBeLocal")
     final private MethodChannel mMethodChannel;
 
@@ -213,8 +221,33 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
             result.success(null);
         } else if (call.method.equals("setDateSource")) {
             String url = call.argument("url");
+            Uri uri = Uri.parse(url);
+            boolean openAsset = false;
+            if ("assets".equals(uri.getScheme())) {
+                openAsset = true;
+                String host = uri.getHost();
+                String path = uri.getPath() != null ? uri.getPath().substring(1) : "";
+                String asset = TextUtils.isEmpty(host)
+                        ? mRegistrar.lookupKeyForAsset(path)
+                        : mRegistrar.lookupKeyForAsset(path, host);
+                if (!TextUtils.isEmpty(asset)) {
+                    uri = Uri.parse(asset);
+                }
+            }
             try {
-                mIjkMediaPlayer.setDataSource(mContext, Uri.parse(url));
+                if (openAsset) {
+                    AssetManager assetManager = mRegistrar.context().getAssets();
+                    AssetFileDescriptor fd = assetManager.openFd(uri.getPath() != null ? uri.getPath() : "");
+                    //mIjkMediaPlayer.setDataSource(fd.getFileDescriptor());
+                    mIjkMediaPlayer.setDataSource(new RawMediaDataSource(fd, mRegistrar.context(), uri.getPath()));
+                } else {
+                    if (TextUtils.isEmpty(uri.getScheme()) || "file".equals(uri.getScheme())) {
+                        IMediaDataSource dataSource = new FileMediaDataSource(new File(uri.toString()));
+                        mIjkMediaPlayer.setDataSource(dataSource);
+                    } else {
+                        mIjkMediaPlayer.setDataSource(mContext, uri);
+                    }
+                }
                 result.success(null);
             } catch (IOException e) {
                 result.error(e.getMessage(), null, null);

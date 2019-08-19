@@ -2,6 +2,7 @@ import 'package:fijkplayer/fijkplayer.dart';
 import 'package:flutter/material.dart';
 
 import 'app_bar.dart';
+// import 'custom_ui.dart';
 
 class VideoScreen extends StatefulWidget {
   final String url;
@@ -30,6 +31,15 @@ class _VideoScreenState extends State<VideoScreen> {
         body: Container(
           child: FijkView(
             player: player,
+            // panelBuilder: simplestUI,
+            // panelBuilder: (FijkPlayer player, BuildContext context,
+            //     Size viewSize, Rect texturePos) {
+            //   return CustomFijkPanel(
+            //       player: player,
+            //       buildContext: context,
+            //       viewSize: viewSize,
+            //       texturePos: texturePos);
+            // },
           ),
         ));
   }
