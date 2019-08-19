@@ -14,7 +14,7 @@ doc/api/
 .DS_Store
 
 .idea/
-
+.vscode/
 # eclipse project files
 .project
 .classpath
