@@ -6,6 +6,8 @@ import android.net.Uri;
 import android.util.Log;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,8 +28,12 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
     final private int mPlayerId;
     final private IjkMediaPlayer mIjkMediaPlayer;
     final private Context mContext;
+
+    @SuppressWarnings("FieldCanBeLocal")
     final private EventChannel mEventChannel;
+    @SuppressWarnings("FieldCanBeLocal")
     final private MethodChannel mMethodChannel;
+
     final private PluginRegistry.Registrar mRegistrar;
 
     final private QueuingEventSink mEventSink = new QueuingEventSink();
@@ -94,7 +100,6 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
             mSurface.release();
             mSurface = null;
         }
-
     }
 
     private void handleEvent(int what, int arg1, int arg2, Object extra) {
@@ -186,19 +191,19 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
     }
 
     @Override
-    public void onMethodCall(MethodCall call, MethodChannel.Result result) {
+    public void onMethodCall(@NonNull MethodCall call, @NonNull MethodChannel.Result result) {
         if (call.method.equals("setupSurface")) {
             long viewId = setupSurface();
             result.success(viewId);
         } else if (call.method.equals("setOption")) {
-            int category = call.argument("cat");
+            Integer category = call.argument("cat");
             final String key = call.argument("key");
             if (call.hasArgument("long")) {
-                final long value = call.argument("long");
-                mIjkMediaPlayer.setOption(category, key, value);
+                final Integer value = call.argument("long");
+                mIjkMediaPlayer.setOption(category != null ? category : 0, key, value != null ? value.longValue() : 0);
             } else if (call.hasArgument("str")) {
                 final String value = call.argument("str");
-                mIjkMediaPlayer.setOption(category, key, value);
+                mIjkMediaPlayer.setOption(category != null ? category : 0, key, value);
             } else {
                 Log.w("FIJKPLAYER", "error arguments for setOptions");
             }
@@ -243,7 +248,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
             result.success(null);
         } else if (call.method.equals("setLoop")) {
             final Integer loopCount = call.argument("loop");
-            // todo update ijkplayer, add set loop count
+            // todo update ijkplayer, add set loop count api
             mIjkMediaPlayer.setLooping(loopCount != null && loopCount == 0);
             result.success(null);
         } else if (call.method.equals("setSpeed")) {
