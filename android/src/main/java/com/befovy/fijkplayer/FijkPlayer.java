@@ -1,11 +1,17 @@
 package com.befovy.fijkplayer;
 
 import android.content.Context;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
 import android.graphics.SurfaceTexture;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
+
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +24,7 @@ import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.view.TextureRegistry;
 import tv.danmaku.ijk.media.player.IjkEventListener;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
+import tv.danmaku.ijk.media.player.misc.IMediaDataSource;
 
 public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventListener {
 
@@ -26,8 +33,15 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
     final private int mPlayerId;
     final private IjkMediaPlayer mIjkMediaPlayer;
     final private Context mContext;
+
+    // non-local field prevent GC
+    @SuppressWarnings("FieldCanBeLocal")
     final private EventChannel mEventChannel;
+
+    // non-local field prevent GC
+    @SuppressWarnings("FieldCanBeLocal")
     final private MethodChannel mMethodChannel;
+
     final private PluginRegistry.Registrar mRegistrar;
 
     final private QueuingEventSink mEventSink = new QueuingEventSink();
@@ -94,7 +108,6 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
             mSurface.release();
             mSurface = null;
         }
-
     }
 
     private void handleEvent(int what, int arg1, int arg2, Object extra) {
@@ -161,28 +174,80 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
     }
 
 
+    private void applyOptions(Object options) {
+        if (options instanceof Map) {
+            Map optionsMap = (Map) options;
+            for (Object o : optionsMap.keySet()) {
+                Object option = optionsMap.get(o);
+                if (o instanceof Integer && option instanceof Map) {
+                    Integer cat = (Integer) o;
+                    Map optionMap = (Map) option;
+                    for (Object key : optionMap.keySet()) {
+                        Object value = optionMap.get(key);
+                        if (key instanceof String) {
+                            String name = (String) key;
+                            if (value instanceof Integer) {
+                                mIjkMediaPlayer.setOption(cat, name, (Integer) value);
+                            } else if (value instanceof String) {
+                                mIjkMediaPlayer.setOption(cat, name, (String) value);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     @Override
-    public void onMethodCall(MethodCall call, MethodChannel.Result result) {
+    public void onMethodCall(@NonNull MethodCall call, @NonNull MethodChannel.Result result) {
         if (call.method.equals("setupSurface")) {
             long viewId = setupSurface();
             result.success(viewId);
         } else if (call.method.equals("setOption")) {
-            int category = call.argument("cat");
+            Integer category = call.argument("cat");
             final String key = call.argument("key");
             if (call.hasArgument("long")) {
-                final long value = call.argument("long");
-                mIjkMediaPlayer.setOption(category, key, value);
+                final Integer value = call.argument("long");
+                mIjkMediaPlayer.setOption(category != null ? category : 0, key, value != null ? value.longValue() : 0);
             } else if (call.hasArgument("str")) {
                 final String value = call.argument("str");
-                mIjkMediaPlayer.setOption(category, key, value);
+                mIjkMediaPlayer.setOption(category != null ? category : 0, key, value);
             } else {
                 Log.w("FIJKPLAYER", "error arguments for setOptions");
             }
             result.success(null);
+        } else if (call.method.equals("applyOptions")) {
+            applyOptions(call.arguments);
+            result.success(null);
         } else if (call.method.equals("setDateSource")) {
             String url = call.argument("url");
+            Uri uri = Uri.parse(url);
+            boolean openAsset = false;
+            if ("assets".equals(uri.getScheme())) {
+                openAsset = true;
+                String host = uri.getHost();
+                String path = uri.getPath() != null ? uri.getPath().substring(1) : "";
+                String asset = TextUtils.isEmpty(host)
+                        ? mRegistrar.lookupKeyForAsset(path)
+                        : mRegistrar.lookupKeyForAsset(path, host);
+                if (!TextUtils.isEmpty(asset)) {
+                    uri = Uri.parse(asset);
+                }
+            }
             try {
-                mIjkMediaPlayer.setDataSource(mContext, Uri.parse(url));
+                if (openAsset) {
+                    AssetManager assetManager = mRegistrar.context().getAssets();
+                    AssetFileDescriptor fd = assetManager.openFd(uri.getPath() != null ? uri.getPath() : "");
+                    //mIjkMediaPlayer.setDataSource(fd.getFileDescriptor());
+                    mIjkMediaPlayer.setDataSource(new RawMediaDataSource(fd, mRegistrar.context(), uri.getPath()));
+                } else {
+                    if (TextUtils.isEmpty(uri.getScheme()) || "file".equals(uri.getScheme())) {
+                        IMediaDataSource dataSource = new FileMediaDataSource(new File(uri.toString()));
+                        mIjkMediaPlayer.setDataSource(dataSource);
+                    } else {
+                        mIjkMediaPlayer.setDataSource(mContext, uri);
+                    }
+                }
                 result.success(null);
             } catch (IOException e) {
                 result.error(e.getMessage(), null, null);
@@ -209,11 +274,20 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
             final Double volume = call.argument("volume");
             float vol = volume != null ? volume.floatValue() : 1.0f;
             mIjkMediaPlayer.setVolume(vol, vol);
-            result.success(0);
+            result.success(null);
         } else if (call.method.equals("seekTo")) {
             final Integer msec = call.argument("msec");
             mIjkMediaPlayer.seekTo(msec != null ? msec.longValue() : 0);
-            result.success(0);
+            result.success(null);
+        } else if (call.method.equals("setLoop")) {
+            final Integer loopCount = call.argument("loop");
+            // todo update ijkplayer, add set loop count api
+            mIjkMediaPlayer.setLooping(loopCount != null && loopCount == 0);
+            result.success(null);
+        } else if (call.method.equals("setSpeed")) {
+            final Double speed = call.argument("speed");
+            mIjkMediaPlayer.setSpeed(speed != null ? speed.floatValue() : 1.0f);
+            result.success(null);
         } else {
             result.notImplemented();
         }
