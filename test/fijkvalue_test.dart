@@ -1,9 +1,3 @@
-//MIT License
-//
-//Copyright (c) [2019] [Befovy]
-//
-//Permission is hereby granted, free of charge, to any person obtaining a copy
-//of this software and associated documentation files (the "Software"), to deal
 //in the Software without restriction, including without limitation the rights
 //to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 //copies of the Software, and to permit persons to whom the Software is
@@ -21,9 +15,30 @@
 //SOFTWARE.
 //
 
-library fijkplayer;
+import 'package:fijkplayer/fijkplayer.dart';
+import 'package:flutter_test/flutter_test.dart';
 
-export 'src/fijkplayer.dart';
-export 'src/fijkview.dart';
-export 'src/fijkpanel.dart';
-export 'src/fijkoption.dart';
+void main() {
+  group("FijkValue test", () {
+    test("Constructor", () {
+      FijkValue value = FijkValue.uninitialized();
+      expect(value, isNotNull);
+    });
+
+    test("eq", () {
+      FijkValue value1 = FijkValue.uninitialized();
+      FijkValue value2 = FijkValue.uninitialized();
+      expect(value1, value2);
+      expect(value1.hashCode, value2.hashCode);
+
+      value1 = value1.copyWith(prepared: true);
+
+      expect(value1 == value2, false);
+      expect(value1.hashCode == value2.hashCode, false);
+
+      value2 = value2.copyWith(prepared: true);
+      expect(value1, value2);
+      expect(value1.hashCode, value2.hashCode);
+    });
+  });
+}
