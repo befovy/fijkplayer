@@ -41,4 +41,17 @@ void main() {
       expect(value1.hashCode, value2.hashCode);
     });
   });
+
+  test("FijkState must has same value as native state", () {
+    expect(FijkState.idle.index, 0);
+    expect(FijkState.initialized.index, 1);
+    expect(FijkState.asyncPreparing.index, 2);
+    expect(FijkState.prepared.index, 3);
+    expect(FijkState.started.index, 4);
+    expect(FijkState.paused.index, 5);
+    expect(FijkState.completed.index, 6);
+    expect(FijkState.stopped.index, 7);
+    expect(FijkState.error.index, 8);
+    expect(FijkState.end.index, 9);
+  });
 }

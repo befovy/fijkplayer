@@ -307,8 +307,6 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     _channel = MethodChannel('befovy.com/fijkplayer/' + _playerId.toString());
     _epState = FijkState.idle;
 
-    print("native player id: $_playerId");
-
     _nativeEventSubscription =
         EventChannel('befovy.com/fijkplayer/event/' + _playerId.toString())
             .receiveBroadcastStream()
@@ -322,6 +320,18 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     _looperSub = Stream.periodic(const Duration(milliseconds: 200), (v) => v)
         .listen(_looper);
     _looperSub.pause();
+  }
+
+  /// Check if player is playable
+  ///
+  /// Only the four state [FijkState.prepared] \ [FijkState.started] \
+  /// [FijkState.paused] \ [FijkState.completed] are playable
+  bool isPlayable() {
+    FijkState current = value.state;
+    return FijkState.prepared == current ||
+        FijkState.started == current ||
+        FijkState.paused == current ||
+        FijkState.completed == current;
   }
 
   Future<void> setOption(int category, String key, String value) {
@@ -415,7 +425,6 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     await _nativeSetup.future;
     _epState = FijkState.paused;
     await _channel.invokeMethod("pause");
-    print("call pause");
   }
 
   Future<void> stop() async {
@@ -433,9 +442,12 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
 
   Future<void> seekTo(int msec) async {
     await _nativeSetup.future;
-
-    // if (_epState == )
-    await _channel.invokeMethod("seekTo", <String, dynamic>{"msec": msec});
+    if (msec == null || msec < 0)
+      return Future.error(
+          ArgumentError.value(msec, "speed must be not null and >= 0"));
+    if (!isPlayable())
+      return Future.error(StateError("Non playable state $state"));
+    return _channel.invokeMethod("seekTo", <String, dynamic>{"msec": msec});
   }
 
   Future<void> release() async {
@@ -443,17 +455,34 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     await this.stop();
     await _nativeEventSubscription.cancel();
     await _looperSub.cancel();
-    return FijkPlugin.releasePlayer(_playerId);
+    await FijkPlugin.releasePlayer(_playerId);
+    _setValue(value.copyWith(state: FijkState.end));
   }
 
+  /// Set player loop count
+  ///
+  /// [loopCount] must not null and greater than or equal to 0.
+  /// Default loopCount of player is 1, which also means no loop.
+  /// A positive value of [loopCount] means special repeat times.
+  /// If [loopCount] is 0, is means infinite repeat.
   Future<void> setLoop(int loopCount) async {
     await _nativeSetup.future;
+    if (loopCount == null || loopCount < 0)
+      return Future.error(ArgumentError.value(
+          loopCount, "loopCount must not be null and >= 0"));
     return _channel
         .invokeMethod("setLoop", <String, dynamic>{"loop": loopCount});
   }
 
+  /// Set playback speed
+  ///
+  /// [speed] must not null and greater than 0.
+  /// Default speed is 1
   Future<void> setSpeed(double speed) async {
     await _nativeSetup.future;
+    if (speed == null || speed <= 0)
+      return Future.error(ArgumentError.value(
+          speed, "speed must be not null and greater than 0"));
     return _channel.invokeMethod("setSpeed", <String, dynamic>{"speed": speed});
   }
 
@@ -469,7 +498,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     final Map<dynamic, dynamic> map = event;
     switch (map['event']) {
       case 'prepared':
-        int duration = map['duration'];
+        int duration = map['duration'] ?? 0;
         Duration dur = Duration(milliseconds: duration);
         _setValue(value.copyWith(duration: dur, prepared: true));
         break;

@@ -32,15 +32,16 @@ public class RawMediaDataSource implements IMediaDataSource {
     @Override
     public int readAt(long position, byte[] buffer, int offset, int size) throws IOException {
         int read = -1;
-        if (mRandomAccessFile.length() == getSize()) {
-            writeSize = getSize();
-        }
+        // if (mRandomAccessFile.length() == getSize()) {
+        //    writeSize = getSize();
+        // }
         if (writeSize < position + size) {
             if (mRandomAccessFile.getFilePointer() != writeSize)
                 mRandomAccessFile.seek(writeSize);
             int len;
             byte[] rBuf = new byte[1024];
-            while (writeSize < position + size && (len = mStream.read(rBuf)) != -1) {
+            //while (writeSize < position + size && (len = mStream.read(rBuf)) != -1) {
+            while ((len = mStream.read(rBuf)) != -1) {
                 writeSize += len;
                 mRandomAccessFile.write(rBuf, 0, len);
             }
@@ -50,7 +51,7 @@ public class RawMediaDataSource implements IMediaDataSource {
             mRandomAccessFile.seek(position);
 
         if (size > 0)
-            read = mRandomAccessFile.read(buffer, 0, size);
+            read = mRandomAccessFile.read(buffer, offset, size);
         return read;
 
     }
