@@ -54,11 +54,7 @@ class FijkPlayerTester {
         return 1;
       case 'setDateSource':
         var playerIncId = 1;
-        await defaultBinaryMessenger.handlePlatformMessage(
-            "befovy.com/fijkplayer/event/$playerIncId",
-            codec.encodeSuccessEnvelope(<String, dynamic>{'event': 'prepared'}),
-            (ByteData data) {});
-
+        await sendEvent(<String, dynamic>{'event': 'prepared'});
         await sendEvent(
             <String, dynamic>{'event': 'state_change', 'new': 1, 'old': 0});
 
@@ -166,11 +162,58 @@ void main() {
 
       await player.release();
 
-      //expect(player.state, FijkState.end);
+      expect(player.state, FijkState.end);
     });
   });
 
   group("test FijkPlayer api", () {
+    test("create, release", () async {
+      FijkPlayer player = FijkPlayer();
+      expect(player, isNotNull);
+      player.release();
+    });
+
+    test("read only value", () async {
+      FijkPlayer player = FijkPlayer();
+      bool changed = false;
+      player.addListener(() {
+        changed = true;
+      });
+      FijkValue value = player.value;
+      expect(player.value.prepared, false);
+      value = value.copyWith(prepared: true);
+      expect(player.value.prepared, false);
+      expect(changed, false);
+      await player.release();
+    });
+
+    test("setupSurface", () async {
+      FijkPlayer player = FijkPlayer();
+      int tid = await player.setupSurface();
+      expect(tid > 0, true);
+    });
+
+    test("setDataSource", () async {
+      FijkPlayer player = FijkPlayer();
+      expect(() async {
+        await player.setDataSource(null);
+      }, throwsArgumentError);
+      expect(() async {
+        await player.setDataSource("");
+      }, throwsArgumentError);
+
+      await player.setDataSource("asset://butterfly.mp4");
+      expect(player.state, FijkState.initialized);
+      await player.setDataSource("asset://butterfly.mp4");
+      expect(player.state, FijkState.initialized);
+
+      await player.prepareAsync();
+
+      expect(() async {
+        await player.setDataSource("asset://butterfly.mp4");
+      }, throwsStateError);
+    });
+
     test("setLoop", () async {
       FijkPlayer player = FijkPlayer();
       await player.setLoop(1);
@@ -198,7 +241,7 @@ void main() {
       await player.setSpeed(1.5);
     });
 
-    test("playable", () async {
+    test("isPlayable", () async {
       FijkPlayer player = FijkPlayer();
       expect(player.isPlayable(), false);
       await player.setupSurface();
@@ -224,7 +267,6 @@ void main() {
 
       await player.start();
       expect(player.isPlayable(), true);
-
     });
   });
 }

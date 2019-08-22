@@ -29,6 +29,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 import 'fijkplayer.dart';
+import 'fijkvalue.dart';
 
 /// The signature of the [LayoutBuilder] builder function.
 ///
