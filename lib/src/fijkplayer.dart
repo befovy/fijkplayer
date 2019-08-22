@@ -27,188 +27,10 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
+import 'fijkvalue.dart';
 import 'fijkoption.dart';
 import 'fijkplugin.dart';
 
-/// State of the [FijkPlayer]
-///
-/// This is the state machine of ijkplayer. FijkPlayer has the same state as native ijkplayer.
-/// The state changed after method called or when some error occurs.
-/// One state can only change into the new state it can reach.
-///
-/// For example, [idle] can't becomes [asyncPreparing] directly.
-///
-/// <img width="800" src="https://user-images.githubusercontent.com/51129600/62750997-ab195100-ba94-11e9-941b-57509e2bd677.png" />
-enum FijkState {
-  /// The state when a [FijkPlayer] is just created.
-  /// Native ijkplayer memory and objects also be alloced or created when a [FijkPlayer] is created.
-  ///
-  /// * setDataSource()  -> [initialized]
-  /// * reset()          -> self
-  /// * release()        -> [end]
-  idle,
-
-  /// After call [FijkPlayer.setDataSource] on state [idle], the state becomes [initialized].
-  ///
-  /// * prepareAsync()   -> [asyncPreparing]
-  /// * reset()          -> [idle]
-  /// * release()        -> [end]
-  initialized,
-
-  /// There're many tasks to do during prepare, such as detect stream info in datasource, find and open decoder, start decode and refresh thread.
-  /// So ijkplayer export a async api prepareAsync.
-  /// When [FijkPlayer.prepareAsync] is called on state [initialized], ths state changed to [asyncPreparing] immediately.
-  /// After all task in prepare have finished, the state changed to [prepared].
-  /// Additionally, if any error occurs during prepare, the state will change to [error].
-  ///
-  /// * .....            -> [prepared]
-  /// * .....            -> [error]
-  /// * reset()          -> [idle]
-  /// * release()        -> [end]
-  asyncPreparing,
-
-  /// After finish all the heavy tasks during [FijkPlayer.prepareAsync],
-  /// the state becomes [prepared] from [asyncPreparing].
-  ///
-  /// * seekTo()         -> self
-  /// * start()          -> [started]
-  /// * reset()          -> [idle]
-  /// * release()        -> [end]
-  prepared,
-
-  /// * seekTo()         -> self
-  /// * start()          -> self
-  /// * pause()          -> [paused]
-  /// * stop()           -> [stopped]
-  /// * ......           -> [completed]
-  /// * ......           -> [error]
-  /// * reset()          -> [idle]
-  /// * release()        -> [end]
-  started,
-
-  /// * seekTo()         -> self
-  /// * start()          -> [started]
-  /// * pause()          -> self
-  /// * stop()           -> [stopped]
-  /// * reset()          -> [idle]
-  /// * release()        -> [end]
-  paused,
-
-  /// * seekTo()         -> [paused]
-  /// * start()          -> [started] (from beginning)
-  /// * pause()          -> self
-  /// * stop()           -> [stopped]
-  /// * reset()          -> [idle]
-  /// * release()        -> [end]
-  completed,
-
-  /// * stop()           -> self
-  /// * prepareAsync()   -> [asyncPreparing]
-  /// * reset()          -> [idle]
-  /// * release()        -> [end]
-  stopped,
-
-  /// * reset()          -> [idle]
-  /// * release()        -> [end]
-  error,
-
-  /// * release()        -> self
-  end
-}
-
-/// FijkValue include the properties of a [FijkPlayer] which update not frequently.
-///
-/// To get the updated value of other frequently updated properties,
-/// add listener of the value stream.
-/// See
-///  * [FijkPlayer.onBufferPosUpdate]
-///  * [FijkPlayer.onCurrentPosUpdate]
-///  * [FijkPlayer.onBufferStateUpdate]
-@immutable
-class FijkValue {
-  /// Indicates if the player is ready
-  final bool prepared;
-
-  /// Indicates if the player is completed
-  ///
-  /// If the playback stream is realtime/live, [completed] never be true.
-  final bool completed;
-
-  /// Current state of the player
-  final FijkState state;
-
-  /// The pixel [size] of current video
-  ///
-  /// Is null when [prepared] is false.
-  /// Is negative width and height if playback is audio only.
-  final Size size;
-
-  /// The current playback duration
-  ///
-  /// Is null when [prepared] is false.
-  /// Is zero when playback is realtime stream.
-  final Duration duration;
-
-  /// whether if player should be displayed in full screen mode
-  final bool fullScreen;
-
-  /// A constructor requires all value.
-  const FijkValue({
-    @required this.prepared,
-    @required this.completed,
-    @required this.state,
-    @required this.size,
-    @required this.duration,
-    @required this.fullScreen,
-  });
-
-  /// Construct FijkValue with uninitialized value
-  const FijkValue.uninitialized()
-      : this(
-          prepared: false,
-          completed: false,
-          state: FijkState.idle,
-          size: null,
-          duration: const Duration(),
-          fullScreen: false,
-        );
-
-  /// Return new FijkValue which combines the old value and the assigned new value
-  FijkValue copyWith({
-    bool prepared,
-    bool completed,
-    FijkState state,
-    Size size,
-    Duration duration,
-    bool fullScreen,
-  }) {
-    return FijkValue(
-      prepared: prepared ?? this.prepared,
-      completed: completed ?? this.completed,
-      state: state ?? this.state,
-      size: size ?? this.size,
-      duration: duration ?? this.duration,
-      fullScreen: fullScreen ?? this.fullScreen,
-    );
-  }
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is FijkValue &&
-          runtimeType == other.runtimeType &&
-          hashCode == other.hashCode;
-
-  @override
-  int get hashCode =>
-      hashValues(prepared, completed, state, size, duration, fullScreen);
-
-  @override
-  String toString() {
-    return "prepared:$prepared, completed:$completed, state:$state, size:$size, "
-        "duration:$duration, fullScreen:$fullScreen";
-  }
-}
 
 /// FijkPlayer present as a playback. It interacts with native object.
 ///
@@ -307,8 +129,6 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     _channel = MethodChannel('befovy.com/fijkplayer/' + _playerId.toString());
     _epState = FijkState.idle;
 
-    print("native player id: $_playerId");
-
     _nativeEventSubscription =
         EventChannel('befovy.com/fijkplayer/event/' + _playerId.toString())
             .receiveBroadcastStream()
@@ -322,6 +142,18 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     _looperSub = Stream.periodic(const Duration(milliseconds: 200), (v) => v)
         .listen(_looper);
     _looperSub.pause();
+  }
+
+  /// Check if player is playable
+  ///
+  /// Only the four state [FijkState.prepared] \ [FijkState.started] \
+  /// [FijkState.paused] \ [FijkState.completed] are playable
+  bool isPlayable() {
+    FijkState current = value.state;
+    return FijkState.prepared == current ||
+        FijkState.started == current ||
+        FijkState.paused == current ||
+        FijkState.completed == current;
   }
 
   Future<void> setOption(int category, String key, String value) {
@@ -344,35 +176,44 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     return _channel.invokeMethod("setupSurface");
   }
 
+  /// Set data source for this player
+  ///
+  /// [path] must be a valid uri, otherwise this method return ArgumentError
   Future<void> setDataSource(
     String path, {
     bool autoPlay = false,
   }) async {
+    if (path == null || path.length == 0 || Uri.tryParse(path) == null ) {
+      return Future.error(ArgumentError.value(path, "path must be a valid url"));
+    }
     await _nativeSetup.future;
-    if (_epState == FijkState.idle) {
+    FijkState preState = state;
+    if (_epState == FijkState.idle || _epState == FijkState.initialized) {
       _epState = FijkState.initialized;
-      await _channel
-          .invokeMethod("setDateSource", <String, dynamic>{'url': path});
-
+      try {
+        await _channel
+            .invokeMethod("setDateSource", <String, dynamic>{'url': path});
+      } on PlatformException catch (e){
+        print(e);
+        _epState = preState;
+        return Future.error(FijkException(FijkException.asset404, e.code));
+      }
       if (autoPlay == true) {
-        await this.start();
+        await start();
       }
     } else {
-      return Future.error(StateError("setDataSource at illegal state"));
+      return Future.error(StateError("setDataSource on invalid state $state"));
     }
   }
 
   Future<void> prepareAsync() async {
-    // ckeck state
     await _nativeSetup.future;
-    int ret = 0;
     if (_epState == FijkState.initialized) {
       _epState = FijkState.prepared;
       await _channel.invokeMethod("prepareAsync");
     } else {
-      ret = -1;
+      return Future.error(StateError("prepareAsync on invalid state $state"));
     }
-    //return Future.value();
   }
 
   Future<void> setVolume(double volume) async {
@@ -393,8 +234,6 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
 
   Future<void> start() async {
     await _nativeSetup.future;
-    int ret = 0;
-
     if (_epState == FijkState.initialized) {
       await _channel.invokeMethod("prepareAsync");
       await _channel.invokeMethod("start");
@@ -405,17 +244,14 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
       await _channel.invokeMethod("start");
       _epState = FijkState.started;
     } else {
-      ret = -1;
+      Future.error(StateError("call start on invalid state $state"));
     }
-
-    print("call start $_epState ${value.state} ret:$ret");
   }
 
   Future<void> pause() async {
     await _nativeSetup.future;
     _epState = FijkState.paused;
     await _channel.invokeMethod("pause");
-    print("call pause");
   }
 
   Future<void> stop() async {
@@ -433,27 +269,48 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
 
   Future<void> seekTo(int msec) async {
     await _nativeSetup.future;
-
-    // if (_epState == )
-    await _channel.invokeMethod("seekTo", <String, dynamic>{"msec": msec});
+    if (msec == null || msec < 0)
+      return Future.error(
+          ArgumentError.value(msec, "speed must be not null and >= 0"));
+    if (!isPlayable())
+      return Future.error(StateError("Non playable state $state"));
+    return _channel.invokeMethod("seekTo", <String, dynamic>{"msec": msec});
   }
 
+  /// Release native player. Release memory and resource
   Future<void> release() async {
     await _nativeSetup.future;
     await this.stop();
     await _nativeEventSubscription.cancel();
     await _looperSub.cancel();
-    return FijkPlugin.releasePlayer(_playerId);
+    await FijkPlugin.releasePlayer(_playerId);
+    _setValue(value.copyWith(state: FijkState.end));
   }
 
+  /// Set player loop count
+  ///
+  /// [loopCount] must not null and greater than or equal to 0.
+  /// Default loopCount of player is 1, which also means no loop.
+  /// A positive value of [loopCount] means special repeat times.
+  /// If [loopCount] is 0, is means infinite repeat.
   Future<void> setLoop(int loopCount) async {
     await _nativeSetup.future;
+    if (loopCount == null || loopCount < 0)
+      return Future.error(ArgumentError.value(
+          loopCount, "loopCount must not be null and >= 0"));
     return _channel
         .invokeMethod("setLoop", <String, dynamic>{"loop": loopCount});
   }
 
+  /// Set playback speed
+  ///
+  /// [speed] must not null and greater than 0.
+  /// Default speed is 1
   Future<void> setSpeed(double speed) async {
     await _nativeSetup.future;
+    if (speed == null || speed <= 0)
+      return Future.error(ArgumentError.value(
+          speed, "speed must be not null and greater than 0"));
     return _channel.invokeMethod("setSpeed", <String, dynamic>{"speed": speed});
   }
 
@@ -469,7 +326,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     final Map<dynamic, dynamic> map = event;
     switch (map['event']) {
       case 'prepared':
-        int duration = map['duration'];
+        int duration = map['duration'] ?? 0;
         Duration dur = Duration(milliseconds: duration);
         _setValue(value.copyWith(duration: dur, prepared: true));
         break;

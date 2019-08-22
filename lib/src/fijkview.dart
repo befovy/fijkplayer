@@ -32,6 +32,7 @@ import 'package:flutter/services.dart';
 
 import 'fijkpanel.dart';
 import 'fijkplayer.dart';
+import 'fijkvalue.dart';
 
 /// How a video should be inscribed into [FijkView].
 ///
