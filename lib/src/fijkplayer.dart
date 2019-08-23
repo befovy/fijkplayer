@@ -27,10 +27,9 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
-import 'fijkvalue.dart';
 import 'fijkoption.dart';
 import 'fijkplugin.dart';
-
+import 'fijkvalue.dart';
 
 /// FijkPlayer present as a playback. It interacts with native object.
 ///
@@ -183,8 +182,9 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     String path, {
     bool autoPlay = false,
   }) async {
-    if (path == null || path.length == 0 || Uri.tryParse(path) == null ) {
-      return Future.error(ArgumentError.value(path, "path must be a valid url"));
+    if (path == null || path.length == 0 || Uri.tryParse(path) == null) {
+      return Future.error(
+          ArgumentError.value(path, "path must be a valid url"));
     }
     await _nativeSetup.future;
     FijkState preState = state;
@@ -193,10 +193,9 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
       try {
         await _channel
             .invokeMethod("setDateSource", <String, dynamic>{'url': path});
-      } on PlatformException catch (e){
-        print(e);
+      } on PlatformException catch (e) {
         _epState = preState;
-        return Future.error(FijkException(FijkException.asset404, e.code));
+        return Future.error(FijkException.fromPlatformException(e));
       }
       if (autoPlay == true) {
         await start();
@@ -280,11 +279,11 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   /// Release native player. Release memory and resource
   Future<void> release() async {
     await _nativeSetup.future;
-    await this.stop();
-    await _nativeEventSubscription.cancel();
+    if (isPlayable()) await this.stop();
+    _setValue(value.copyWith(state: FijkState.end));
     await _looperSub.cancel();
     await FijkPlugin.releasePlayer(_playerId);
-    _setValue(value.copyWith(state: FijkState.end));
+    await _nativeEventSubscription.cancel();
   }
 
   /// Set player loop count
@@ -331,8 +330,11 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
         _setValue(value.copyWith(duration: dur, prepared: true));
         break;
       case 'state_change':
-        int newState = map['new'];
-        FijkState fpState = FijkState.values[newState];
+        int newStateId = map['new'];
+        int _oldState = map['old'];
+        FijkState fpState = FijkState.values[newStateId];
+        FijkState oldState = FijkState.values[_oldState];
+        debugPrint("state_change: new: $fpState <= old: $oldState");
 
         if (fpState == FijkState.started) {
           _looperSub.resume();
@@ -344,12 +346,18 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
           _epState = FijkState.error;
         }
 
-        if (newState == FijkState.prepared.index) {
-          _setValue(value.copyWith(prepared: true, state: fpState));
-        } else if (newState < FijkState.prepared.index) {
-          _setValue(value.copyWith(prepared: false, state: fpState));
+        FijkException fijkException =
+            (oldState == FijkState.error && fpState != FijkState.error)
+                ? FijkException.noException
+                : null;
+        if (newStateId == FijkState.prepared.index) {
+          _setValue(value.copyWith(
+              prepared: true, state: fpState, exception: fijkException));
+        } else if (newStateId < FijkState.prepared.index) {
+          _setValue(value.copyWith(
+              prepared: false, state: fpState, exception: fijkException));
         } else {
-          _setValue(value.copyWith(state: fpState));
+          _setValue(value.copyWith(state: fpState, exception: fijkException));
         }
         break;
       case 'freeze':
@@ -376,6 +384,8 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
 
   void _errorListener(Object obj) {
     final PlatformException e = obj;
-    print("onError: $e");
+    FijkException exception = FijkException.fromPlatformException(e);
+    print("errorListerner: $e, $exception");
+    _setValue(value.copyWith(exception: exception));
   }
 }

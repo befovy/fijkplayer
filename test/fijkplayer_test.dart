@@ -53,11 +53,9 @@ class FijkPlayerTester {
       case 'setupSurface':
         return 1;
       case 'setDateSource':
-        var playerIncId = 1;
         await sendEvent(<String, dynamic>{'event': 'prepared'});
         await sendEvent(
             <String, dynamic>{'event': 'state_change', 'new': 1, 'old': 0});
-
         return null;
       case 'prepareAsync':
         await sendEvent(

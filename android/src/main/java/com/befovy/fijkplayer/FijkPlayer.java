@@ -1,7 +1,6 @@
 package com.befovy.fijkplayer;
 
 import android.content.Context;
-import android.content.res.AssetFileDescriptor;
 import android.content.res.AssetManager;
 import android.graphics.SurfaceTexture;
 import android.net.Uri;
@@ -12,7 +11,9 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -31,6 +32,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
     final private static AtomicInteger atomicId = new AtomicInteger(0);
 
     final private int mPlayerId;
+    private int mState;
     final private IjkMediaPlayer mIjkMediaPlayer;
     final private Context mContext;
 
@@ -53,6 +55,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
     FijkPlayer(PluginRegistry.Registrar registrar) {
         mRegistrar = registrar;
         mPlayerId = atomicId.incrementAndGet();
+        mState = 0;
         mIjkMediaPlayer = new IjkMediaPlayer();
         mIjkMediaPlayer.addIjkEventListener(this);
 
@@ -93,9 +96,8 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
     }
 
     void release() {
-        mIjkMediaPlayer.stop();
+        handleEvent(PLAYBACK_STATE_CHANGED, 9, mState, null);
         mIjkMediaPlayer.release();
-
         if (mSurfaceTextureEntry != null) {
             mSurfaceTextureEntry.release();
             mSurfaceTextureEntry = null;
@@ -121,6 +123,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
                 mEventSink.success(event);
                 break;
             case PLAYBACK_STATE_CHANGED:
+                mState = arg1;
                 event.put("event", "state_change");
                 event.put("new", arg1);
                 event.put("old", arg2);
@@ -151,6 +154,9 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
                 event.put("height", arg2);
                 mEventSink.success(event);
                 break;
+            case ERROR:
+                mEventSink.error(String.valueOf(arg1), extra.toString(), arg2);
+                break;
             default:
                 // Log.d("FLUTTER", "jonEvent:" + what);
                 break;
@@ -166,6 +172,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
             case BUFFERING_END:
             case BUFFERING_UPDATE:
             case VIDEO_SIZE_CHANGED:
+            case ERROR:
                 handleEvent(what, arg1, arg2, extra);
                 break;
             default:
@@ -223,7 +230,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
             String url = call.argument("url");
             Uri uri = Uri.parse(url);
             boolean openAsset = false;
-            if ("assets".equals(uri.getScheme())) {
+            if ("asset".equals(uri.getScheme())) {
                 openAsset = true;
                 String host = uri.getHost();
                 String path = uri.getPath() != null ? uri.getPath().substring(1) : "";
@@ -237,9 +244,8 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
             try {
                 if (openAsset) {
                     AssetManager assetManager = mRegistrar.context().getAssets();
-                    AssetFileDescriptor fd = assetManager.openFd(uri.getPath() != null ? uri.getPath() : "");
-                    //mIjkMediaPlayer.setDataSource(fd.getFileDescriptor());
-                    mIjkMediaPlayer.setDataSource(new RawMediaDataSource(fd, mRegistrar.context(), uri.getPath()));
+                    InputStream is = assetManager.open(uri.getPath() != null ? uri.getPath() : "", AssetManager.ACCESS_RANDOM);
+                    mIjkMediaPlayer.setDataSource(new RawMediaDataSource(is));
                 } else {
                     if (TextUtils.isEmpty(uri.getScheme()) || "file".equals(uri.getScheme())) {
                         IMediaDataSource dataSource = new FileMediaDataSource(new File(uri.toString()));
@@ -249,8 +255,10 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
                     }
                 }
                 result.success(null);
+            } catch (FileNotFoundException e) {
+                result.error("asset404", "File not found:" + e.getMessage(), -100);
             } catch (IOException e) {
-                result.error(e.getMessage(), null, null);
+                result.error("ioException", "IOException:" + e.getMessage(), -150);
             }
         } else if (call.method.equals("prepareAsync")) {
             mIjkMediaPlayer.prepareAsync();
@@ -281,8 +289,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
             result.success(null);
         } else if (call.method.equals("setLoop")) {
             final Integer loopCount = call.argument("loop");
-            // todo update ijkplayer, add set loop count api
-            mIjkMediaPlayer.setLooping(loopCount != null && loopCount == 0);
+            mIjkMediaPlayer.setLoopCount(loopCount != null ? loopCount : 1);
             result.success(null);
         } else if (call.method.equals("setSpeed")) {
             final Double speed = call.argument("speed");

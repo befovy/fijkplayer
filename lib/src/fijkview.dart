@@ -206,8 +206,6 @@ class _FijkViewState extends State<FijkView> {
   void dispose() {
     super.dispose();
     widget.player.removeListener(_fijkValueListener);
-    widget.player.release();
-    print("FijkView dispose");
   }
 
   double getAspectRatio(BoxConstraints constraints) {

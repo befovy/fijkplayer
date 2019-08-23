@@ -51,8 +51,8 @@
 }
 
 - (void)error:(NSString *)code
-      message:(NSString *)message
-      details:(NSObject *)details {
+      message:(NSString *_Nullable)message
+      details:(id _Nullable)details {
     [self enqueue:[FlutterError errorWithCode:code
                                       message:message
                                       details:details]];

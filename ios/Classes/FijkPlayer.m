@@ -29,6 +29,7 @@ static atomic_int atomicId = 0;
     CVPixelBufferRef _cachePixelBufer;
     CVPixelBufferRef _Atomic _pixelBuffer;
 
+    int _state;
     int _pid;
     int64_t _vid;
 }
@@ -45,6 +46,7 @@ static atomic_int atomicId = 0;
         _cachePixelBufer = nil;
         _pixelBuffer = nil;
         _vid = -1;
+        _state = 0;
 
         [_ijkMediaPlayer addIJKMPEventHandler:self];
 
@@ -83,8 +85,11 @@ static atomic_int atomicId = 0;
 }
 
 - (void)shutdown {
+    [self handleEvent:IJKMPET_PLAYBACK_STATE_CHANGED
+              andArg1:9
+              andArg2:_state
+             andExtra:nil];
     if (_ijkMediaPlayer) {
-        [_ijkMediaPlayer stop];
         [_ijkMediaPlayer shutdown];
         _ijkMediaPlayer = nil;
     }
@@ -149,12 +154,14 @@ static atomic_int atomicId = 0;
             andArg2:(int)arg2
            andExtra:(void *)extra {
     switch (what) {
-    case IJKMPET_PREPARED: {
-        long duration = [_ijkMediaPlayer getDuration];
-        [_eventSink
-            success:@{@"event" : @"prepared", @"duration" : @(duration)}];
-    } break;
+    case IJKMPET_PREPARED:
+        [_eventSink success:@{
+            @"event" : @"prepared",
+            @"duration" : @([_ijkMediaPlayer getDuration])
+        }];
+        break;
     case IJKMPET_PLAYBACK_STATE_CHANGED:
+        _state = arg1;
         [_eventSink success:@{
             @"event" : @"state_change",
             @"new" : @(arg1),
@@ -163,7 +170,6 @@ static atomic_int atomicId = 0;
         break;
     case IJKMPET_BUFFERING_START:
     case IJKMPET_BUFFERING_END:
-        //        _displayLink.paused = what == IJKMPET_BUFFERING_START;
         [_eventSink success:@{
             @"event" : @"freeze",
             @"value" : [NSNumber numberWithBool:what == IJKMPET_BUFFERING_START]
@@ -182,6 +188,12 @@ static atomic_int atomicId = 0;
             @"width" : @(arg1),
             @"height" : @(arg2)
         }];
+        break;
+    case IJKMPET_ERROR:
+        [_eventSink error:[NSString stringWithFormat:@"%d", arg1]
+                  message:extra ? [NSString stringWithUTF8String:extra] : nil
+                  details:@(arg2)];
+        break;
     default:
         break;
     }
@@ -199,6 +211,7 @@ static atomic_int atomicId = 0;
     case IJKMPET_BUFFERING_END:
     case IJKMPET_BUFFERING_UPDATE:
     case IJKMPET_VIDEO_SIZE_CHANGED:
+    case IJKMPET_ERROR:
         [self handleEvent:what andArg1:arg1 andArg2:arg2 andExtra:extra];
         break;
     default:
@@ -255,7 +268,7 @@ static atomic_int atomicId = 0;
     } else if ([@"setDateSource" isEqualToString:call.method]) {
         NSString *url = argsMap[@"url"];
         NSURL *aUrl = [NSURL URLWithString:url];
-        if ([@"assets" isEqualToString:aUrl.scheme]) {
+        if ([@"asset" isEqualToString:aUrl.scheme]) {
             NSString *host = aUrl.host;
             NSString *asset = [host length] == 0
                                   ? [_registrar lookupKeyForAsset:aUrl.path]
