@@ -31,6 +31,20 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
 
     final private static AtomicInteger atomicId = new AtomicInteger(0);
 
+    final private static int idle = 0;
+    final private static int initialized = 1;
+    final private static int asyncPreparing = 2;
+    @SuppressWarnings("unused")
+    final private static int prepared = 3;
+    @SuppressWarnings("unused")
+    final private static int started = 4;
+    final private static int paused = 5;
+    final private static int completed = 6;
+    final private static int stopped = 7;
+    @SuppressWarnings("unused")
+    final private static int error = 8;
+    final private static int end = 9;
+
     final private int mPlayerId;
     private int mState;
     final private IjkMediaPlayer mIjkMediaPlayer;
@@ -96,7 +110,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
     }
 
     void release() {
-        handleEvent(PLAYBACK_STATE_CHANGED, 9, mState, null);
+        handleEvent(PLAYBACK_STATE_CHANGED, end, mState, null);
         mIjkMediaPlayer.release();
         if (mSurfaceTextureEntry != null) {
             mSurfaceTextureEntry.release();
@@ -207,6 +221,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
 
     @Override
     public void onMethodCall(@NonNull MethodCall call, @NonNull MethodChannel.Result result) {
+        //noinspection IfCanBeSwitch
         if (call.method.equals("setupSurface")) {
             long viewId = setupSurface();
             result.success(viewId);
@@ -254,6 +269,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
                         mIjkMediaPlayer.setDataSource(mContext, uri);
                     }
                 }
+                handleEvent(PLAYBACK_STATE_CHANGED, initialized, -1, null);
                 result.success(null);
             } catch (FileNotFoundException e) {
                 result.error("asset404", "File not found:" + e.getMessage(), -100);
@@ -262,6 +278,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
             }
         } else if (call.method.equals("prepareAsync")) {
             mIjkMediaPlayer.prepareAsync();
+            handleEvent(PLAYBACK_STATE_CHANGED, asyncPreparing, -1, null);
             result.success(null);
         } else if (call.method.equals("start")) {
             mIjkMediaPlayer.start();
@@ -271,9 +288,11 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
             result.success(null);
         } else if (call.method.equals("stop")) {
             mIjkMediaPlayer.stop();
+            handleEvent(PLAYBACK_STATE_CHANGED, stopped, -1, null);
             result.success(null);
         } else if (call.method.equals("reset")) {
             mIjkMediaPlayer.reset();
+            handleEvent(PLAYBACK_STATE_CHANGED, idle, -1, null);
             result.success(null);
         } else if (call.method.equals("getCurrentPosition")) {
             long pos = mIjkMediaPlayer.getCurrentPosition();
@@ -285,6 +304,8 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
             result.success(null);
         } else if (call.method.equals("seekTo")) {
             final Integer msec = call.argument("msec");
+            if (mState == completed)
+                handleEvent(PLAYBACK_STATE_CHANGED, paused, -1, null);
             mIjkMediaPlayer.seekTo(msec != null ? msec.longValue() : 0);
             result.success(null);
         } else if (call.method.equals("setLoop")) {

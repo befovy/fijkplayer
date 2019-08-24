@@ -34,6 +34,17 @@ static atomic_int atomicId = 0;
     int64_t _vid;
 }
 
+static const int idle = 0;
+static const int initialized = 1;
+static const int asyncPreparing = 2;
+static const int __attribute__((unused)) prepared = 3;
+static const int __attribute__((unused)) started = 4;
+static const int paused = 5;
+static const int completed = 6;
+static const int stopped = 7;
+static const int __attribute__((unused)) error = 8;
+static const int end = 9;
+
 - (instancetype)initWithRegistrar:(id<FlutterPluginRegistrar>)registrar {
     self = [super init];
     if (self) {
@@ -86,7 +97,7 @@ static atomic_int atomicId = 0;
 
 - (void)shutdown {
     [self handleEvent:IJKMPET_PLAYBACK_STATE_CHANGED
-              andArg1:9
+              andArg1:end
               andArg2:_state
              andExtra:nil];
     if (_ijkMediaPlayer) {
@@ -288,9 +299,11 @@ static atomic_int atomicId = 0;
             }
         }
         [_ijkMediaPlayer setDataSource:url];
+        [self handleEvent:IJKMPET_PLAYBACK_STATE_CHANGED andArg1:initialized andArg2:-1 andExtra:nil];
         result(nil);
     } else if ([@"prepareAsync" isEqualToString:call.method]) {
         [_ijkMediaPlayer prepareAsync];
+        [self handleEvent:IJKMPET_PLAYBACK_STATE_CHANGED andArg1:asyncPreparing andArg2:-1 andExtra:nil];
         result(nil);
     } else if ([@"start" isEqualToString:call.method]) {
         int ret = [_ijkMediaPlayer start];
@@ -301,9 +314,11 @@ static atomic_int atomicId = 0;
         result(nil);
     } else if ([@"stop" isEqualToString:call.method]) {
         [_ijkMediaPlayer stop];
+        [self handleEvent:IJKMPET_PLAYBACK_STATE_CHANGED andArg1:stopped andArg2:-1 andExtra:nil];
         result(nil);
     } else if ([@"reset" isEqualToString:call.method]) {
         [_ijkMediaPlayer reset];
+        [self handleEvent:IJKMPET_PLAYBACK_STATE_CHANGED andArg1:idle andArg2:-1 andExtra:nil];
         result(nil);
     } else if ([@"getCurrentPosition" isEqualToString:call.method]) {
         long pos = [_ijkMediaPlayer getCurrentPosition];
@@ -315,6 +330,8 @@ static atomic_int atomicId = 0;
     } else if ([@"seekTo" isEqualToString:call.method]) {
         long pos = [argsMap[@"msec"] longValue];
         [_ijkMediaPlayer seekTo:pos];
+        if (_state == completed)
+            [self handleEvent:IJKMPET_PLAYBACK_STATE_CHANGED andArg1:paused andArg2:-1 andExtra:nil];
         result(nil);
     } else if ([@"setLoop" isEqualToString:call.method]) {
         int loopCount = [argsMap[@"loop"] intValue];

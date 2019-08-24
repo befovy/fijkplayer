@@ -31,6 +31,12 @@ class FijkOption {
   final Map<String, dynamic> _playerOption = HashMap();
   final Map<String, dynamic> _swrOption = HashMap();
 
+  static const int formatCategory = 1;
+  static const int codecCategory = 2;
+  static const int swsCategory = 3;
+  static const int playerCategory = 4;
+  static const int swrCategory = 5;
+
   Map<int, Map<String, dynamic>> get data {
     final Map<int, Map<String, dynamic>> options = HashMap();
     options[1] = Map.from(_formatOption);
