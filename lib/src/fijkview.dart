@@ -23,12 +23,14 @@
 //
 
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:fijkplayer/src/fijkpanel.dart';
 import 'package:fijkplayer/src/fijkplugin.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 
 import 'fijkpanel.dart';
 import 'fijkplayer.dart';
@@ -269,13 +271,13 @@ class _FijkViewState extends State<FijkView> {
     );
 
     await SystemChrome.setEnabledSystemUIOverlays([]);
-    await FijkPlugin.setOrientationLandscape(context: context);
+    await FijkPlugin.setOrientationLandscape();
     await Navigator.of(context).push(route);
     _fullScreen = false;
     widget.player.exitFullScreen();
     await SystemChrome.setEnabledSystemUIOverlays(
         [SystemUiOverlay.top, SystemUiOverlay.bottom]);
-    await FijkPlugin.setOrientationPortrait(context: context);
+    await FijkPlugin.setOrientationPortrait();
   }
 
   Widget buildTexture() {

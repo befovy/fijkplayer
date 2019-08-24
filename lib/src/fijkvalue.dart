@@ -216,10 +216,8 @@ class FijkValue {
 
 @immutable
 class FijkException implements Exception {
-  // idle 0
   static const int ok = 0;
   static const FijkException noException = FijkException(ok);
-
 
   /// local file or asset not found,
   static const int local404 = -875574348;
