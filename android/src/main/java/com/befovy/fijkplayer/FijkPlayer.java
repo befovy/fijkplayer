@@ -272,9 +272,9 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
                 handleEvent(PLAYBACK_STATE_CHANGED, initialized, -1, null);
                 result.success(null);
             } catch (FileNotFoundException e) {
-                result.error("asset404", "File not found:" + e.getMessage(), -100);
+                result.error("-875574348", "Local File not found:" + e.getMessage(), null);
             } catch (IOException e) {
-                result.error("ioException", "IOException:" + e.getMessage(), -150);
+                result.error("-1162824012", "Local IOException:" + e.getMessage(), null);
             }
         } else if (call.method.equals("prepareAsync")) {
             mIjkMediaPlayer.prepareAsync();

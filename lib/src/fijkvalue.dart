@@ -220,9 +220,12 @@ class FijkException implements Exception {
   static const int ok = 0;
   static const FijkException noException = FijkException(ok);
 
-  // io exception (-100, -200)
-  static const int asset404 = -100;
-  static const int ioException = -150;
+
+  /// local file or asset not found,
+  static const int local404 = -875574348;
+
+  /// local io exception
+  static const int localIOe = -1162824012;
 
   /// Internal bug
   static const int interBug = -558323010;

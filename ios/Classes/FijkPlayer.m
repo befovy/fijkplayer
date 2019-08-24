@@ -279,6 +279,7 @@ static const int end = 9;
     } else if ([@"setDateSource" isEqualToString:call.method]) {
         NSString *url = argsMap[@"url"];
         NSURL *aUrl = [NSURL URLWithString:url];
+        bool file404 = false;
         if ([@"asset" isEqualToString:aUrl.scheme]) {
             NSString *host = aUrl.host;
             NSString *asset = [host length] == 0
@@ -292,18 +293,34 @@ static const int end = 9;
                     url = path;
             }
             if ([url isEqualToString:argsMap[@"url"]]) {
-                result([FlutterError errorWithCode:@"assets not found"
-                                           message:url
-                                           details:nil]);
-                return;
+                file404 = true;
+            }
+        } else if ([@"file" isEqualToString:aUrl.scheme] ||
+                   [aUrl.scheme length] == 0) {
+            NSFileManager *fileManager = [[NSFileManager alloc] init];
+            if (![fileManager fileExistsAtPath:aUrl.path]) {
+                file404 = true;
             }
         }
-        [_ijkMediaPlayer setDataSource:url];
-        [self handleEvent:IJKMPET_PLAYBACK_STATE_CHANGED andArg1:initialized andArg2:-1 andExtra:nil];
-        result(nil);
+        if (file404) {
+            result([FlutterError errorWithCode:@"-875574348"
+                                       message:[@"Local File not found:"
+                                                   stringByAppendingString:url]
+                                       details:nil]);
+        } else {
+            [_ijkMediaPlayer setDataSource:url];
+            [self handleEvent:IJKMPET_PLAYBACK_STATE_CHANGED
+                      andArg1:initialized
+                      andArg2:-1
+                     andExtra:nil];
+            result(nil);
+        }
     } else if ([@"prepareAsync" isEqualToString:call.method]) {
         [_ijkMediaPlayer prepareAsync];
-        [self handleEvent:IJKMPET_PLAYBACK_STATE_CHANGED andArg1:asyncPreparing andArg2:-1 andExtra:nil];
+        [self handleEvent:IJKMPET_PLAYBACK_STATE_CHANGED
+                  andArg1:asyncPreparing
+                  andArg2:-1
+                 andExtra:nil];
         result(nil);
     } else if ([@"start" isEqualToString:call.method]) {
         int ret = [_ijkMediaPlayer start];
@@ -314,11 +331,17 @@ static const int end = 9;
         result(nil);
     } else if ([@"stop" isEqualToString:call.method]) {
         [_ijkMediaPlayer stop];
-        [self handleEvent:IJKMPET_PLAYBACK_STATE_CHANGED andArg1:stopped andArg2:-1 andExtra:nil];
+        [self handleEvent:IJKMPET_PLAYBACK_STATE_CHANGED
+                  andArg1:stopped
+                  andArg2:-1
+                 andExtra:nil];
         result(nil);
     } else if ([@"reset" isEqualToString:call.method]) {
         [_ijkMediaPlayer reset];
-        [self handleEvent:IJKMPET_PLAYBACK_STATE_CHANGED andArg1:idle andArg2:-1 andExtra:nil];
+        [self handleEvent:IJKMPET_PLAYBACK_STATE_CHANGED
+                  andArg1:idle
+                  andArg2:-1
+                 andExtra:nil];
         result(nil);
     } else if ([@"getCurrentPosition" isEqualToString:call.method]) {
         long pos = [_ijkMediaPlayer getCurrentPosition];
@@ -331,7 +354,10 @@ static const int end = 9;
         long pos = [argsMap[@"msec"] longValue];
         [_ijkMediaPlayer seekTo:pos];
         if (_state == completed)
-            [self handleEvent:IJKMPET_PLAYBACK_STATE_CHANGED andArg1:paused andArg2:-1 andExtra:nil];
+            [self handleEvent:IJKMPET_PLAYBACK_STATE_CHANGED
+                      andArg1:paused
+                      andArg2:-1
+                     andExtra:nil];
         result(nil);
     } else if ([@"setLoop" isEqualToString:call.method]) {
         int loopCount = [argsMap[@"loop"] intValue];

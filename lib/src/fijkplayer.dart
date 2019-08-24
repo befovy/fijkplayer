@@ -172,12 +172,6 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     return _channel.invokeMethod("setupSurface");
   }
 
-  void _errorState(FijkException e) {
-    if (e != null && e != FijkException.noException) {
-      _setValue(value.copyWith(state: FijkState.error, exception: e));
-    }
-  }
-
   /// Set data source for this player
   ///
   /// [path] must be a valid uri, otherwise this method return ArgumentError
@@ -195,8 +189,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
         await _channel
             .invokeMethod("setDateSource", <String, dynamic>{'url': path});
       } on PlatformException catch (e) {
-        FijkException fe = FijkException.fromPlatformException(e);
-        return _errorState(fe);
+        return _errorListener(e);
       }
       if (autoPlay == true) {
         await start();
