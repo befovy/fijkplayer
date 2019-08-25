@@ -1,15 +1,20 @@
 ---
 title: fijkplayer -- Flutter plugin for ijkplayer
 layout: page
-permalink: /index.html
+permalink: /docs/zh/index.html
+redirect_from:
+    - /index.html
 key: index
 ---
 
 
 fijkplayer 是一个 Flutter 生态的媒体播放器，是对 [ijkplayer](https://github.com/befovy/ijkplayer) 的 Flutter 封装，支持 Android 和 iOS。
-fijkplayer 使用 ijkplayer 作为播放器内核。ijkplayer 使用 ffmpeg 进行音视频解封装和解码，同时添加了 Android 和 iOS 平台特有的硬件加速解码能力。  
+fijkplayer 使用 ijkplayer 作为播放器内核。[ijkplayer](https://github.com/bilibili/ijkplayer) 使用 ffmpeg 进行音视频解封装和解码，同时添加了 Android 和 iOS 平台特有的硬件加速解码能力。  
 
 fijkplayer 具有和 ijkplayer 一样的播放能力，并且开箱即用，不需要使用者再去编译 ijkplayer，API易用，易于在 Flutter 项目中集成。
+
+fijkplayer 通过纹理方式将播放器视频画面渲染接入 flutter 中，性能上优于 PlatformView 的接入方法。
+fijkplayer 有内置的编译好的ffmepg 和 ijkplayer，分别托管在 jcenter 和 CocoaPods 上。
 
 这个站点包含了大量的 fijkplayer 的文档帮助你使用以及理解 fijkplayer。
 
