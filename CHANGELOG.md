@@ -1,5 +1,6 @@
 ##  next
 --------------------------------
+
 ## 0.1.0
 - update ijkplauer to f0.3.5
 - fijkplayer err state and FijkException
