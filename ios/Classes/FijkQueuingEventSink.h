@@ -17,8 +17,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)endOfStream;
 
 - (void)error:(NSString *)code
-      message:(NSString *)message
-      details:(NSObject *)details;
+      message:(NSString *_Nullable)message
+      details:(id _Nullable)details;
 
 - (void)success:(NSObject *)event;
 

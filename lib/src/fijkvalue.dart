@@ -24,6 +24,7 @@ import 'dart:core';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 
 import 'fijkplayer.dart';
 
@@ -171,7 +172,7 @@ class FijkValue {
           size: null,
           duration: const Duration(),
           fullScreen: false,
-          exception: null,
+          exception: FijkException.noException,
         );
 
   /// Return new FijkValue which combines the old value and the assigned new value
@@ -215,64 +216,108 @@ class FijkValue {
 
 @immutable
 class FijkException implements Exception {
-  // idle 0
   static const int ok = 0;
-  static const int asset404 = 404;
+  static const FijkException noException = FijkException(ok);
 
-  static const int openFailed = 222;
+  /// local file or asset not found,
+  static const int local404 = -875574348;
 
-  // initialized 1
+  /// local io exception
+  static const int localIOe = -1162824012;
 
-  // asyncPreparing 2
+  /// Internal bug
+  static const int interBug = -558323010;
 
-  // prepared 3
+  /// Buffer too small
+  static const int smallBuf = -1397118274;
 
-  // started 4
+  /// Decoder not found
+  static const int noDecoder = -1128613112;
 
-  // paused 5
+  /// Demuxer not found
+  static const int noDemuxer = -1296385272;
 
-  // completed 6
+  /// Encoder not found
+  static const int noEncoder = -1129203192;
 
-  // stopped 7
+  /// End of file
+  static const int fileEnd = -541478725;
 
-  // error 8
+  /// Immediate exit was requested
+  static const int exitImm = -1414092869;
 
-  // end 9
+  /// Generic error in an external library
+  static const int extErr = -542398533;
+
+  /// Filter not found
+  static const int noFilter = -1279870712;
+
+  /// Invalid data found when processing input
+  static const int badData = -1094995529;
+
+  /// Muxer not found
+  static const int noMuxer = -1481985528;
+
+  /// Option not found
+  static const int noOption = -1414549496;
+
+  /// Not yet implemented in FFmpeg, patches welcome
+  static const int noImplemented = -1163346256;
+
+  /// Protocol not found
+  static const int noProtocol = -1330794744;
+
+  /// Stream not found
+  static const int noStream = -1381258232;
+
+  /// unknown error
+  static const int unknown = -1313558101;
+
+  /// Http 400
+  static const int http400 = -808465656;
+
+  /// Http 401
+  static const int http401 = -825242872;
+
+  /// Http 403
+  static const int http403 = -858797304;
+
+  /// Http 404
+  static const int http404 = -875574520;
+
+  /// Http 4xx
+  static const int http4xx = -1482175736;
+
+  /// Http 5xx
+  static const int http5xx = -1482175992;
 
   /// exception code
   final int code;
 
-  /// short exception message
-  final String msg;
-
-  /// long exception message
+  /// human readable exception message
   final String message;
 
-  /// more detail about this exception
-  final dynamic details;
+  const FijkException(code, [this.message]) : code = code;
 
-  FijkException(code, [this.msg, this.message, this.details]) : code = code;
-
+  static FijkException fromPlatformException(PlatformException e) {
+    int code = int.tryParse(e.code);
+    return code != null
+        ? FijkException(code, e.message)
+        : FijkException(unknown, e.message);
+  }
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is FijkException &&
-              runtimeType == other.runtimeType &&
-              code == other.code &&
-              msg == other.msg &&
-              message == other.message &&
-              details == other.details;
+      other is FijkException &&
+          runtimeType == other.runtimeType &&
+          hashCode == other.hashCode;
 
   @override
-  int get hashCode =>
-      code.hashCode ^
-      msg.hashCode ^
-      message.hashCode ^
-      details.hashCode;
+  int get hashCode => hashValues(code, message);
 
   @override
   String toString() {
-    return "FijkException($code, $msg, $message, $details)";
+    return "FijkException($code, $message)";
   }
 }

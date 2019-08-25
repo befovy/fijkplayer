@@ -29,9 +29,21 @@ static atomic_int atomicId = 0;
     CVPixelBufferRef _cachePixelBufer;
     CVPixelBufferRef _Atomic _pixelBuffer;
 
+    int _state;
     int _pid;
     int64_t _vid;
 }
+
+static const int idle = 0;
+static const int initialized = 1;
+static const int asyncPreparing = 2;
+static const int __attribute__((unused)) prepared = 3;
+static const int __attribute__((unused)) started = 4;
+static const int paused = 5;
+static const int completed = 6;
+static const int stopped = 7;
+static const int __attribute__((unused)) error = 8;
+static const int end = 9;
 
 - (instancetype)initWithRegistrar:(id<FlutterPluginRegistrar>)registrar {
     self = [super init];
@@ -45,6 +57,7 @@ static atomic_int atomicId = 0;
         _cachePixelBufer = nil;
         _pixelBuffer = nil;
         _vid = -1;
+        _state = 0;
 
         [_ijkMediaPlayer addIJKMPEventHandler:self];
 
@@ -83,8 +96,11 @@ static atomic_int atomicId = 0;
 }
 
 - (void)shutdown {
+    [self handleEvent:IJKMPET_PLAYBACK_STATE_CHANGED
+              andArg1:end
+              andArg2:_state
+             andExtra:nil];
     if (_ijkMediaPlayer) {
-        [_ijkMediaPlayer stop];
         [_ijkMediaPlayer shutdown];
         _ijkMediaPlayer = nil;
     }
@@ -149,12 +165,14 @@ static atomic_int atomicId = 0;
             andArg2:(int)arg2
            andExtra:(void *)extra {
     switch (what) {
-    case IJKMPET_PREPARED: {
-        long duration = [_ijkMediaPlayer getDuration];
-        [_eventSink
-            success:@{@"event" : @"prepared", @"duration" : @(duration)}];
-    } break;
+    case IJKMPET_PREPARED:
+        [_eventSink success:@{
+            @"event" : @"prepared",
+            @"duration" : @([_ijkMediaPlayer getDuration])
+        }];
+        break;
     case IJKMPET_PLAYBACK_STATE_CHANGED:
+        _state = arg1;
         [_eventSink success:@{
             @"event" : @"state_change",
             @"new" : @(arg1),
@@ -163,7 +181,6 @@ static atomic_int atomicId = 0;
         break;
     case IJKMPET_BUFFERING_START:
     case IJKMPET_BUFFERING_END:
-        //        _displayLink.paused = what == IJKMPET_BUFFERING_START;
         [_eventSink success:@{
             @"event" : @"freeze",
             @"value" : [NSNumber numberWithBool:what == IJKMPET_BUFFERING_START]
@@ -182,6 +199,12 @@ static atomic_int atomicId = 0;
             @"width" : @(arg1),
             @"height" : @(arg2)
         }];
+        break;
+    case IJKMPET_ERROR:
+        [_eventSink error:[NSString stringWithFormat:@"%d", arg1]
+                  message:extra ? [NSString stringWithUTF8String:extra] : nil
+                  details:@(arg2)];
+        break;
     default:
         break;
     }
@@ -199,6 +222,7 @@ static atomic_int atomicId = 0;
     case IJKMPET_BUFFERING_END:
     case IJKMPET_BUFFERING_UPDATE:
     case IJKMPET_VIDEO_SIZE_CHANGED:
+    case IJKMPET_ERROR:
         [self handleEvent:what andArg1:arg1 andArg2:arg2 andExtra:extra];
         break;
     default:
@@ -255,7 +279,8 @@ static atomic_int atomicId = 0;
     } else if ([@"setDateSource" isEqualToString:call.method]) {
         NSString *url = argsMap[@"url"];
         NSURL *aUrl = [NSURL URLWithString:url];
-        if ([@"assets" isEqualToString:aUrl.scheme]) {
+        bool file404 = false;
+        if ([@"asset" isEqualToString:aUrl.scheme]) {
             NSString *host = aUrl.host;
             NSString *asset = [host length] == 0
                                   ? [_registrar lookupKeyForAsset:aUrl.path]
@@ -268,16 +293,34 @@ static atomic_int atomicId = 0;
                     url = path;
             }
             if ([url isEqualToString:argsMap[@"url"]]) {
-                result([FlutterError errorWithCode:@"assets not found"
-                                           message:url
-                                           details:nil]);
-                return;
+                file404 = true;
+            }
+        } else if ([@"file" isEqualToString:aUrl.scheme] ||
+                   [aUrl.scheme length] == 0) {
+            NSFileManager *fileManager = [[NSFileManager alloc] init];
+            if (![fileManager fileExistsAtPath:aUrl.path]) {
+                file404 = true;
             }
         }
-        [_ijkMediaPlayer setDataSource:url];
-        result(nil);
+        if (file404) {
+            result([FlutterError errorWithCode:@"-875574348"
+                                       message:[@"Local File not found:"
+                                                   stringByAppendingString:url]
+                                       details:nil]);
+        } else {
+            [_ijkMediaPlayer setDataSource:url];
+            [self handleEvent:IJKMPET_PLAYBACK_STATE_CHANGED
+                      andArg1:initialized
+                      andArg2:-1
+                     andExtra:nil];
+            result(nil);
+        }
     } else if ([@"prepareAsync" isEqualToString:call.method]) {
         [_ijkMediaPlayer prepareAsync];
+        [self handleEvent:IJKMPET_PLAYBACK_STATE_CHANGED
+                  andArg1:asyncPreparing
+                  andArg2:-1
+                 andExtra:nil];
         result(nil);
     } else if ([@"start" isEqualToString:call.method]) {
         int ret = [_ijkMediaPlayer start];
@@ -288,9 +331,17 @@ static atomic_int atomicId = 0;
         result(nil);
     } else if ([@"stop" isEqualToString:call.method]) {
         [_ijkMediaPlayer stop];
+        [self handleEvent:IJKMPET_PLAYBACK_STATE_CHANGED
+                  andArg1:stopped
+                  andArg2:-1
+                 andExtra:nil];
         result(nil);
     } else if ([@"reset" isEqualToString:call.method]) {
         [_ijkMediaPlayer reset];
+        [self handleEvent:IJKMPET_PLAYBACK_STATE_CHANGED
+                  andArg1:idle
+                  andArg2:-1
+                 andExtra:nil];
         result(nil);
     } else if ([@"getCurrentPosition" isEqualToString:call.method]) {
         long pos = [_ijkMediaPlayer getCurrentPosition];
@@ -302,6 +353,11 @@ static atomic_int atomicId = 0;
     } else if ([@"seekTo" isEqualToString:call.method]) {
         long pos = [argsMap[@"msec"] longValue];
         [_ijkMediaPlayer seekTo:pos];
+        if (_state == completed)
+            [self handleEvent:IJKMPET_PLAYBACK_STATE_CHANGED
+                      andArg1:paused
+                      andArg2:-1
+                     andExtra:nil];
         result(nil);
     } else if ([@"setLoop" isEqualToString:call.method]) {
         int loopCount = [argsMap[@"loop"] intValue];

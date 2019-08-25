@@ -27,10 +27,9 @@ import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
-import 'fijkvalue.dart';
 import 'fijkoption.dart';
 import 'fijkplugin.dart';
-
+import 'fijkvalue.dart';
 
 /// FijkPlayer present as a playback. It interacts with native object.
 ///
@@ -47,7 +46,6 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   bool _startAfterSetup = false;
 
   FijkValue _value;
-  FijkState _epState;
 
   /// return the current state
   FijkState get state => _value.state;
@@ -100,34 +98,32 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
       : _nativeSetup = Completer(),
         super() {
     _value = FijkValue.uninitialized();
-    _epState = FijkState.error;
     _doNativeSetup();
   }
 
   Future<void> _startFromAnyState() async {
     await _nativeSetup.future;
 
-    if (_epState == FijkState.error || _epState == FijkState.stopped) {
+    if (state == FijkState.error || state == FijkState.stopped) {
       await reset();
     }
-    if (_epState == FijkState.idle) {
+    if (state == FijkState.idle) {
       await setDataSource(_dataSource);
     }
-    if (_epState == FijkState.initialized) {
+    if (state == FijkState.initialized) {
       await prepareAsync();
     }
-    if (_epState == FijkState.prepared ||
-        _epState == FijkState.completed ||
-        _epState == FijkState.paused) {
+    if (state == FijkState.asyncPreparing ||
+        state == FijkState.prepared ||
+        state == FijkState.completed ||
+        state == FijkState.paused) {
       await start();
     }
-    return Future.value();
   }
 
   Future<void> _doNativeSetup() async {
     _playerId = await FijkPlugin.createPlayer();
     _channel = MethodChannel('befovy.com/fijkplayer/' + _playerId.toString());
-    _epState = FijkState.idle;
 
     _nativeEventSubscription =
         EventChannel('befovy.com/fijkplayer/event/' + _playerId.toString())
@@ -183,20 +179,17 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     String path, {
     bool autoPlay = false,
   }) async {
-    if (path == null || path.length == 0 || Uri.tryParse(path) == null ) {
-      return Future.error(ArgumentError.value(path, "path must be a valid url"));
+    if (path == null || path.length == 0 || Uri.tryParse(path) == null) {
+      return Future.error(
+          ArgumentError.value(path, "path must be a valid url"));
     }
     await _nativeSetup.future;
-    FijkState preState = state;
-    if (_epState == FijkState.idle || _epState == FijkState.initialized) {
-      _epState = FijkState.initialized;
+    if (state == FijkState.idle || state == FijkState.initialized) {
       try {
         await _channel
             .invokeMethod("setDateSource", <String, dynamic>{'url': path});
-      } on PlatformException catch (e){
-        print(e);
-        _epState = preState;
-        return Future.error(FijkException(FijkException.asset404, e.code));
+      } on PlatformException catch (e) {
+        return _errorListener(e);
       }
       if (autoPlay == true) {
         await start();
@@ -208,8 +201,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
 
   Future<void> prepareAsync() async {
     await _nativeSetup.future;
-    if (_epState == FijkState.initialized) {
-      _epState = FijkState.prepared;
+    if (state == FijkState.initialized) {
       await _channel.invokeMethod("prepareAsync");
     } else {
       return Future.error(StateError("prepareAsync on invalid state $state"));
@@ -234,15 +226,14 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
 
   Future<void> start() async {
     await _nativeSetup.future;
-    if (_epState == FijkState.initialized) {
+    if (state == FijkState.initialized) {
       await _channel.invokeMethod("prepareAsync");
       await _channel.invokeMethod("start");
-      _epState = FijkState.started;
-    } else if (_epState == FijkState.prepared ||
-        _epState == FijkState.paused ||
+    } else if (state == FijkState.asyncPreparing ||
+        state == FijkState.prepared ||
+        state == FijkState.paused ||
         value.state == FijkState.completed) {
       await _channel.invokeMethod("start");
-      _epState = FijkState.started;
     } else {
       Future.error(StateError("call start on invalid state $state"));
     }
@@ -250,21 +241,29 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
 
   Future<void> pause() async {
     await _nativeSetup.future;
-    _epState = FijkState.paused;
-    await _channel.invokeMethod("pause");
+    if (isPlayable())
+      await _channel.invokeMethod("pause");
+    else {
+      Future.error(StateError("call pause on invalid state $state"));
+    }
   }
 
   Future<void> stop() async {
     await _nativeSetup.future;
-
-    _epState = FijkState.stopped;
-    await _channel.invokeMethod("stop");
+    if (state == FijkState.end ||
+        state == FijkState.idle ||
+        state == FijkState.initialized)
+      Future.error(StateError("call stop on invalid state $state"));
+    else
+      await _channel.invokeMethod("stop");
   }
 
   Future<void> reset() async {
     await _nativeSetup.future;
-    _epState = FijkState.idle;
-    await _channel.invokeMethod("reset");
+    if (state == FijkState.end)
+      Future.error(StateError("call reset on invalid state $state"));
+    else
+      await _channel.invokeMethod("reset");
   }
 
   Future<void> seekTo(int msec) async {
@@ -273,18 +272,21 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
       return Future.error(
           ArgumentError.value(msec, "speed must be not null and >= 0"));
     if (!isPlayable())
-      return Future.error(StateError("Non playable state $state"));
-    return _channel.invokeMethod("seekTo", <String, dynamic>{"msec": msec});
+      Future.error(StateError("Non playable state $state"));
+    else
+      _channel.invokeMethod("seekTo", <String, dynamic>{"msec": msec});
   }
 
   /// Release native player. Release memory and resource
   Future<void> release() async {
     await _nativeSetup.future;
-    await this.stop();
-    await _nativeEventSubscription.cancel();
-    await _looperSub.cancel();
-    await FijkPlugin.releasePlayer(_playerId);
+    if (isPlayable()) await this.stop();
     _setValue(value.copyWith(state: FijkState.end));
+    await _looperSub?.cancel();
+    _looperSub = null;
+    await _nativeEventSubscription?.cancel();
+    _nativeEventSubscription = null;
+    await FijkPlugin.releasePlayer(_playerId);
   }
 
   /// Set player loop count
@@ -331,25 +333,33 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
         _setValue(value.copyWith(duration: dur, prepared: true));
         break;
       case 'state_change':
-        int newState = map['new'];
-        FijkState fpState = FijkState.values[newState];
+        int newStateId = map['new'];
+        int _oldState = map['old'];
+        FijkState fpState = FijkState.values[newStateId];
+        FijkState oldState =
+            (_oldState >= 0 && _oldState < FijkState.values.length)
+                ? FijkState.values[_oldState]
+                : state;
 
-        if (fpState == FijkState.started) {
-          _looperSub.resume();
-        } else {
-          if (!_looperSub.isPaused) _looperSub.pause();
-        }
+        if (fpState != oldState) {
+          debugPrint("state_change: new: $fpState <= old: $oldState");
 
-        if (fpState == FijkState.error) {
-          _epState = FijkState.error;
-        }
-
-        if (newState == FijkState.prepared.index) {
-          _setValue(value.copyWith(prepared: true, state: fpState));
-        } else if (newState < FijkState.prepared.index) {
-          _setValue(value.copyWith(prepared: false, state: fpState));
-        } else {
-          _setValue(value.copyWith(state: fpState));
+          if (fpState == FijkState.started) {
+            _looperSub.resume();
+          } else {
+            if (!_looperSub.isPaused) _looperSub.pause();
+          }
+          FijkException fijkException =
+              (fpState != FijkState.error) ? FijkException.noException : null;
+          if (newStateId == FijkState.prepared.index) {
+            _setValue(value.copyWith(
+                prepared: true, state: fpState, exception: fijkException));
+          } else if (newStateId < FijkState.prepared.index) {
+            _setValue(value.copyWith(
+                prepared: false, state: fpState, exception: fijkException));
+          } else {
+            _setValue(value.copyWith(state: fpState, exception: fijkException));
+          }
         }
         break;
       case 'freeze':
@@ -376,6 +386,8 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
 
   void _errorListener(Object obj) {
     final PlatformException e = obj;
-    print("onError: $e");
+    FijkException exception = FijkException.fromPlatformException(e);
+    debugPrint("errorListerner: $e, $exception");
+    _setValue(value.copyWith(exception: exception));
   }
 }
