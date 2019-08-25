@@ -357,9 +357,11 @@ class _FijkViewState extends State<FijkView> {
             color: widget.color,
           ),
           Positioned.fromRect(
-            rect: pos,
-            child: buildTexture(),
-          ),
+              rect: pos,
+              child: Container(
+                color: Color(0xFF000000),
+                child: buildTexture(),
+              )),
         ];
 
         if (widget.panelBuilder != null) {
