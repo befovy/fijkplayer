@@ -29,6 +29,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 import 'fijkplayer.dart';
+import 'fijkvalue.dart';
 
 /// The signature of the [LayoutBuilder] builder function.
 ///
@@ -40,7 +41,7 @@ typedef FijkPanelWidgetBuilder = Widget Function(
 /// Default builder generate default [FijkPanel] UI
 Widget defaultFijkPanelBuilder(
     FijkPlayer player, BuildContext context, Size viewSize, Rect texturePos) {
-  return DefaultFijkPanel(
+  return _DefaultFijkPanel(
       player: player,
       buildContext: context,
       viewSize: viewSize,
@@ -48,13 +49,13 @@ Widget defaultFijkPanelBuilder(
 }
 
 /// Default Panel Widget
-class DefaultFijkPanel extends StatefulWidget {
+class _DefaultFijkPanel extends StatefulWidget {
   final FijkPlayer player;
   final BuildContext buildContext;
   final Size viewSize;
   final Rect texturePos;
 
-  const DefaultFijkPanel({
+  const _DefaultFijkPanel({
     @required this.player,
     this.buildContext,
     this.viewSize,
@@ -81,7 +82,7 @@ String _duration2String(Duration duration) {
       : "$twoDigitMinutes:$twoDigitSeconds";
 }
 
-class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
+class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
   FijkPlayer get player => widget.player;
 
   Duration _duration = Duration();
@@ -90,6 +91,7 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
   // Duration _bufferPos = Duration();
   bool _playing = false;
   bool _prepared = false;
+  String _exception;
 
   // bool _buffering = false;
 
@@ -116,6 +118,7 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
     //_bufferPos = player.bufferPos;
     _prepared = player.state.index >= FijkState.prepared.index;
     _playing = player.state == FijkState.started;
+    _exception = player.value.exception.message;
     // _buffering = player.isBuffering;
 
     player.addListener(_playerValueChanged);
@@ -153,10 +156,14 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
 
     bool playing = (value.state == FijkState.started);
     bool prepared = value.prepared;
-    if (playing != _playing || prepared != _prepared) {
+    String exception = value.exception.message;
+    if (playing != _playing ||
+        prepared != _prepared ||
+        exception != _exception) {
       setState(() {
         _playing = playing;
         _prepared = prepared;
+        _exception = exception;
       });
     }
   }
@@ -318,27 +325,35 @@ class _DefaultFijkPanelState extends State<DefaultFijkPanel> {
                     height: double.infinity,
                     width: double.infinity,
                     child: Center(
-                        child: _prepared
-                            ? AnimatedOpacity(
-                                opacity: _hideStuff ? 0.0 : 0.7,
-                                duration: Duration(milliseconds: 400),
-                                child: IconButton(
-                                    iconSize: barHeight * 2,
-                                    icon: Icon(
-                                        _playing
-                                            ? Icons.pause
-                                            : Icons.play_arrow,
-                                        color: Colors.white),
-                                    padding: EdgeInsets.only(
-                                        left: 10.0, right: 10.0),
-                                    onPressed: _playOrPause))
-                            : SizedBox(
-                                width: barHeight * 1.5,
-                                height: barHeight * 1.5,
-                                child: CircularProgressIndicator(
-                                    valueColor:
-                                        AlwaysStoppedAnimation(Colors.white)),
-                              )),
+                        child: _exception != null
+                            ? Text(
+                                _exception,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 25,
+                                ),
+                              )
+                            : _prepared
+                                ? AnimatedOpacity(
+                                    opacity: _hideStuff ? 0.0 : 0.7,
+                                    duration: Duration(milliseconds: 400),
+                                    child: IconButton(
+                                        iconSize: barHeight * 2,
+                                        icon: Icon(
+                                            _playing
+                                                ? Icons.pause
+                                                : Icons.play_arrow,
+                                            color: Colors.white),
+                                        padding: EdgeInsets.only(
+                                            left: 10.0, right: 10.0),
+                                        onPressed: _playOrPause))
+                                : SizedBox(
+                                    width: barHeight * 1.5,
+                                    height: barHeight * 1.5,
+                                    child: CircularProgressIndicator(
+                                        valueColor: AlwaysStoppedAnimation(
+                                            Colors.white)),
+                                  )),
                   ),
                 ),
               ),

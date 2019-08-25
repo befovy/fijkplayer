@@ -1,9 +1,3 @@
-//MIT License
-//
-//Copyright (c) [2019] [Befovy]
-//
-//Permission is hereby granted, free of charge, to any person obtaining a copy
-//of this software and associated documentation files (the "Software"), to deal
 //in the Software without restriction, including without limitation the rights
 //to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 //copies of the Software, and to permit persons to whom the Software is
@@ -21,10 +15,25 @@
 //SOFTWARE.
 //
 
-library fijkplayer;
+import 'package:flutter_driver/flutter_driver.dart';
+import 'package:test/test.dart';
 
-export 'src/fijkplayer.dart';
-export 'src/fijkview.dart';
-export 'src/fijkpanel.dart';
-export 'src/fijkoption.dart';
-export 'src/fijkvalue.dart';
+// run in terminal
+// flutter drive --target=test_driver/app.dart
+
+void main() {
+  test("test driver test", () {
+    expect(0, 0);
+  });
+
+  group('Counter App', () {
+    FlutterDriver driver;
+    setUpAll(() async {
+      driver = await FlutterDriver.connect();
+    });
+
+    tearDownAll(() async {
+      await driver?.close();
+    });
+  });
+}

@@ -1,9 +1,3 @@
-//MIT License
-//
-//Copyright (c) [2019] [Befovy]
-//
-//Permission is hereby granted, free of charge, to any person obtaining a copy
-//of this software and associated documentation files (the "Software"), to deal
 //in the Software without restriction, including without limitation the rights
 //to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 //copies of the Software, and to permit persons to whom the Software is
@@ -21,10 +15,14 @@
 //SOFTWARE.
 //
 
-library fijkplayer;
+import 'package:fijkplayer_example/main.dart' as app;
+import 'package:flutter_driver/driver_extension.dart';
 
-export 'src/fijkplayer.dart';
-export 'src/fijkview.dart';
-export 'src/fijkpanel.dart';
-export 'src/fijkoption.dart';
-export 'src/fijkvalue.dart';
+void main() {
+  // This line enables the extension.
+  enableFlutterDriverExtension();
+
+  // Call the `main()` function of the app, or call `runApp` with
+  // any widget you are interested in testing.
+  app.main();
+}

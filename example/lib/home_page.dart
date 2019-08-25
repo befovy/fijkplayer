@@ -73,6 +73,7 @@ class HomeScreen extends StatelessWidget {
               },
               text: "Online Samples",
             ),
+            /*
             Container(
               color: Theme.of(context).primaryColorLight,
               padding: EdgeInsets.only(left: 15, top: 3, bottom: 3, right: 15),
@@ -84,6 +85,7 @@ class HomeScreen extends StatelessWidget {
             Expanded(
               child: list,
             ),
+             */
           ],
         ),
       ),

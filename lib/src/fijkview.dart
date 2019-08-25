@@ -23,15 +23,18 @@
 //
 
 import 'dart:math';
+import 'dart:ui';
 
 import 'package:fijkplayer/src/fijkpanel.dart';
 import 'package:fijkplayer/src/fijkplugin.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 
 import 'fijkpanel.dart';
 import 'fijkplayer.dart';
+import 'fijkvalue.dart';
 
 /// How a video should be inscribed into [FijkView].
 ///
@@ -205,8 +208,6 @@ class _FijkViewState extends State<FijkView> {
   void dispose() {
     super.dispose();
     widget.player.removeListener(_fijkValueListener);
-    widget.player.release();
-    print("FijkView dispose");
   }
 
   double getAspectRatio(BoxConstraints constraints) {
@@ -270,13 +271,13 @@ class _FijkViewState extends State<FijkView> {
     );
 
     await SystemChrome.setEnabledSystemUIOverlays([]);
-    await FijkPlugin.setOrientationLandscape(context: context);
+    await FijkPlugin.setOrientationLandscape();
     await Navigator.of(context).push(route);
     _fullScreen = false;
     widget.player.exitFullScreen();
     await SystemChrome.setEnabledSystemUIOverlays(
         [SystemUiOverlay.top, SystemUiOverlay.bottom]);
-    await FijkPlugin.setOrientationPortrait(context: context);
+    await FijkPlugin.setOrientationPortrait();
   }
 
   Widget buildTexture() {
@@ -356,9 +357,11 @@ class _FijkViewState extends State<FijkView> {
             color: widget.color,
           ),
           Positioned.fromRect(
-            rect: pos,
-            child: buildTexture(),
-          ),
+              rect: pos,
+              child: Container(
+                color: Color(0xFF000000),
+                child: buildTexture(),
+              )),
         ];
 
         if (widget.panelBuilder != null) {

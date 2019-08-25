@@ -1,5 +1,6 @@
 # fijkplayer (Video player plugin for Flutter)
 
+
 [![pub package](https://img.shields.io/pub/v/fijkplayer.svg)](https://pub.dartlang.org/packages/fijkplayer) &nbsp; &nbsp;
 [![Build Status](https://travis-ci.org/befovy/fijkplayer.svg?branch=master)](https://travis-ci.org/befovy/fijkplayer) &nbsp; &nbsp;
 
@@ -9,7 +10,6 @@ A Flutter media player plugin for iOS and android based on [ijkplayer](https://g
 *Read this in other languages: [English](README.en.md), [简体中文](README.zh-cn.md).*
 
 
-*Note*: This plugin is still under development, and some APIs might not be available yet.
 [Feedback welcome](https://github.com/befovy/fijkplayer/issues) and
 [Pull Requests](https://github.com/befovy/fijkplayer/pulls) are most welcome!
 
@@ -19,7 +19,7 @@ Add `fijkplayer` as a [dependency in your pubspec.yaml file](https://flutter.io/
 
 ```yaml
 dependencies:
-  fijkplayer: ^0.0.6
+  fijkplayer: ^0.1.0
 ```
 
 

@@ -20,8 +20,8 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'dart:io';
+
 import 'package:flutter/services.dart';
 
 import 'fijkplayer.dart';
@@ -45,32 +45,25 @@ class FijkPlugin {
         .invokeMethod("releasePlayer", <String, dynamic>{'pid': pid});
   }
 
-  static Future<void> setOrientationPortrait(
-      {@required BuildContext context}) async {
-    final platform = Theme.of(context).platform;
-
+  static Future<void> setOrientationPortrait() async {
     // ios crash Supported orientations has no common orientation with the application
-    if (platform == TargetPlatform.android) {
+    if (Platform.isAndroid) {
       SystemChrome.setPreferredOrientations(
           [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     }
     return _channel.invokeMethod("setOrientationPortrait");
   }
 
-  static Future<void> setOrientationLandscape(
-      {@required BuildContext context}) async {
-    final platform = Theme.of(context).platform;
-    if (platform == TargetPlatform.android) {
+  static Future<void> setOrientationLandscape() async {
+    if (Platform.isAndroid) {
       SystemChrome.setPreferredOrientations(
           [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
     }
     return _channel.invokeMethod("setOrientationLandscape");
   }
 
-  static Future<void> setOrientationAuto(
-      {@required BuildContext context}) async {
-    final platform = Theme.of(context).platform;
-    if (platform == TargetPlatform.android) {
+  static Future<void> setOrientationAuto() async {
+    if (Platform.isAndroid) {
       SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     }
     return _channel.invokeMethod("setOrientationAuto");

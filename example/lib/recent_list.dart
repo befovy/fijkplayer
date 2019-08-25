@@ -5,9 +5,11 @@ import 'app_bar.dart';
 import 'media_item.dart';
 
 const List<MediaUrl> samples = [
-  MediaUrl(title: "local file", url: "/Var/assets/butterfly.mp4"),
-  MediaUrl(title: "assets file", url: "assets://assets/butterfly.mp4"),
-  MediaUrl(title: "assets file", url: "assets:///assets/butterfly.mp4"),
+  MediaUrl(
+      title: "http 404", url: "https://fijkplayer.befovy.com/butterfly.flv"),
+  MediaUrl(title: "assets file", url: "asset:///assets/butterfly.mp4"),
+  MediaUrl(
+      title: "Protocol not found", url: "noprotocol://assets/butterfly.mp4"),
   MediaUrl(
       title: "rtsp test",
       url: "rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov"),
