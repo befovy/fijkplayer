@@ -1,5 +1,5 @@
 PODS:
-  - fijkplayer (0.0.9):
+  - fijkplayer (0.1.0):
     - FIJKPlayer (~> 0.3.5)
     - Flutter
   - FIJKPlayer (0.3.5)

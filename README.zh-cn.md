@@ -22,7 +22,7 @@
 
 ```yaml
 dependencies:
-  fijkplayer: ^0.0.9
+  fijkplayer: ^0.1.0
 ```
 
 ## 基础用法
