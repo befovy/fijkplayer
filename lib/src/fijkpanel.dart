@@ -208,7 +208,7 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
   AnimatedOpacity _buildBottomBar(BuildContext context) {
     double currentValue =
         _seekPos > 0 ? _seekPos : _currentPos.inMilliseconds.toDouble();
-
+    currentValue = min(currentValue, _duration.inMilliseconds.toDouble());
     return AnimatedOpacity(
       opacity: _hideStuff ? 0.0 : 0.8,
       duration: Duration(milliseconds: 400),
