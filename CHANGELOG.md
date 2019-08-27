@@ -1,5 +1,8 @@
 ##  next
 --------------------------------
+## 0.1.1
+- fix fijkpanel slider value out of range
+- android: add androidx support
 
 ## 0.1.0
 - update ijkplauer to f0.3.5
