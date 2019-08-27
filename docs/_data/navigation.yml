@@ -7,22 +7,39 @@ header:
   #   url:        https://medium.com/google-exoplayer
 
 docs-en:
-  - title: Start
+  - title:
+    children:
+      - title: Home
+        url:   /docs/en/index.html
+  - title: Getting Started
     children:
       - title: Install
         url:   /docs/en/install.html
+      # - title: Hello World -- in progressing
+      #   url:   /docs/en/hello-world.html
+  # - title: Dive into
+  #   children:
+  #     - title: Player State -- in progressing
+  #       url:   /docs/en/fijkstate.html
+  #     - title: Crop and Fit -- in progressing
+  #       url:   /docs/en/fijkfit.html
+  #     - title: Player API -- in progressing
+  #       url:   /docs/en/fijkplayer-api.html
+  #     - title: Custom UI -- in progressing
+  #       url:   /docs/en/custom-ui.html
+  #     - title: Error & Exception  -- in progressing
+  #       url:   /docs/en/error-exception.html
   - title: Languages
     children:
       - title: 中文
-        url:   /docs/zh/install.html
+        url:   /docs/zh/index.html
 
 docs-zh:
   - title:
     children:
       - title: 首页
-        url:   /index.html
+        url:   /docs/zh/index.html
   - title: 入门指南
-    url: /docs/en/install.html
     children:
       - title: 安装
         url:   /docs/zh/install.html
@@ -38,15 +55,15 @@ docs-zh:
         url:   /docs/zh/fijkplayer-api.html
       - title: 个性化 UI
         url:   /docs/zh/custom-ui.html
-      # - title: 错误处理
-      #   url:   /docs/zh/error-handler.html
+      - title: 错误和异常
+        url:   /docs/zh/error-exception.html
   # - title: 高阶内容
   #   children:
   #     - title: 播放器选项
   #     - title: 音频中断处理
   #     - title: 响应 App 生命周期
-  # - title: 其他语言
-  #   children:
-  #     - title: English
-  #       url:   /docs/en/quick-start
+  - title: 其他语言
+    children:
+      - title: English
+        url:   /docs/en/index.html
 
