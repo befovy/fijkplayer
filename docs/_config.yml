@@ -2,7 +2,7 @@
 ##############################
 text_skin: default # "default" (default), "dark", "forest", "ocean", "chocolate", "orange"
 highlight_theme: default # "default" (default), "tomorrow", "tomorrow-night", "tomorrow-night-eighties", "tomorrow-night-blue", "tomorrow-night-bright"
-url: https://fijkplayer/befovy.com
+url: https://fijkplayer.befovy.com
 # baseurl: /fijkplayer
 title: fijkplayer  --  Flutter plugin for ijkplayer
 description: Flutter media player plugin for android/iOS based on ijkplayer https://github.com/befovy/ijkplayer
