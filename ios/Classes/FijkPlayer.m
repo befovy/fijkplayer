@@ -14,6 +14,7 @@
 #import <Flutter/Flutter.h>
 #import <Foundation/Foundation.h>
 #import <stdatomic.h>
+#import <libkern/OSAtomic.h>
 
 static atomic_int atomicId = 0;
 
@@ -26,8 +27,10 @@ static atomic_int atomicId = 0;
 
     id<FlutterPluginRegistrar> _registrar;
     id<FlutterTextureRegistry> _textureRegistry;
-    CVPixelBufferRef _cachePixelBufer;
-    CVPixelBufferRef _Atomic _pixelBuffer;
+    //CVPixelBufferRef _cachePixelBufer;
+    //CVPixelBufferRef _Atomic _pixelBuffer;
+
+    CVPixelBufferRef volatile _latestPixelBuffer;
 
     int _state;
     int _pid;
@@ -54,8 +57,9 @@ static const int end = 9;
         _pid = pid;
         _eventSink = [[FijkQueuingEventSink alloc] init];
         _ijkMediaPlayer = [[IJKFFMediaPlayer alloc] init];
-        _cachePixelBufer = nil;
-        _pixelBuffer = nil;
+        //_cachePixelBufer = nil;
+        //_pixelBuffer = nil;
+        _latestPixelBuffer = nil;
         _vid = -1;
         _state = 0;
 
@@ -110,10 +114,20 @@ static const int end = 9;
         _textureRegistry = nil;
     }
 
+    CVPixelBufferRef old = _latestPixelBuffer;
+    while (!OSAtomicCompareAndSwapPtrBarrier(old, nil, (void **)&_latestPixelBuffer)) {
+        old = _latestPixelBuffer;
+    }
+    if (old) {
+        CVPixelBufferRelease(old);
+    }
+
+    /*
     if (_cachePixelBufer) {
-        CFRelease(_cachePixelBufer);
+        CVPixelBufferRelease(_cachePixelBufer);
         _cachePixelBufer = nil;
     }
+     */
 }
 
 - (FlutterError *_Nullable)onCancelWithArguments:(id _Nullable)arguments {
@@ -129,24 +143,48 @@ static const int end = 9;
 }
 
 - (void)display_pixelbuffer:(CVPixelBufferRef)pixelbuffer {
+
+    CVPixelBufferRef newBuffer = CVPixelBufferRetain(pixelbuffer);
+
+    CVPixelBufferRef old = _latestPixelBuffer;
+    while (!OSAtomicCompareAndSwapPtrBarrier(old, newBuffer, (void **)&_latestPixelBuffer)) {
+        old = _latestPixelBuffer;
+    }
+
+    if (old) {
+        CVPixelBufferRelease(old);
+    }
+    /*
     if (_cachePixelBufer != nil)
-        CFRelease(_cachePixelBufer);
+        CVPixelBufferRelease(_cachePixelBufer);
 
     if (pixelbuffer != nil) {
-        CFRetain(pixelbuffer);
-        _cachePixelBufer = pixelbuffer;
+        _cachePixelBufer = CVPixelBufferRetain(pixelbuffer);
+        //_cachePixelBufer = pixelbuffer;
     }
     atomic_exchange(&_pixelBuffer, _cachePixelBufer);
+    */
     if (_vid >= 0) {
         [_textureRegistry textureFrameAvailable:_vid];
     }
 }
 
 - (CVPixelBufferRef _Nullable)copyPixelBuffer {
+    CVPixelBufferRef pixelBuffer = _latestPixelBuffer;
+    while (!OSAtomicCompareAndSwapPtrBarrier(pixelBuffer, nil, (void **)&_latestPixelBuffer)) {
+        pixelBuffer = _latestPixelBuffer;
+    }
+    /*
     CVPixelBufferRef pixelBuffer = atomic_exchange(&_pixelBuffer, nil);
-    if (pixelBuffer)
-        CFRetain(pixelBuffer);
-
+    CVPixelBufferRef copyoutBuffer = NULL;
+    if (pixelBuffer) {
+        CVPixelBufferRetain(pixelBuffer);
+        copyoutBuffer = pixelBuffer;
+        while (!OSAtomicCompareAndSwapPtrBarrier(copyoutBuffer, pixelBuffer, (void **)&pixelBuffer)) {
+            copyoutBuffer = pixelBuffer;
+        }
+    }
+     */
     return pixelBuffer;
 }
 

@@ -5,6 +5,7 @@ import 'app_bar.dart';
 import 'media_item.dart';
 
 const List<MediaUrl> samples = [
+  MediaUrl(title: "bug", url: "http://biezhi360.cn:99/ngys.aspx?vod_id=67181&vod_key=20190821%e6%9c%9f"),
   MediaUrl(
       title: "http 404", url: "https://fijkplayer.befovy.com/butterfly.flv"),
   MediaUrl(title: "assets file", url: "asset:///assets/butterfly.mp4"),
