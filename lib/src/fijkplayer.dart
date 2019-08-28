@@ -175,6 +175,14 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   /// Set data source for this player
   ///
   /// [path] must be a valid uri, otherwise this method return ArgumentError
+  ///
+  /// set assets as data source
+  /// first add assets in app's pubspec.yml
+  ///   assets:
+  ///     - assets/butterfly.mp4
+  ///
+  /// pass "asset:///assets/butterfly.mp4" to [path]
+  /// scheme is `asset`, `://` is scheme's separator， `/` is path's separator.
   Future<void> setDataSource(
     String path, {
     bool autoPlay = false,
