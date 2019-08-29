@@ -169,7 +169,7 @@ class _FijkViewState extends State<FijkView> {
 
   Future<void> _nativeSetup() async {
     final int vid = await widget.player.setupSurface();
-    print("view setup, vid:" + vid.toString());
+    debugPrint("view setup, vid:" + vid.toString());
     setState(() {
       _textureId = vid;
     });
@@ -182,8 +182,8 @@ class _FijkViewState extends State<FijkView> {
     double height = _vHeight;
 
     Size s = value.size;
-    if (value.prepared) {
-      print("prepared: $s");
+    if (value.size != null && value.prepared) {
+      debugPrint("prepared size: $s");
       width = value.size.width;
       height = value.size.height;
     }

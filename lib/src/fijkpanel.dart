@@ -206,9 +206,11 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
   }
 
   AnimatedOpacity _buildBottomBar(BuildContext context) {
+    double duration = _duration.inMilliseconds.toDouble();
     double currentValue =
         _seekPos > 0 ? _seekPos : _currentPos.inMilliseconds.toDouble();
-    currentValue = min(currentValue, _duration.inMilliseconds.toDouble());
+    currentValue = min(currentValue, duration);
+    currentValue = max(currentValue, 0);
     return AnimatedOpacity(
       opacity: _hideStuff ? 0.0 : 0.8,
       duration: Duration(milliseconds: 400),
@@ -245,7 +247,7 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
                       child: Slider(
                         value: currentValue,
                         min: 0.0,
-                        max: _duration.inMilliseconds.toDouble(),
+                        max: duration,
                         label: '$currentValue',
                         onChanged: (v) {
                           setState(() {

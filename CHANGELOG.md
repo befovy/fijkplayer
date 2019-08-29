@@ -1,5 +1,9 @@
 ##  next
 --------------------------------
+## 0.1.2
+- fijkvalue: add video / audio render started
+- fijkplayer: remove setIntOption API, use setOption instead
+
 ## 0.1.1
 - fix fijkpanel slider value out of range
 - android: add androidx support

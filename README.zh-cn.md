@@ -22,7 +22,7 @@
 
 ```yaml
 dependencies:
-  fijkplayer: ^0.1.1
+  fijkplayer: ^0.1.2
 ```
 
 ## 基础用法
@@ -111,7 +111,7 @@ pod 'FIJKPlayer'
 ```gradle
 dependencies {
     // fijkplayer-full include the java lib and native shared libs for armv5 armv7 arm64 x86 x86_64
-    implementation 'com.befovy.fijkplayer:fijkplayer-full:0.3.5'
+    implementation 'com.befovy.fijkplayer:fijkplayer-full:0.3.6'
 }
 ```
 
