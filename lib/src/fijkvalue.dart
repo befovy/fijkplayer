@@ -132,6 +132,18 @@ class FijkValue {
   /// If the playback stream is realtime/live, [completed] never be true.
   final bool completed;
 
+  /// Indicates if audio is started rendering
+  ///
+  /// When first audio frame rendered, this value changes to true from false.
+  /// After call [FijkPlayer.reset], this value becomes to false.
+  final bool audioRenderStart;
+
+  /// Indicates if video is started rendering
+  ///
+  /// When first video frame rendered, this value changes to true from false.
+  /// After call [FijkPlayer.reset], this value becomes to false.
+  final bool videoRenderStart;
+
   /// Current state of the player
   final FijkState state;
 
@@ -156,6 +168,8 @@ class FijkValue {
   const FijkValue({
     @required this.prepared,
     @required this.completed,
+    @required this.audioRenderStart,
+    @required this.videoRenderStart,
     @required this.state,
     @required this.size,
     @required this.duration,
@@ -168,6 +182,8 @@ class FijkValue {
       : this(
           prepared: false,
           completed: false,
+          videoRenderStart: false,
+          audioRenderStart: false,
           state: FijkState.idle,
           size: null,
           duration: const Duration(),
@@ -179,6 +195,8 @@ class FijkValue {
   FijkValue copyWith({
     bool prepared,
     bool completed,
+    bool videoRenderStart,
+    bool audioRenderStart,
     FijkState state,
     Size size,
     Duration duration,
@@ -188,6 +206,8 @@ class FijkValue {
     return FijkValue(
       prepared: prepared ?? this.prepared,
       completed: completed ?? this.completed,
+      videoRenderStart: videoRenderStart ?? this.videoRenderStart,
+      audioRenderStart: audioRenderStart ?? this.audioRenderStart,
       state: state ?? this.state,
       size: size ?? this.size,
       duration: duration ?? this.duration,

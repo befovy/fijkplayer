@@ -143,7 +143,12 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
                 event.put("old", arg2);
                 mEventSink.success(event);
                 break;
-
+            case VIDEO_RENDERING_START:
+            case AUDIO_RENDERING_START:
+                event.put("event", "rendering_start");
+                event.put("type", what == VIDEO_RENDERING_START ? "video" : "audio");
+                mEventSink.success(event);
+                break;
             case BUFFERING_START:
             case BUFFERING_END:
                 event.put("event", "freeze");
@@ -187,6 +192,8 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
             case BUFFERING_UPDATE:
             case VIDEO_SIZE_CHANGED:
             case ERROR:
+            case VIDEO_RENDERING_START:
+            case AUDIO_RENDERING_START:
                 handleEvent(what, arg1, arg2, extra);
                 break;
             default:

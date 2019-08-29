@@ -168,7 +168,7 @@ static const int end = 9;
     case IJKMPET_PREPARED:
         [_eventSink success:@{
             @"event" : @"prepared",
-            @"duration" : @([_ijkMediaPlayer getDuration])
+            @"duration" : @([_ijkMediaPlayer getDuration]),
         }];
         break;
     case IJKMPET_PLAYBACK_STATE_CHANGED:
@@ -176,28 +176,37 @@ static const int end = 9;
         [_eventSink success:@{
             @"event" : @"state_change",
             @"new" : @(arg1),
-            @"old" : @(arg2)
+            @"old" : @(arg2),
+        }];
+        break;
+    case IJKMPET_VIDEO_RENDERING_START:
+    case IJKMPET_AUDIO_RENDERING_START:
+        [_eventSink success:@{
+            @"event" : @"rendering_start",
+            @"type" : what == IJKMPET_VIDEO_RENDERING_START ? @"video"
+                                                            : @"audio",
         }];
         break;
     case IJKMPET_BUFFERING_START:
     case IJKMPET_BUFFERING_END:
         [_eventSink success:@{
             @"event" : @"freeze",
-            @"value" : [NSNumber numberWithBool:what == IJKMPET_BUFFERING_START]
+            @"value" :
+                [NSNumber numberWithBool:what == IJKMPET_BUFFERING_START],
         }];
         break;
     case IJKMPET_BUFFERING_UPDATE:
         [_eventSink success:@{
             @"event" : @"buffering",
             @"head" : @(arg1),
-            @"percent" : @(arg2)
+            @"percent" : @(arg2),
         }];
         break;
     case IJKMPET_VIDEO_SIZE_CHANGED:
         [_eventSink success:@{
             @"event" : @"size_changed",
             @"width" : @(arg1),
-            @"height" : @(arg2)
+            @"height" : @(arg2),
         }];
         break;
     case IJKMPET_ERROR:
@@ -222,6 +231,8 @@ static const int end = 9;
     case IJKMPET_BUFFERING_END:
     case IJKMPET_BUFFERING_UPDATE:
     case IJKMPET_VIDEO_SIZE_CHANGED:
+    case IJKMPET_VIDEO_RENDERING_START:
+    case IJKMPET_AUDIO_RENDERING_START:
     case IJKMPET_ERROR:
         [self handleEvent:what andArg1:arg1 andArg2:arg2 andExtra:extra];
         break;
