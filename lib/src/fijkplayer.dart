@@ -267,8 +267,11 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     await _nativeSetup.future;
     if (state == FijkState.end)
       Future.error(StateError("call reset on invalid state $state"));
-    else
+    else {
       await _channel.invokeMethod("reset");
+      _setValue(
+          FijkValue.uninitialized().copyWith(fullScreen: value.fullScreen));
+    }
   }
 
   Future<void> seekTo(int msec) async {
@@ -365,6 +368,16 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
           } else {
             _setValue(value.copyWith(state: fpState, exception: fijkException));
           }
+        }
+        break;
+      case 'rendering_start':
+        String type = map['type'] ?? "none";
+        if (type == "video") {
+          _setValue(value.copyWith(videoRenderStart: true));
+          debugPrint("video rendering started");
+        } else if (type == "audio") {
+          _setValue(value.copyWith(audioRenderStart: true));
+          debugPrint("audio rendering started");
         }
         break;
       case 'freeze':
