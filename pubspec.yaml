@@ -3,7 +3,8 @@ description: A Video Player Flutter plugin based on ijkplayer, support most popu
 version: 0.1.2
 author: befovy <befovy@gmail.com>
 homepage: https://fijkplayer.befovy.com
-git: https://github.com/befovy/fijkplayer
+repository: https://github.com/befovy/fijkplayer
+issue_tracker: https://github.com/befovy/fijkplayer/issues
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
