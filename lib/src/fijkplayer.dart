@@ -21,6 +21,7 @@
 //SOFTWARE.
 
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
@@ -35,6 +36,7 @@ import 'fijkvalue.dart';
 ///
 /// FijkPlayer invoke native method and receive native event.
 class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
+  static Map<int, FijkPlayer> _allInstance = HashMap();
   String _dataSource;
 
   int _playerId;
@@ -46,6 +48,11 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   bool _startAfterSetup = false;
 
   FijkValue _value;
+
+  static Iterable<FijkPlayer> get allInstance => _allInstance.values;
+
+  /// return the player unique id.
+  int get id => _playerId;
 
   /// return the current state
   FijkState get state => _value.state;
@@ -122,7 +129,9 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   }
 
   Future<void> _doNativeSetup() async {
+    _playerId = -1;
     _playerId = await FijkPlugin.createPlayer();
+    _allInstance[_playerId] = this;
     _channel = MethodChannel('befovy.com/fijkplayer/' + _playerId.toString());
 
     _nativeEventSubscription =
@@ -302,6 +311,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     _looperSub = null;
     await _nativeEventSubscription?.cancel();
     _nativeEventSubscription = null;
+    _allInstance.remove(_playerId);
     await FijkPlugin.releasePlayer(_playerId);
   }
 
