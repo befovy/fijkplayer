@@ -49,10 +49,15 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
 
   FijkValue _value;
 
-  static Iterable<FijkPlayer> get allInstance => _allInstance.values;
+  static Iterable<FijkPlayer> get all => _allInstance.values;
 
-  /// return the player unique id.
-  int get id => _playerId;
+  /// Return the player unique id.
+  ///
+  /// Each public method in [FijkPlayer] `await` the id value firstly.
+  Future<int> get id => _nativeSetup.future;
+
+  /// Get is in sync, if the async [id] is not finished, idSync return -1;
+  int get idSync => _playerId;
 
   /// return the current state
   FijkState get state => _value.state;
@@ -236,7 +241,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
         .invokeMethod("setVolume", <String, dynamic>{"volume": volume});
   }
 
-  /// enter full screen mode， set [FijkValue.fullScreen] to true
+  /// enter full screen mode, set [FijkValue.fullScreen] to true
   void enterFullScreen() {
     _setValue(value.copyWith(fullScreen: true));
   }
@@ -254,6 +259,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     } else if (state == FijkState.asyncPreparing ||
         state == FijkState.prepared ||
         state == FijkState.paused ||
+        state == FijkState.started ||
         value.state == FijkState.completed) {
       await _channel.invokeMethod("start");
     } else {

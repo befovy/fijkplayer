@@ -61,6 +61,7 @@ enum FijkState {
   ///
   /// * .....            -> [prepared]
   /// * .....            -> [error]
+  /// * .....            -> [stopped]
   /// * reset()          -> [idle]
   /// * release()        -> [end]
   asyncPreparing,
