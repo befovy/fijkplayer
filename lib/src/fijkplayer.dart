@@ -21,6 +21,7 @@
 //SOFTWARE.
 
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
@@ -35,6 +36,7 @@ import 'fijkvalue.dart';
 ///
 /// FijkPlayer invoke native method and receive native event.
 class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
+  static Map<int, FijkPlayer> _allInstance = HashMap();
   String _dataSource;
 
   int _playerId;
@@ -46,6 +48,16 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   bool _startAfterSetup = false;
 
   FijkValue _value;
+
+  static Iterable<FijkPlayer> get all => _allInstance.values;
+
+  /// Return the player unique id.
+  ///
+  /// Each public method in [FijkPlayer] `await` the id value firstly.
+  Future<int> get id => _nativeSetup.future;
+
+  /// Get is in sync, if the async [id] is not finished, idSync return -1;
+  int get idSync => _playerId;
 
   /// return the current state
   FijkState get state => _value.state;
@@ -122,7 +134,9 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   }
 
   Future<void> _doNativeSetup() async {
+    _playerId = -1;
     _playerId = await FijkPlugin.createPlayer();
+    _allInstance[_playerId] = this;
     _channel = MethodChannel('befovy.com/fijkplayer/' + _playerId.toString());
 
     _nativeEventSubscription =
@@ -227,7 +241,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
         .invokeMethod("setVolume", <String, dynamic>{"volume": volume});
   }
 
-  /// enter full screen mode， set [FijkValue.fullScreen] to true
+  /// enter full screen mode, set [FijkValue.fullScreen] to true
   void enterFullScreen() {
     _setValue(value.copyWith(fullScreen: true));
   }
@@ -245,6 +259,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     } else if (state == FijkState.asyncPreparing ||
         state == FijkState.prepared ||
         state == FijkState.paused ||
+        state == FijkState.started ||
         value.state == FijkState.completed) {
       await _channel.invokeMethod("start");
     } else {
@@ -302,6 +317,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     _looperSub = null;
     await _nativeEventSubscription?.cancel();
     _nativeEventSubscription = null;
+    _allInstance.remove(_playerId);
     await FijkPlugin.releasePlayer(_playerId);
   }
 
