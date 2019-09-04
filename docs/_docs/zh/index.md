@@ -35,6 +35,11 @@ fijkplayer 有内置的编译好的ffmepg 和 ijkplayer，分别托管在 jcente
 
 &nbsp; &nbsp;
 
+扫码加入 QQ 交流群
+
+![qq_group](/images/fijkplayer_qq_group.jpg)
+
+
 ------
 
 <span><small> 由于个人能力限制，文档中难免不出现纰漏。  
