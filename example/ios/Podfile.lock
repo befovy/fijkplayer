@@ -1,5 +1,5 @@
 PODS:
-  - fijkplayer (0.1.2):
+  - fijkplayer (0.1.3):
     - FIJKPlayer (~> 0.3.7)
     - Flutter
   - FIJKPlayer (0.3.7)
@@ -36,7 +36,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   FIJKPlayer: 0e2af0b1d083efffa5cfd9c47e4cb4a154192167
-  fijkplayer: de82cf9204ab142226c647153b0ab1dce1d56d97
+  fijkplayer: 639cd7606dbc4ecfb4b9b92367b0bdb904f8083e
   Flutter: 58dd7d1b27887414a370fcccb9e645c08ffd7a6a
   path_provider: f96fff6166a8867510d2c25fdcc346327cc4b259
   permission_handler: 6a1b2f94f866da8bd19fa67f3c8f4b9f38580efb
