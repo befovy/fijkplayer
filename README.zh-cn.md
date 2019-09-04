@@ -120,3 +120,9 @@ dependencies {
 
 Flutter 纹理接入的方式目前在 iOS 模拟器上不能工作，故视频播放器的图像只能在真机上显示出来，详情可查看 [flutter/issues/14647](https://github.com/flutter/flutter/issues/14647)。
 当然如果不关注视频画面，比如播放音乐，在模拟器上调试是没问题的。
+
+
+## QQ 交流群
+
+扫码加入 QQ 交流群  
+![qq_group](./docs/images/fijkplayer_qq_group.jpg)
