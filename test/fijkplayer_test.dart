@@ -171,6 +171,23 @@ void main() {
       player.release();
     });
 
+    test("id", () async {
+      FijkPlayer player = FijkPlayer();
+      expect(player, isNotNull);
+      int id = await player.id;
+      expect(id, isNotNull);
+
+      int nid = await player.id;
+      expect(id, nid);
+      nid = await player.id;
+      expect(id, nid);
+      nid = await player.id;
+      expect(id, nid);
+      nid = await player.id;
+      expect(id, nid);
+      player.release();
+    });
+
     test("read only value", () async {
       FijkPlayer player = FijkPlayer();
       bool changed = false;
@@ -189,6 +206,7 @@ void main() {
       FijkPlayer player = FijkPlayer();
       int tid = await player.setupSurface();
       expect(tid > 0, true);
+      await player.release();
     });
 
     test("setDataSource", () async {
@@ -210,6 +228,8 @@ void main() {
       expect(() async {
         await player.setDataSource("asset://butterfly.mp4");
       }, throwsStateError);
+
+      await player.release();
     });
 
     test("setLoop", () async {
@@ -223,6 +243,7 @@ void main() {
       expect(() async {
         await player.setLoop(null);
       }, throwsArgumentError);
+      await player.release();
     });
 
     test("setSpeed", () async {
@@ -237,6 +258,7 @@ void main() {
         await player.setSpeed(-1);
       }, throwsArgumentError);
       await player.setSpeed(1.5);
+      await player.release();
     });
 
     test("isPlayable", () async {
@@ -265,6 +287,30 @@ void main() {
 
       await player.start();
       expect(player.isPlayable(), true);
+
+      await player.release();
+    });
+
+    test("allInstance", () async {
+      FijkPlayer player1 = FijkPlayer();
+      FijkPlayer player2 = FijkPlayer();
+
+      expect(FijkPlayer.all.length, 0);
+
+      expect(player1, isNotNull);
+      expect(player2, isNotNull);
+      int id1 = await player1.id;
+      expect(id1, player1.idSync);
+      int id2 = await player2.id;
+      expect(id2, player2.idSync);
+
+      expect(id1 != id2, true);
+      expect(FijkPlayer.all.length, 2);
+
+      await player1.release();
+      expect(FijkPlayer.all.length, 1);
+      await player2.release();
+      expect(FijkPlayer.all.length, 0);
     });
   });
 }
