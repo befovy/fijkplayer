@@ -23,6 +23,7 @@
 import 'dart:async';
 import 'dart:collection';
 
+import 'package:fijkplayer/src/fijklog.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
@@ -109,6 +110,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   FijkPlayer()
       : _nativeSetup = Completer(),
         super() {
+    FijkLog.debug("create new fijkplayer");
     _value = FijkValue.uninitialized();
     _doNativeSetup();
   }
@@ -136,6 +138,8 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   Future<void> _doNativeSetup() async {
     _playerId = -1;
     _playerId = await FijkPlugin.createPlayer();
+    FijkLog.info("create fijkplayer id:$_playerId");
+
     _allInstance[_playerId] = this;
     _channel = MethodChannel('befovy.com/fijkplayer/' + _playerId.toString());
 

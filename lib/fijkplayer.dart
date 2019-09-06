@@ -28,3 +28,4 @@ export 'src/fijkview.dart';
 export 'src/fijkpanel.dart';
 export 'src/fijkoption.dart';
 export 'src/fijkvalue.dart';
+export 'src/fijklog.dart';
