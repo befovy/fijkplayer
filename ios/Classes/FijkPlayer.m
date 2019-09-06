@@ -327,7 +327,7 @@ static const int end = 9;
         result(nil);
     } else if ([@"setDateSource" isEqualToString:call.method]) {
         NSString *url = argsMap[@"url"];
-        NSURL *aUrl = [NSURL URLWithString:url];
+        NSURL *aUrl = [NSURL URLWithString: [url stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
         bool file404 = false;
         if ([@"asset" isEqualToString:aUrl.scheme]) {
             NSString *host = aUrl.host;
