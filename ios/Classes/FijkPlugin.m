@@ -2,6 +2,7 @@
 #import "FijkPlugin.h"
 #import "FijkPlayer.h"
 
+#import <FIJKPlayer/IJKFFMoviePlayerController.h>
 #import <Flutter/Flutter.h>
 
 @implementation FijkPlugin {
@@ -54,7 +55,14 @@
         if (fijkPlayer != nil) {
             [_fijkPlayers removeObjectForKey:pid];
         }
-        result(@(0));
+        result(nil);
+    } else if ([@"logLevel" isEqualToString:call.method]) {
+        NSNumber *level = argsMap[@"level"];
+        int l = [level intValue] / 100;
+        l = l < 0 ? 0 : l;
+        l = l > 8 ? 8 : l;
+        [IJKFFMoviePlayerController setLogLevel:l];
+        result(nil);
     } else if ([@"setOrientationPortrait" isEqualToString:call.method]) {
         UIInterfaceOrientationMask mask = [[UIApplication sharedApplication]
             supportedInterfaceOrientationsForWindow:nil];

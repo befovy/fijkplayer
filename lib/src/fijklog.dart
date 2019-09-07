@@ -22,6 +22,9 @@
 
 import 'package:flutter/foundation.dart';
 
+import 'fijkplugin.dart';
+
+/// Log level for the [FijkLog.log] method.
 @immutable
 class FijkLogLevel {
   final int level;
@@ -32,25 +35,59 @@ class FijkLogLevel {
         level = l,
         name = n;
 
+  /// Priority constant for the [FijkLog.log] method;
   static const FijkLogLevel All = FijkLogLevel._(000, 'all');
+
+  /// Priority constant for the [FijkLog.log] method;
   static const FijkLogLevel Detail = FijkLogLevel._(100, 'det');
+
+  /// Priority constant for the [FijkLog.log] method;
   static const FijkLogLevel Verbose = FijkLogLevel._(200, 'veb');
+
+  /// Priority constant for the [FijkLog.log] method; use [FijkLog.d(msg)]
   static const FijkLogLevel Debug = FijkLogLevel._(300, 'dbg');
+
+  /// Priority constant for the [FijkLog.log] method; use [FijkLog.i(msg)]
   static const FijkLogLevel Info = FijkLogLevel._(400, 'inf');
+
+  /// Priority constant for the [FijkLog.log] method; use [FijkLog.w(msg)]
   static const FijkLogLevel Warn = FijkLogLevel._(500, 'war');
+
+  /// Priority constant for the [FijkLog.log] method; use [FijkLog.e(msg)]
   static const FijkLogLevel Error = FijkLogLevel._(600, 'err');
   static const FijkLogLevel Fatal = FijkLogLevel._(700, 'fal');
   static const FijkLogLevel Silent = FijkLogLevel._(800, 'sil');
+
+  @override
+  String toString() {
+    return 'FijkLogLevel{level:$level, name:$name}';
+  }
 }
 
+/// API for sending log output
+///
+/// Generally, you should use the [FijkLog.d(msg)], [FijkLog.i(msg)],
+/// [FijkLog.w(msg)], and [FijkLog.e(msg)] methods to write logs.
+/// You can then view the logs in console/logcat.
+///
+/// The order in terms of verbosity, from least to most is ERROR, WARN, INFO, DEBUG, VERBOSE.
+/// Verbose should always be skipped in an application except during development.
+/// Debug logs are compiled in but stripped at runtime.
+/// Error, warning and info logs are always kept.
 class FijkLog {
   static FijkLogLevel _level = FijkLogLevel.Info;
 
+  /// Set global whole log level
   static setLevel(final FijkLogLevel level) {
     assert(level != null);
     _level = level;
+    log(FijkLogLevel.Silent, "set log level $level", "fijk");
+    FijkPlugin.setLogLevel(level.level).then((_) {
+      log(FijkLogLevel.Silent, "native log level ${level.level}", "fijk");
+    });
   }
 
+  /// log [msg] with [level] and [tag] to console
   static log(FijkLogLevel level, String msg, String tag) {
     if (level.level >= _level.level) {
       DateTime now = DateTime.now();
@@ -58,19 +95,23 @@ class FijkLog {
     }
   }
 
-  static debug(String msg, {String tag = 'fijk'}) {
+  /// log [msg] with [FijkLogLevel.Debug] level
+  static d(String msg, {String tag = 'fijk'}) {
     log(FijkLogLevel.Debug, msg, tag);
   }
 
-  static info(String msg, {String tag = 'fijk'}) {
+  /// log [msg] with [FijkLogLevel.Info] level
+  static i(String msg, {String tag = 'fijk'}) {
     log(FijkLogLevel.Info, msg, tag);
   }
 
-  static warn(String msg, {String tag = 'fijk'}) {
+  /// log [msg] with [FijkLogLevel.Warn] level
+  static w(String msg, {String tag = 'fijk'}) {
     log(FijkLogLevel.Warn, msg, tag);
   }
 
-  static error(String msg, {String tag = 'fijk'}) {
+  /// log [msg] with [FijkLogLevel.Error] level
+  static e(String msg, {String tag = 'fijk'}) {
     log(FijkLogLevel.Error, msg, tag);
   }
 }
