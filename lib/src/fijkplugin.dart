@@ -32,20 +32,24 @@ import 'fijkview.dart';
 class FijkPlugin {
   static const MethodChannel _channel = const MethodChannel('befovy.com/fijk');
 
-  static Future<String> get platformVersion async {
-    return await _channel.invokeMethod('getPlatformVersion');
+  static Future<String> get platformVersion {
+    return _channel.invokeMethod('getPlatformVersion');
   }
 
-  static Future<int> createPlayer() async {
-    return await _channel.invokeMethod("createPlayer");
+  static Future<int> createPlayer() {
+    return _channel.invokeMethod("createPlayer");
   }
 
-  static Future<void> releasePlayer(int pid) async {
-    return await _channel
+  static Future<void> releasePlayer(int pid) {
+    return _channel
         .invokeMethod("releasePlayer", <String, dynamic>{'pid': pid});
   }
 
-  static Future<void> setOrientationPortrait() async {
+  static Future<void> setLogLevel(int level) {
+    return _channel.invokeMethod("logLevel", <String, dynamic>{'level': level});
+  }
+
+  static Future<void> setOrientationPortrait() {
     // ios crash Supported orientations has no common orientation with the application
     if (Platform.isAndroid) {
       SystemChrome.setPreferredOrientations(
@@ -54,7 +58,7 @@ class FijkPlugin {
     return _channel.invokeMethod("setOrientationPortrait");
   }
 
-  static Future<void> setOrientationLandscape() async {
+  static Future<void> setOrientationLandscape() {
     if (Platform.isAndroid) {
       SystemChrome.setPreferredOrientations(
           [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
@@ -62,7 +66,7 @@ class FijkPlugin {
     return _channel.invokeMethod("setOrientationLandscape");
   }
 
-  static Future<void> setOrientationAuto() async {
+  static Future<void> setOrientationAuto() {
     if (Platform.isAndroid) {
       SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     }

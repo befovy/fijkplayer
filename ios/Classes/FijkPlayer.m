@@ -13,8 +13,8 @@
 #import <FIJKPlayer/IJKFFMoviePlayerController.h>
 #import <Flutter/Flutter.h>
 #import <Foundation/Foundation.h>
-#import <stdatomic.h>
 #import <libkern/OSAtomic.h>
+#import <stdatomic.h>
 
 static atomic_int atomicId = 0;
 
@@ -27,8 +27,8 @@ static atomic_int atomicId = 0;
 
     id<FlutterPluginRegistrar> _registrar;
     id<FlutterTextureRegistry> _textureRegistry;
-    //CVPixelBufferRef _cachePixelBufer;
-    //CVPixelBufferRef _Atomic _pixelBuffer;
+    // CVPixelBufferRef _cachePixelBufer;
+    // CVPixelBufferRef _Atomic _pixelBuffer;
 
     CVPixelBufferRef volatile _latestPixelBuffer;
 
@@ -115,7 +115,8 @@ static const int end = 9;
     }
 
     CVPixelBufferRef old = _latestPixelBuffer;
-    while (!OSAtomicCompareAndSwapPtrBarrier(old, nil, (void **)&_latestPixelBuffer)) {
+    while (!OSAtomicCompareAndSwapPtrBarrier(old, nil,
+                                             (void **)&_latestPixelBuffer)) {
         old = _latestPixelBuffer;
     }
     if (old) {
@@ -147,7 +148,8 @@ static const int end = 9;
     CVPixelBufferRef newBuffer = CVPixelBufferRetain(pixelbuffer);
 
     CVPixelBufferRef old = _latestPixelBuffer;
-    while (!OSAtomicCompareAndSwapPtrBarrier(old, newBuffer, (void **)&_latestPixelBuffer)) {
+    while (!OSAtomicCompareAndSwapPtrBarrier(old, newBuffer,
+                                             (void **)&_latestPixelBuffer)) {
         old = _latestPixelBuffer;
     }
 
@@ -171,7 +173,8 @@ static const int end = 9;
 
 - (CVPixelBufferRef _Nullable)copyPixelBuffer {
     CVPixelBufferRef pixelBuffer = _latestPixelBuffer;
-    while (!OSAtomicCompareAndSwapPtrBarrier(pixelBuffer, nil, (void **)&_latestPixelBuffer)) {
+    while (!OSAtomicCompareAndSwapPtrBarrier(pixelBuffer, nil,
+                                             (void **)&_latestPixelBuffer)) {
         pixelBuffer = _latestPixelBuffer;
     }
     /*
@@ -180,8 +183,8 @@ static const int end = 9;
     if (pixelBuffer) {
         CVPixelBufferRetain(pixelBuffer);
         copyoutBuffer = pixelBuffer;
-        while (!OSAtomicCompareAndSwapPtrBarrier(copyoutBuffer, pixelBuffer, (void **)&pixelBuffer)) {
-            copyoutBuffer = pixelBuffer;
+        while (!OSAtomicCompareAndSwapPtrBarrier(copyoutBuffer, pixelBuffer,
+    (void **)&pixelBuffer)) { copyoutBuffer = pixelBuffer;
         }
     }
      */
@@ -327,7 +330,9 @@ static const int end = 9;
         result(nil);
     } else if ([@"setDateSource" isEqualToString:call.method]) {
         NSString *url = argsMap[@"url"];
-        NSURL *aUrl = [NSURL URLWithString: [url stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]];
+        NSURL *aUrl =
+            [NSURL URLWithString:[url stringByAddingPercentEscapesUsingEncoding:
+                                          NSUTF8StringEncoding]];
         bool file404 = false;
         if ([@"asset" isEqualToString:aUrl.scheme]) {
             NSString *host = aUrl.host;

@@ -11,6 +11,7 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
+import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
 /**
  * FijkPlugin
@@ -64,6 +65,17 @@ public class FijkPlugin implements MethodCallHandler {
                     fijkPlayer.release();
                     fijkPlayers.delete(pid);
                 }
+                result.success(null);
+                break;
+            }
+            case "logLevel": {
+                int level = 500;
+                if (call.hasArgument("level"))
+                    level = call.argument("level");
+                level = level / 100;
+                level = level < 0 ? 0 : level;
+                level = level > 8 ? 8 : level;
+                IjkMediaPlayer.native_setLogLevel(level);
                 result.success(null);
                 break;
             }
