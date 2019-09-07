@@ -11,6 +11,8 @@ key: index
 **fijkplayer** has the same playback capabilities as ijkplayer and is very convenient to use. 
 **fijkplayer's** API is easy to use, and it's easy to add fijkplayer to your flutter app. There is no need bu build ffmpeg and native ijkplayer yourself.
 
+fijkplayer brings the video from native to Flutter through `Texture`, which has better performance than `PlatformView`. fijkplayer has build-in ijkplayer, which hosted separately on jcenter and CocoaPods.
+
 This site contains a lot of fijkplayer documentation to help you use and understand fijkplayer.
 
 ------

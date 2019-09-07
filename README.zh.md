@@ -1,5 +1,7 @@
 # fijkplayer ( Flutter 媒体播放器)
 
+### [English Language](README.en.md)
+
 [![pub package](https://img.shields.io/pub/v/fijkplayer.svg)](https://pub.dartlang.org/packages/fijkplayer) &nbsp; &nbsp;
 [![Build Status](https://travis-ci.org/befovy/fijkplayer.svg?branch=master)](https://travis-ci.org/befovy/fijkplayer) &nbsp; &nbsp;
 
@@ -8,13 +10,11 @@
 一款支持 android 和 iOS 的 Flutter 媒体播放器插件，由 [ijkplayer](https://github.com/befovy/ijkplayer) 底层驱动。通过纹理接入 Flutter 中。
 
 
-*README 其他语言版本: [English](README.en.md), [简体中文](README.zh-cn.md).*
-
 ## 文档
 
-* 开发文档  https://fijkplayer.befovy.com 包含快速开始、使用指南
-* dart api 文档  https://pub.dev/documentation/fijkplayer/latest/ 中有详细的接口文档和参数说明
-* release notes https://github.com/befovy/fijkplayer/releases &nbsp; [./CHANGELOG.md](./CHANGELOG.md) 包含每次的发版记录和说明
+* 开发文档  https://fijkplayer.befovy.com 包含快速开始、使用指南、fijkplayer 中的概念理解
+* dart api 文档  https://pub.dev/documentation/fijkplayer/ 中有详细的接口文档和参数说明
+* Release Notes https://github.com/befovy/fijkplayer/releases 和 [CHANGELOG.md](./CHANGELOG.md) 包含每次的发版记录和说明
 
 ## 安装
 
@@ -24,6 +24,16 @@
 dependencies:
   fijkplayer: ^0.1.3
 ```
+
+使用未发布版本
+```yaml
+dependencies:
+  fijkplayer:
+    git:
+      url: https://github.com/befovy/fijkplayer.git
+      ref: develop # 换成别的分支名或者 tag 或者 commit hash
+```
+
 
 ## 基础用法
 
@@ -72,49 +82,6 @@ class _VideoScreenState extends State<VideoScreen> {
 }
 
 ```
-
-## 示例
-
-demo app 在 example 文件夹中。
-
-```
-cd example && flutter run
-```
-
-iOS screenshots
-<div>
-<img src="https://user-images.githubusercontent.com/51129600/61178868-abefcc00-a629-11e9-851f-f4b2ab0028fb.jpeg" height="300px" alt="ios_input" >
-&nbsp;	&nbsp;	&nbsp;	
-<img src="https://user-images.githubusercontent.com/51129600/61178869-abefcc00-a629-11e9-8b15-872d8cd207b9.jpeg" height="300px" alt="ios_video" >
-</div>
-
-android screenshots
-
-<div>
-<img src="https://user-images.githubusercontent.com/51129600/61178866-ab573580-a629-11e9-8019-77a400998531.jpeg" height="300px" alt="android_home" >
-&nbsp;	&nbsp;	&nbsp;	
-<img src="https://user-images.githubusercontent.com/51129600/61178867-ab573580-a629-11e9-8829-8a37efb39d7d.jpeg" height="300px" alt="android_video" >
-</div>
-
-## ijkplayer 后端
-
-项目中使用 ijkplayer 作为后端播放内核，在 [Bilibili/ijkplayer](https://github.com/Bilibili/ijkplayer) 的基础上进行修改而来 [befovy/ijkplayer](https://github.com/befovy/ijkplayer) ，主要增加对于 Flutter 纹理接入的支持。
-修改后在 CocoaPods 和 http://bintray.com 进行了发布。
-
-单独引入方式如下
-
-```
-# support arm64 armv7 armv7s x86_64 i386
-pod 'FIJKPlayer'
-```
-
-```gradle
-dependencies {
-    // fijkplayer-full include the java lib and native shared libs for armv5 armv7 arm64 x86 x86_64
-    implementation 'com.befovy.fijkplayer:fijkplayer-full:0.3.7'
-}
-```
-
 
 ## iOS 注意事项
 
