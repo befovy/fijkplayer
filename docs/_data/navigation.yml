@@ -15,8 +15,8 @@ docs-en:
     children:
       - title: Install
         url:   /docs/en/install.html
-      # - title: Hello World -- in progressing
-      #   url:   /docs/en/hello-world.html
+      - title: Hello World
+        url:   /docs/en/hello-world.html
   # - title: Dive into
   #   children:
   #     - title: Player State -- in progressing
