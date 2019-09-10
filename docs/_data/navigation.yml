@@ -17,10 +17,10 @@ docs-en:
         url:   /docs/en/install.html
       - title: Hello World
         url:   /docs/en/hello-world.html
-  # - title: Dive into
-  #   children:
-  #     - title: Player State -- in progressing
-  #       url:   /docs/en/fijkstate.html
+  - title: Dive into
+    children:
+      - title: Player State
+        url:   /docs/en/fijkstate.html
   #     - title: Crop and Fit -- in progressing
   #       url:   /docs/en/fijkfit.html
   #     - title: Player API -- in progressing
