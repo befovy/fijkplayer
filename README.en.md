@@ -12,7 +12,7 @@ A Flutter media player plugin for iOS and android based on [ijkplayer](https://g
 
 ## Documentation
 
-* Development Documentation https://fijkplayer.befovy.com/docs/en/ quick start、guide、and concept about fijkplayer 
+* Development Documentation https://fijkplayer.befovy.com/docs/en/ quick start、guide、and concepts about fijkplayer 
 * dart api https://pub.dev/documentation/fijkplayer/ detail API and argument explaination
 * Release Notes https://github.com/befovy/fijkplayer/releases and [CHANGELOG.md](./CHANGELOG.md)
 
@@ -88,3 +88,7 @@ class _VideoScreenState extends State<VideoScreen> {
 
 Warning: The fijkplayer video player plugin is not functional on iOS simulators. An iOS device must be used during development/testing. For more details, please refer to this [issue](https://github.com/flutter/flutter/issues/14647).
 
+
+## Next Plan
+
+See the development plan of next version v0.2.0 in https://github.com/befovy/fijkplayer/projects/2

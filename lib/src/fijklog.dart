@@ -95,6 +95,11 @@ class FijkLog {
     }
   }
 
+  /// log [msg] with [FijkLogLevel.Verbose] level
+  static v(String msg, {String tag = 'fijk'}) {
+    log(FijkLogLevel.Verbose, msg, tag);
+  }
+
   /// log [msg] with [FijkLogLevel.Debug] level
   static d(String msg, {String tag = 'fijk'}) {
     log(FijkLogLevel.Debug, msg, tag);
