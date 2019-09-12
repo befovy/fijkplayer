@@ -93,3 +93,8 @@ Flutter 纹理接入的方式目前在 iOS 模拟器上不能工作，故视频�
 
 扫码加入 QQ 交流群  
 ![qq_group](./docs/images/fijkplayer_qq_group.jpg)
+
+
+## 开发计划
+
+下一步 v0.2.0 版本计划可以在 https://github.com/befovy/fijkplayer/projects/2 中查看

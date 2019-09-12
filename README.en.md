@@ -88,3 +88,7 @@ class _VideoScreenState extends State<VideoScreen> {
 
 Warning: The fijkplayer video player plugin is not functional on iOS simulators. An iOS device must be used during development/testing. For more details, please refer to this [issue](https://github.com/flutter/flutter/issues/14647).
 
+
+## Next Plan
+
+See the development plan of next version v0.2.0 in https://github.com/befovy/fijkplayer/projects/2
