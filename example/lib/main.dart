@@ -1,10 +1,29 @@
+import 'package:fijkplayer/fijkplayer.dart';
 import 'package:flutter/material.dart';
 
 import 'home_page.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  FijkPlugin.onLoad();
+  FijkLog.setLevel(FijkLogLevel.Debug);
+  runApp(MyApp());
+}
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+  
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      FijkPlugin.onResume();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(

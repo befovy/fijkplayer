@@ -126,6 +126,27 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
         }
     }
 
+    private boolean isPlayable(int state) {
+        return state == started || state == paused || state == completed || state == prepared;
+    }
+
+    private void onStateChanged(int newState, int oldState) {
+        FijkPlugin plugin = FijkPlugin.instance();
+        if (plugin == null)
+            return;
+        if (newState == started && oldState != started) {
+            plugin.onPlayingChange(1);
+        } else if (newState != started && oldState == started) {
+            plugin.onPlayingChange(-1);
+        }
+
+        if (isPlayable(newState) && !isPlayable(oldState)) {
+            plugin.onPlayableChange(1);
+        } else if (!isPlayable(newState) && isPlayable(oldState)) {
+            plugin.onPlayableChange(-1);
+        }
+    }
+
     private void handleEvent(int what, int arg1, int arg2, Object extra) {
         Map<String, Object> event = new HashMap<>();
 
@@ -141,6 +162,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
                 event.put("event", "state_change");
                 event.put("new", arg1);
                 event.put("old", arg2);
+                onStateChanged(arg1, arg2);
                 mEventSink.success(event);
                 break;
             case VIDEO_RENDERING_START:

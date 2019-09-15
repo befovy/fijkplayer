@@ -20,9 +20,8 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
-import 'package:flutter/foundation.dart';
 
-import 'fijkplugin.dart';
+part of fijkplayer;
 
 /// Log level for the [FijkLog.log] method.
 @immutable
@@ -82,7 +81,7 @@ class FijkLog {
     assert(level != null);
     _level = level;
     log(FijkLogLevel.Silent, "set log level $level", "fijk");
-    FijkPlugin.setLogLevel(level.level).then((_) {
+    FijkPlugin._setLogLevel(level.level).then((_) {
       log(FijkLogLevel.Silent, "native log level ${level.level}", "fijk");
     });
   }

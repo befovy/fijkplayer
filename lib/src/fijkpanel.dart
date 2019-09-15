@@ -20,16 +20,9 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
-import 'dart:async';
-import 'dart:math';
 
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 
-import 'fijkplayer.dart';
-import 'fijkvalue.dart';
+part of fijkplayer;
 
 /// The signature of the [LayoutBuilder] builder function.
 ///

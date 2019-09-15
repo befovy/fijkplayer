@@ -20,19 +20,7 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
-import 'dart:async';
-import 'dart:collection';
-
-import 'package:fijkplayer/src/fijklog.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/painting.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
-
-import 'fijkoption.dart';
-import 'fijkplugin.dart';
-import 'fijkvalue.dart';
-
+part of fijkplayer;
 /// FijkPlayer present as a playback. It interacts with native object.
 ///
 /// FijkPlayer invoke native method and receive native event.
@@ -139,7 +127,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   Future<void> _doNativeSetup() async {
     _playerId = -1;
     _callId = 0;
-    _playerId = await FijkPlugin.createPlayer();
+    _playerId = await FijkPlugin._createPlayer();
     FijkLog.i("create player id:$_playerId");
 
     _allInstance[_playerId] = this;
@@ -368,7 +356,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     await _nativeEventSubscription?.cancel();
     _nativeEventSubscription = null;
     _allInstance.remove(_playerId);
-    await FijkPlugin.releasePlayer(_playerId).then((_) {
+    await FijkPlugin._releasePlayer(_playerId).then((_) {
       FijkLog.i("$this invoke release #$cid -> done");
     });
   }
@@ -500,3 +488,4 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     return 'FijkPlayer{id:$_playerId}';
   }
 }
+

@@ -22,19 +22,8 @@
 //SOFTWARE.
 //
 
-import 'dart:math';
-import 'dart:ui';
+part of fijkplayer;
 
-import 'package:fijkplayer/src/fijkpanel.dart';
-import 'package:fijkplayer/src/fijkplugin.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
-
-import 'fijkpanel.dart';
-import 'fijkplayer.dart';
-import 'fijkvalue.dart';
 
 /// How a video should be inscribed into [FijkView].
 ///

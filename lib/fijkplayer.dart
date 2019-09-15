@@ -23,9 +23,32 @@
 
 library fijkplayer;
 
-export 'src/fijkplayer.dart';
-export 'src/fijkview.dart';
-export 'src/fijkpanel.dart';
-export 'src/fijkoption.dart';
-export 'src/fijkvalue.dart';
-export 'src/fijklog.dart';
+import 'dart:async';
+import 'dart:collection';
+import 'dart:core';
+import 'dart:io';
+import 'dart:math';
+import 'dart:ui';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+
+part 'src/fijklog.dart';
+
+part 'src/fijkoption.dart';
+
+part 'src/fijkpanel.dart';
+
+part 'src/fijkplayer.dart';
+
+part 'src/fijkvalue.dart';
+
+part 'src/fijkview.dart';
+
+part 'src/fijkplugin.dart';
+
+part 'src/fijkvol.dart';
