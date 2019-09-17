@@ -83,6 +83,13 @@ class _VideoScreenState extends State<VideoScreen> {
 
 ```
 
+## 贡献者列表
+
+感谢这些 [超级可爱的贡献者们](./CONTRIBUTORS.md) ([emoji key](https://allcontributors.org/docs/en/emoji-key))
+
+此项目遵循 [all-contributors](https://github.com/all-contributors/all-contributors) 规范，欢迎任何形式的贡献参与
+
+
 ## iOS 注意事项
 
 Flutter 纹理接入的方式目前在 iOS 模拟器上不能工作，故视频播放器的图像只能在真机上显示出来，详情可查看 [flutter/issues/14647](https://github.com/flutter/flutter/issues/14647)。
