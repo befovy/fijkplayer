@@ -1,4 +1,4 @@
 {
   "files": ["CONTRIBUTORS"],
-  "skipCi": "true",
+  "skipCi": "true"
 }
