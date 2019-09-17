@@ -85,7 +85,7 @@ class _VideoScreenState extends State<VideoScreen> {
 
 ## 贡献者列表
 
-感谢这些 [超级可爱的贡献者们](./CONTRIBUTORS) ([emoji key](https://allcontributors.org/docs/en/emoji-key))
+感谢这些 [超级可爱的贡献者们](./CONTRIBUTORS.md) ([emoji key](https://allcontributors.org/docs/en/emoji-key))
 
 此项目遵循 [all-contributors](https://github.com/all-contributors/all-contributors) 规范，欢迎任何形式的贡献参与
 
