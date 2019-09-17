@@ -2,13 +2,23 @@
   "projectName": "fijkplayer",
   "projectOwner": "befovy",
   "repoType": "github",
-  "repoHost": "befovy/fijkplayer",
+  "repoHost": "https://github.com",
   "files": [
     "CONTRIBUTORS"
   ],
   "imageSize": 100,
   "commit": true,
   "commitConvention": "angular",
-  "contributors": [],
+  "contributors": [
+    {
+      "login": "iperfectapp",
+      "name": "Newton",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/3021764?v=4",
+      "profile": "https://github.com/iperfectapp",
+      "contributions": [
+        "userTesting"
+      ]
+    }
+  ],
   "contributorsPerLine": 7
 }
