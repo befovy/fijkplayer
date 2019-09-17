@@ -83,6 +83,11 @@ class _VideoScreenState extends State<VideoScreen> {
 
 ```
 
+## Contributors ✨
+
+Thanks goes to [these wonderful people](./CONTRIBUTORS) ([emoji key](https://allcontributors.org/docs/en/emoji-key))
+
+
 
 ## iOS Warning
 
