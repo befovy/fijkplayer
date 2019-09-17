@@ -62,10 +62,10 @@ static FijkPlugin *_instance = nil;
         _volStep = 1.0 / 16.0;
         _showOsUI = YES;
         _eventSink = [[FijkQueuingEventSink alloc] init];
-        
-        _eventChannel = [FlutterEventChannel
-                         eventChannelWithName:@"befovy.com/fijk/event"
-                         binaryMessenger:[registrar messenger]];
+
+        _eventChannel =
+            [FlutterEventChannel eventChannelWithName:@"befovy.com/fijk/event"
+                                      binaryMessenger:[registrar messenger]];
         [_eventChannel setStreamHandler:self];
 
         [[NSNotificationCenter defaultCenter]

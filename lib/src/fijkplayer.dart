@@ -21,6 +21,7 @@
 //SOFTWARE.
 
 part of fijkplayer;
+
 /// FijkPlayer present as a playback. It interacts with native object.
 ///
 /// FijkPlayer invoke native method and receive native event.
@@ -488,4 +489,3 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     return 'FijkPlayer{id:$_playerId}';
   }
 }
-

@@ -24,6 +24,12 @@
 
 part of fijkplayer;
 
+/// The signature of the [LayoutBuilder] builder function.
+///
+/// Must not return null.
+/// The return widget is placed as one of [Stack]'s children.
+typedef FijkPanelWidgetBuilder = Widget Function(
+    FijkPlayer player, BuildContext context, Size viewSize, Rect texturePos);
 
 /// How a video should be inscribed into [FijkView].
 ///
@@ -115,7 +121,7 @@ class FijkView extends StatefulWidget {
     this.height,
     this.fit = FijkFit.contain,
     this.panelBuilder = defaultFijkPanelBuilder,
-    this.color = Colors.blueGrey,
+    this.color = const Color(0xFF607D8B),
   }) : assert(player != null);
 
   /// The player that need display video by this [FijkView].
@@ -229,7 +235,7 @@ class _FijkViewState extends State<FijkView> {
                 Container(
                   width: constraints.maxWidth,
                   height: constraints.maxHeight,
-                  color: Colors.black,
+                  color: Color(0xFF000000),
                 ),
                 Positioned.fromRect(
                   rect: pos,

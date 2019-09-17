@@ -20,16 +20,12 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
+import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
+import 'dart:async';
+import 'dart:math';
 
-
-part of fijkplayer;
-
-/// The signature of the [LayoutBuilder] builder function.
-///
-/// Must not return null.
-/// The return widget is placed as one of [Stack]'s children.
-typedef FijkPanelWidgetBuilder = Widget Function(
-    FijkPlayer player, BuildContext context, Size viewSize, Rect texturePos);
+import '../fijkplayer.dart';
 
 /// Default builder generate default [FijkPanel] UI
 Widget defaultFijkPanelBuilder(

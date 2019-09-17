@@ -64,7 +64,8 @@ class FijkPlugin {
 
   static StreamSubscription _eventSubs;
 
-  static void onLoad() {
+  static void _onLoad(String type) {
+    FijkLog.i("_onLoad $type");
     if (_eventSubs == null) {
       _eventSubs = EventChannel("befovy.com/fijk/event")
           .receiveBroadcastStream()
@@ -74,23 +75,21 @@ class FijkPlugin {
     _channel.invokeMethod("onLoad");
   }
 
-  static void onResume() {
-    _channel.invokeMethod("onLoad");
-  }
-
-  static void onUnload() {
+  // ignore: unused_element
+  static void _onUnload() {
+    FijkLog.i("_onUnload");
     _channel.invokeMethod("onUnload");
     _eventSubs?.cancel();
   }
 
   static void _eventListener(dynamic event) {
     final Map<dynamic, dynamic> map = event;
-    FijkLog.d("$map");
+    FijkLog.d("plugin listener: $map");
     switch (map['event']) {
       case 'volume':
-          bool sysUIShown = map['sui'];
-          double vol = map['vol'];
-          FijkVol._onVolCallback(vol, sysUIShown);
+        bool sui = map['sui'];
+        double vol = map['vol'];
+        FijkVolume._instance._onVolCallback(vol, sui);
         break;
       default:
         break;
@@ -98,6 +97,6 @@ class FijkPlugin {
   }
 
   static void _errorListener(Object obj) {
-    FijkLog.e("FijkPlugin errorListerner: $obj");
+    FijkLog.e("plugin errorListerner: $obj");
   }
 }

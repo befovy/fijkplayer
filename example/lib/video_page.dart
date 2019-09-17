@@ -35,18 +35,22 @@ class _VideoScreenState extends State<VideoScreen> {
     return Scaffold(
       appBar: FijkAppBar.defaultSetting(title: "Video"),
       body: Container(
-          child: FijkView(
-        player: player,
-        // panelBuilder: simplestUI,
-        // panelBuilder: (FijkPlayer player, BuildContext context,
-        //     Size viewSize, Rect texturePos) {
-        //   return CustomFijkPanel(
-        //       player: player,
-        //       buildContext: context,
-        //       viewSize: viewSize,
-        //       texturePos: texturePos);
-        // },
-      )),
+        child: FijkVolumeWatcher(
+            watcher: null,
+            showToast: true,
+            child: FijkView(
+              player: player,
+              // panelBuilder: simplestUI,
+              // panelBuilder: (FijkPlayer player, BuildContext context,
+              //     Size viewSize, Rect texturePos) {
+              //   return CustomFijkPanel(
+              //       player: player,
+              //       buildContext: context,
+              //       viewSize: viewSize,
+              //       texturePos: texturePos);
+              // },
+            )),
+      ),
     );
   }
 

@@ -10,6 +10,9 @@
       <excludeFolder url="file://$MODULE_DIR$/example/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/example/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/example/build" />
+      <excludeFolder url="file://$MODULE_DIR$/example/expanded_sample/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/example/expanded_sample/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/example/expanded_sample/build" />
       <excludeFolder url="file://$MODULE_DIR$/example/iconbutton_sample/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/example/iconbutton_sample/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/example/iconbutton_sample/build" />
