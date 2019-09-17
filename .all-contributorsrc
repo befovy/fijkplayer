@@ -1,4 +1,14 @@
 {
-  "files": ["CONTRIBUTORS"],
-  "skipCi": "true"
+  "projectName": "fijkplayer",
+  "projectOwner": "befovy",
+  "repoType": "github",
+  "repoHost": "befovy/fijkplayer",
+  "files": [
+    "CONTRIBUTORS"
+  ],
+  "imageSize": 100,
+  "commit": true,
+  "commitConvention": "angular",
+  "contributors": [],
+  "contributorsPerLine": 7
 }
