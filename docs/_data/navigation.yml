@@ -21,8 +21,8 @@ docs-en:
     children:
       - title: Player State
         url:   /docs/en/fijkstate.html
-  #     - title: Crop and Fit -- in progressing
-  #       url:   /docs/en/fijkfit.html
+      - title: Crop and Fit
+        url:   /docs/en/fijkfit.html
   #     - title: Player API -- in progressing
   #       url:   /docs/en/fijkplayer-api.html
   #     - title: Custom UI -- in progressing
