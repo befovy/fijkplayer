@@ -18,6 +18,15 @@
       "contributions": [
         "userTesting"
       ]
+    },
+    {
+      "login": "NewYorkFive",
+      "name": "DoubleL",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/14890206?v=4",
+      "profile": "https://github.com/NewYorkFive",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7
