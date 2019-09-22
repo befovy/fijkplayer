@@ -19,6 +19,7 @@
 
     FijkPlayer *player = [[FijkPlayer alloc] initWithRegistrar:registrar];
     int64_t vid = [[registrar textures] registerTexture:player];
+    [player shutdown];
     [[registrar textures] unregisterTexture:vid];
 }
 

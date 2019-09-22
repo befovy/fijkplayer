@@ -27,10 +27,9 @@ static atomic_int atomicId = 0;
 
     id<FlutterPluginRegistrar> _registrar;
     id<FlutterTextureRegistry> _textureRegistry;
-    // CVPixelBufferRef _cachePixelBufer;
-    // CVPixelBufferRef _Atomic _pixelBuffer;
 
     CVPixelBufferRef volatile _latestPixelBuffer;
+    CVPixelBufferRef _lastBuffer;
 
     int _state;
     int _pid;
@@ -48,6 +47,11 @@ static const int stopped = 7;
 static const int __attribute__((unused)) error = 8;
 static const int end = 9;
 
+
+static int renderType = 0;
+
+//static int debugLeak = 0;
+
 - (instancetype)initWithRegistrar:(id<FlutterPluginRegistrar>)registrar {
     self = [super init];
     if (self) {
@@ -56,26 +60,35 @@ static const int end = 9;
         _playerId = @(pid);
         _pid = pid;
         _eventSink = [[FijkQueuingEventSink alloc] init];
-        _ijkMediaPlayer = [[IJKFFMediaPlayer alloc] init];
-        //_cachePixelBufer = nil;
-        //_pixelBuffer = nil;
         _latestPixelBuffer = nil;
         _vid = -1;
         _state = 0;
 
-        [_ijkMediaPlayer addIJKMPEventHandler:self];
+        _lastBuffer = nil;
+        if (renderType == 0) {
+            _ijkMediaPlayer = [[IJKFFMediaPlayer alloc] init];
+            [_ijkMediaPlayer setOptionValue:@"fcc-bgra"
+                                 forKey:@"overlay-format"
+                             ofCategory:kIJKFFOptionCategoryPlayer];
+        } else {
+            // _ijkMediaPlayer = [[IJKFFMediaPlayer alloc]initWithFbo];
+        }
+        //if (debugLeak) {
+        //    [_ijkMediaPlayer setLoop:0];
+        //    [_ijkMediaPlayer setSpeed:4.0];
+        //}
 
         [_ijkMediaPlayer setOptionIntValue:1
                                     forKey:@"videotoolbox"
                                 ofCategory:kIJKFFOptionCategoryPlayer];
-        [_ijkMediaPlayer setOptionValue:@"fcc-bgra"
-                                 forKey:@"overlay-format"
-                             ofCategory:kIJKFFOptionCategoryPlayer];
-        [IJKFFMoviePlayerController setLogLevel:k_IJK_LOG_INFO];
+
+        [IJKFFMoviePlayerController setLogLevel:k_IJK_LOG_VERBOSE];
+        
+        [_ijkMediaPlayer addIJKMPEventHandler:self];
+
         _methodChannel = [FlutterMethodChannel
             methodChannelWithName:[@"befovy.com/fijkplayer/"
-                                      stringByAppendingString:[_playerId
-                                                                  stringValue]]
+                                   stringByAppendingString:[_playerId stringValue]]
                   binaryMessenger:[registrar messenger]];
 
         __block typeof(self) weakSelf = self;
@@ -120,15 +133,20 @@ static const int end = 9;
         old = _latestPixelBuffer;
     }
     if (old) {
-        CVPixelBufferRelease(old);
+        CFRelease(old);
     }
 
-    /*
-    if (_cachePixelBufer) {
-        CVPixelBufferRelease(_cachePixelBufer);
-        _cachePixelBufer = nil;
+    if (_lastBuffer) {
+        CVPixelBufferRelease(_lastBuffer);
+        _lastBuffer = nil;
     }
-     */
+    [_methodChannel setMethodCallHandler:nil];
+    _methodChannel = nil;
+    
+    [_eventSink setDelegate:nil];
+    _eventSink = nil;
+    [_eventChannel setStreamHandler:nil];
+    _eventChannel = nil;
 }
 
 - (FlutterError *_Nullable)onCancelWithArguments:(id _Nullable)arguments {
@@ -143,9 +161,20 @@ static const int end = 9;
     return nil;
 }
 
+// IJKCVPBViewProtocol delegate
+// IJKFFMediaPlayer will incoke this method whem new frame should be displayed
 - (void)display_pixelbuffer:(CVPixelBufferRef)pixelbuffer {
 
-    CVPixelBufferRef newBuffer = CVPixelBufferRetain(pixelbuffer);
+    if (_lastBuffer == nil) {
+        _lastBuffer = CVPixelBufferRetain(pixelbuffer);
+        CFRetain(pixelbuffer);
+    } else if (_lastBuffer != pixelbuffer) {
+        CVPixelBufferRelease(_lastBuffer);
+        _lastBuffer = CVPixelBufferRetain(pixelbuffer);
+        CFRetain(pixelbuffer);
+    }
+    
+    CVPixelBufferRef newBuffer = pixelbuffer;
 
     CVPixelBufferRef old = _latestPixelBuffer;
     while (!OSAtomicCompareAndSwapPtrBarrier(old, newBuffer,
@@ -153,41 +182,22 @@ static const int end = 9;
         old = _latestPixelBuffer;
     }
 
-    if (old) {
-        CVPixelBufferRelease(old);
+    if (old && old != pixelbuffer) {
+        CFRelease(old);
     }
-    /*
-    if (_cachePixelBufer != nil)
-        CVPixelBufferRelease(_cachePixelBufer);
-
-    if (pixelbuffer != nil) {
-        _cachePixelBufer = CVPixelBufferRetain(pixelbuffer);
-        //_cachePixelBufer = pixelbuffer;
-    }
-    atomic_exchange(&_pixelBuffer, _cachePixelBufer);
-    */
     if (_vid >= 0) {
         [_textureRegistry textureFrameAvailable:_vid];
     }
 }
 
+// After textureFrameAvailable has been called
+// Flutter engine call this to get new CVPixelBufferRef to render
 - (CVPixelBufferRef _Nullable)copyPixelBuffer {
     CVPixelBufferRef pixelBuffer = _latestPixelBuffer;
     while (!OSAtomicCompareAndSwapPtrBarrier(pixelBuffer, nil,
                                              (void **)&_latestPixelBuffer)) {
         pixelBuffer = _latestPixelBuffer;
     }
-    /*
-    CVPixelBufferRef pixelBuffer = atomic_exchange(&_pixelBuffer, nil);
-    CVPixelBufferRef copyoutBuffer = NULL;
-    if (pixelBuffer) {
-        CVPixelBufferRetain(pixelBuffer);
-        copyoutBuffer = pixelBuffer;
-        while (!OSAtomicCompareAndSwapPtrBarrier(copyoutBuffer, pixelBuffer,
-    (void **)&pixelBuffer)) { copyoutBuffer = pixelBuffer;
-        }
-    }
-     */
     return pixelBuffer;
 }
 
