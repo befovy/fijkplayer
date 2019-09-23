@@ -229,6 +229,10 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     }
   }
 
+  /// start the async preparing tasks
+  ///
+  /// see [fijkstate zh](https://fijkplayer.befovy.com/docs/zh/fijkstate.html) or
+  /// [fijkstate en](https://fijkplayer.befovy.com/docs/en/fijkstate.html) for details
   Future<void> prepareAsync() async {
     await _nativeSetup.future;
     if (state == FijkState.initialized) {
@@ -240,6 +244,11 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     }
   }
 
+  /// set volume of this player audio track
+  ///
+  /// This dose not change system volume.
+  /// Default value of audio track is 1.0,
+  /// [volume] must be greater or equals to 0.0
   Future<void> setVolume(double volume) async {
     if (volume == null || volume < 0) {
       FijkLog.e("$this invoke seekTo invalid volume:$volume");
@@ -265,6 +274,11 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     _setValue(value.copyWith(fullScreen: false));
   }
 
+  /// change player's state to [FijkState.started]
+  ///
+  /// throw [StateError] if call this method on invalid state.
+  /// see [fijkstate zh](https://fijkplayer.befovy.com/docs/zh/fijkstate.html) or
+  /// [fijkstate en](https://fijkplayer.befovy.com/docs/en/fijkstate.html) for details
   Future<void> start() async {
     await _nativeSetup.future;
     if (state == FijkState.initialized) {

@@ -22,8 +22,6 @@
 
 part of fijkplayer;
 
-typedef FijkVolumeCallback = void Function(double vol, bool ui, int streamType);
-
 // private class
 @immutable
 class _FijkVolChange {
@@ -127,22 +125,33 @@ class FijkVolume extends ChangeNotifier
   }
 }
 
-/// stateful widget
+/// Volume changed callback func.
+///
+/// [vol] is the value of volume, and has been mapped into range [0.0, 1.0]
+/// true value of [ui] indicates that Android/iOS system volume changed UI is shown for this volume change event
+/// [streamType] shows track\stream type for this volume change, this value is always [FijkVolume.STREAM_MUSIC] in this version
+typedef FijkVolumeCallback = void Function(double vol, bool ui, int streamType);
+
+/// stateful widget that watching system volume, no ui widget
+/// when system volume changed, [watcher] will be invoked.
 class FijkVolumeWatcher extends StatefulWidget {
   /// volume changed callback
   final FijkVolumeCallback watcher;
 
-  /// child widget
+  /// child widget, must be non-null
   final Widget child;
 
-  /// whether show default volume changed toast
+  /// whether show default volume changed toast, default value is false.
+  ///
+  /// The default toast ui insert an OverlayEntry to current context's overlay
   final bool showToast;
 
   FijkVolumeWatcher({
     @required this.watcher,
     @required this.child,
     bool showToast = false,
-  }) : showToast = showToast;
+  })  : assert(child != null),
+        showToast = showToast;
 
   @override
   _FijkVolumeWatcherState createState() => _FijkVolumeWatcherState();
@@ -156,7 +165,6 @@ class _FijkVolumeWatcherState extends State<FijkVolumeWatcher> {
   void initState() {
     super.initState();
     FijkPlugin._onLoad("vol");
-    FijkVolume.setSystemVolumeUIMode(FijkVolume.hideUIWhenPlayable);
     FijkVolume._instance.addListener(volChanged);
   }
 
@@ -166,7 +174,7 @@ class _FijkVolumeWatcherState extends State<FijkVolumeWatcher> {
     if (widget.watcher != null) {
       widget.watcher(value.vol, value.ui, value.type);
     }
-    if (widget.showToast) {
+    if (widget.showToast && !value.ui) {
       showVolToast(value.vol);
     }
   }
