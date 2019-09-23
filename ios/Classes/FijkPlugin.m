@@ -275,11 +275,13 @@ static FijkPlugin *_instance = nil;
 }
 
 - (void)sendVolumeChange:(float)value {
-    [_eventSink success:@{
-        @"event" : @"volume",
-        @"sui" : @(_showOsUI),
-        @"vol" : @(value)
-    }];
+    if (_eventListening) {
+        [_eventSink success:@{
+            @"event" : @"volume",
+            @"sui" : @(_showOsUI),
+            @"vol" : @(value)
+        }];
+    }
 }
 
 - (FlutterError *_Nullable)onCancelWithArguments:(id _Nullable)arguments {
