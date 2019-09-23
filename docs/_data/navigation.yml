@@ -29,6 +29,8 @@ docs-en:
   #       url:   /docs/en/custom-ui.html
   #     - title: Error & Exception  -- in progressing
   #       url:   /docs/en/error-exception.html
+  # - title: doc
+
   - title: Languages
     children:
       - title: 中文
@@ -45,23 +47,27 @@ docs-zh:
         url:   /docs/zh/install.html
       - title: Hello World
         url:   /docs/zh/hello-world.html
-  - title: 了解更多
+  - title: 基础必读
     children:
       - title: 播放器状态
         url:   /docs/zh/fijkstate.html
-      - title: 填充与裁剪
-        url:   /docs/zh/fijkfit.html
       - title: 播放器接口
         url:   /docs/zh/fijkplayer-api.html
+      - title: 填充与裁剪
+        url:   /docs/zh/fijkfit.html
       - title: 个性化 UI
         url:   /docs/zh/custom-ui.html
       - title: 错误和异常
         url:   /docs/zh/error-exception.html
-  # - title: 高阶内容
+  # - title: 高级进阶
   #   children:
   #     - title: 播放器选项
   #     - title: 音频中断处理
   #     - title: 响应 App 生命周期
+  - title: 附加内容
+    children:
+      - title: 系统音量调节
+        url:   /docs/zh/system-volume.html
   - title: 其他语言
     children:
       - title: English

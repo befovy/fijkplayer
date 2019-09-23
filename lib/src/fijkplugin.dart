@@ -20,33 +20,18 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
-import 'dart:io';
+part of fijkplayer;
 
-import 'package:flutter/services.dart';
-
-import 'fijkplayer.dart';
-import 'fijkview.dart';
-
-/// for inner use, don't use this directly in app.
-/// use [FijkPlayer] and [FijkView] instead.
 class FijkPlugin {
   static const MethodChannel _channel = const MethodChannel('befovy.com/fijk');
 
-  static Future<String> get platformVersion {
-    return _channel.invokeMethod('getPlatformVersion');
-  }
-
-  static Future<int> createPlayer() {
+  static Future<int> _createPlayer() {
     return _channel.invokeMethod("createPlayer");
   }
 
-  static Future<void> releasePlayer(int pid) {
+  static Future<void> _releasePlayer(int pid) {
     return _channel
         .invokeMethod("releasePlayer", <String, dynamic>{'pid': pid});
-  }
-
-  static Future<void> setLogLevel(int level) {
-    return _channel.invokeMethod("logLevel", <String, dynamic>{'level': level});
   }
 
   static Future<void> setOrientationPortrait() {
@@ -71,5 +56,47 @@ class FijkPlugin {
       SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     }
     return _channel.invokeMethod("setOrientationAuto");
+  }
+
+  static Future<void> _setLogLevel(int level) {
+    return _channel.invokeMethod("logLevel", <String, dynamic>{'level': level});
+  }
+
+  static StreamSubscription _eventSubs;
+
+  static void _onLoad(String type) {
+    FijkLog.i("_onLoad $type");
+    if (_eventSubs == null) {
+      _eventSubs = EventChannel("befovy.com/fijk/event")
+          .receiveBroadcastStream()
+          .listen(FijkPlugin._eventListener,
+              onError: FijkPlugin._errorListener);
+    }
+    _channel.invokeMethod("onLoad");
+  }
+
+  // ignore: unused_element
+  static void _onUnload() {
+    FijkLog.i("_onUnload");
+    _channel.invokeMethod("onUnload");
+    _eventSubs?.cancel();
+  }
+
+  static void _eventListener(dynamic event) {
+    final Map<dynamic, dynamic> map = event;
+    FijkLog.d("plugin listener: $map");
+    switch (map['event']) {
+      case 'volume':
+        bool sui = map['sui'];
+        double vol = map['vol'];
+        FijkVolume._instance._onVolCallback(vol, sui);
+        break;
+      default:
+        break;
+    }
+  }
+
+  static void _errorListener(Object obj) {
+    FijkLog.e("plugin errorListerner: $obj");
   }
 }

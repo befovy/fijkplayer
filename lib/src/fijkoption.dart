@@ -20,8 +20,7 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
-import 'dart:collection';
-import 'fijklog.dart';
+part of fijkplayer;
 
 class FijkOption {
   final Map<int, Map<String, dynamic>> _options = HashMap();

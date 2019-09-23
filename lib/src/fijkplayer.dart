@@ -20,18 +20,7 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
-import 'dart:async';
-import 'dart:collection';
-
-import 'package:fijkplayer/src/fijklog.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/painting.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
-
-import 'fijkoption.dart';
-import 'fijkplugin.dart';
-import 'fijkvalue.dart';
+part of fijkplayer;
 
 /// FijkPlayer present as a playback. It interacts with native object.
 ///
@@ -139,7 +128,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   Future<void> _doNativeSetup() async {
     _playerId = -1;
     _callId = 0;
-    _playerId = await FijkPlugin.createPlayer();
+    _playerId = await FijkPlugin._createPlayer();
     FijkLog.i("create player id:$_playerId");
 
     _allInstance[_playerId] = this;
@@ -240,6 +229,10 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     }
   }
 
+  /// start the async preparing tasks
+  ///
+  /// see [fijkstate zh](https://fijkplayer.befovy.com/docs/zh/fijkstate.html) or
+  /// [fijkstate en](https://fijkplayer.befovy.com/docs/en/fijkstate.html) for details
   Future<void> prepareAsync() async {
     await _nativeSetup.future;
     if (state == FijkState.initialized) {
@@ -251,6 +244,11 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     }
   }
 
+  /// set volume of this player audio track
+  ///
+  /// This dose not change system volume.
+  /// Default value of audio track is 1.0,
+  /// [volume] must be greater or equals to 0.0
   Future<void> setVolume(double volume) async {
     if (volume == null || volume < 0) {
       FijkLog.e("$this invoke seekTo invalid volume:$volume");
@@ -276,6 +274,11 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     _setValue(value.copyWith(fullScreen: false));
   }
 
+  /// change player's state to [FijkState.started]
+  ///
+  /// throw [StateError] if call this method on invalid state.
+  /// see [fijkstate zh](https://fijkplayer.befovy.com/docs/zh/fijkstate.html) or
+  /// [fijkstate en](https://fijkplayer.befovy.com/docs/en/fijkstate.html) for details
   Future<void> start() async {
     await _nativeSetup.future;
     if (state == FijkState.initialized) {
@@ -368,7 +371,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     await _nativeEventSubscription?.cancel();
     _nativeEventSubscription = null;
     _allInstance.remove(_playerId);
-    await FijkPlugin.releasePlayer(_playerId).then((_) {
+    await FijkPlugin._releasePlayer(_playerId).then((_) {
       FijkLog.i("$this invoke release #$cid -> done");
     });
   }

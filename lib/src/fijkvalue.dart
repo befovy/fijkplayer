@@ -20,13 +20,7 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
-import 'dart:core';
-import 'dart:ui';
-
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
-
-import 'fijkplayer.dart';
+part of fijkplayer;
 
 /// State of the [FijkPlayer]
 ///

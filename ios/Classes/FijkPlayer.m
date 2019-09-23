@@ -6,7 +6,7 @@
 //
 
 #import "FijkPlayer.h"
-
+#import "FijkPlugin.h"
 #import "FijkQueuingEventSink.h"
 
 #import <FIJKPlayer/IJKFFMediaPlayer.h>
@@ -15,6 +15,13 @@
 #import <Foundation/Foundation.h>
 #import <libkern/OSAtomic.h>
 #import <stdatomic.h>
+
+@interface FijkPlugin ()
+
+- (void)onPlayingChange:(int)delta;
+- (void)onPlayableChange:(int)delta;
+
+@end
 
 static atomic_int atomicId = 0;
 
@@ -47,10 +54,9 @@ static const int stopped = 7;
 static const int __attribute__((unused)) error = 8;
 static const int end = 9;
 
-
 static int renderType = 0;
 
-//static int debugLeak = 0;
+// static int debugLeak = 0;
 
 - (instancetype)initWithRegistrar:(id<FlutterPluginRegistrar>)registrar {
     self = [super init];
@@ -68,12 +74,12 @@ static int renderType = 0;
         if (renderType == 0) {
             _ijkMediaPlayer = [[IJKFFMediaPlayer alloc] init];
             [_ijkMediaPlayer setOptionValue:@"fcc-bgra"
-                                 forKey:@"overlay-format"
-                             ofCategory:kIJKFFOptionCategoryPlayer];
+                                     forKey:@"overlay-format"
+                                 ofCategory:kIJKFFOptionCategoryPlayer];
         } else {
             // _ijkMediaPlayer = [[IJKFFMediaPlayer alloc]initWithFbo];
         }
-        //if (debugLeak) {
+        // if (debugLeak) {
         //    [_ijkMediaPlayer setLoop:0];
         //    [_ijkMediaPlayer setSpeed:4.0];
         //}
@@ -83,12 +89,13 @@ static int renderType = 0;
                                 ofCategory:kIJKFFOptionCategoryPlayer];
 
         [IJKFFMoviePlayerController setLogLevel:k_IJK_LOG_VERBOSE];
-        
+
         [_ijkMediaPlayer addIJKMPEventHandler:self];
 
         _methodChannel = [FlutterMethodChannel
             methodChannelWithName:[@"befovy.com/fijkplayer/"
-                                   stringByAppendingString:[_playerId stringValue]]
+                                      stringByAppendingString:[_playerId
+                                                                  stringValue]]
                   binaryMessenger:[registrar messenger]];
 
         __block typeof(self) weakSelf = self;
@@ -142,7 +149,7 @@ static int renderType = 0;
     }
     [_methodChannel setMethodCallHandler:nil];
     _methodChannel = nil;
-    
+
     [_eventSink setDelegate:nil];
     _eventSink = nil;
     [_eventChannel setStreamHandler:nil];
@@ -173,7 +180,7 @@ static int renderType = 0;
         _lastBuffer = CVPixelBufferRetain(pixelbuffer);
         CFRetain(pixelbuffer);
     }
-    
+
     CVPixelBufferRef newBuffer = pixelbuffer;
 
     CVPixelBufferRef old = _latestPixelBuffer;
@@ -211,6 +218,28 @@ static int renderType = 0;
     return [NSNumber numberWithLongLong:_vid];
 }
 
+- (BOOL)isPlayable:(int)state {
+    return state == started || state == paused || state == completed ||
+           state == prepared;
+}
+
+- (void)onStateChangedWithNew:(int)newState andOld:(int)oldState {
+    FijkPlugin *plugin = [FijkPlugin singleInstance];
+    if (plugin == nil)
+        return;
+    if (newState == started && oldState != started) {
+        [plugin onPlayingChange:1];
+    } else if (newState != started && oldState == started) {
+        [plugin onPlayingChange:-1];
+    }
+
+    if ([self isPlayable:newState] && ![self isPlayable:oldState]) {
+        [plugin onPlayableChange:1];
+    } else if (![self isPlayable:newState] && [self isPlayable:oldState]) {
+        [plugin onPlayableChange:-1];
+    }
+}
+
 - (void)handleEvent:(int)what
             andArg1:(int)arg1
             andArg2:(int)arg2
@@ -229,6 +258,7 @@ static int renderType = 0;
             @"new" : @(arg1),
             @"old" : @(arg2),
         }];
+        [self onStateChangedWithNew:arg1 andOld:arg2];
         break;
     case IJKMPET_VIDEO_RENDERING_START:
     case IJKMPET_AUDIO_RENDERING_START:
