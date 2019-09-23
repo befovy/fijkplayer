@@ -238,6 +238,8 @@ static FijkPlugin *_instance = nil;
         vol = 0.0;
     }
     [_volumeViewSlider setValue:vol animated:FALSE];
+    vol = _volumeViewSlider.value;
+    [self sendVolumeChange:vol];
     return vol;
 }
 
@@ -268,12 +270,16 @@ static FijkPlugin *_instance = nil;
         objectForKey:@"AVSystemController_AudioVolumeNotificationParameter"]
         doubleValue];
     if ([style isEqualToString:@"Audio/Video"]) {
-        [_eventSink success:@{
-            @"event" : @"volume",
-            @"sui" : @(_showOsUI),
-            @"vol" : @(value)
-        }];
+        [self sendVolumeChange:value];
     }
+}
+
+- (void)sendVolumeChange:(float)value {
+    [_eventSink success:@{
+        @"event" : @"volume",
+        @"sui" : @(_showOsUI),
+        @"vol" : @(value)
+    }];
 }
 
 - (FlutterError *_Nullable)onCancelWithArguments:(id _Nullable)arguments {

@@ -54,10 +54,9 @@ static const int stopped = 7;
 static const int __attribute__((unused)) error = 8;
 static const int end = 9;
 
-
 static int renderType = 0;
 
-//static int debugLeak = 0;
+// static int debugLeak = 0;
 
 - (instancetype)initWithRegistrar:(id<FlutterPluginRegistrar>)registrar {
     self = [super init];
@@ -75,12 +74,12 @@ static int renderType = 0;
         if (renderType == 0) {
             _ijkMediaPlayer = [[IJKFFMediaPlayer alloc] init];
             [_ijkMediaPlayer setOptionValue:@"fcc-bgra"
-                                 forKey:@"overlay-format"
-                             ofCategory:kIJKFFOptionCategoryPlayer];
+                                     forKey:@"overlay-format"
+                                 ofCategory:kIJKFFOptionCategoryPlayer];
         } else {
             // _ijkMediaPlayer = [[IJKFFMediaPlayer alloc]initWithFbo];
         }
-        //if (debugLeak) {
+        // if (debugLeak) {
         //    [_ijkMediaPlayer setLoop:0];
         //    [_ijkMediaPlayer setSpeed:4.0];
         //}
@@ -90,12 +89,13 @@ static int renderType = 0;
                                 ofCategory:kIJKFFOptionCategoryPlayer];
 
         [IJKFFMoviePlayerController setLogLevel:k_IJK_LOG_VERBOSE];
-        
+
         [_ijkMediaPlayer addIJKMPEventHandler:self];
 
         _methodChannel = [FlutterMethodChannel
             methodChannelWithName:[@"befovy.com/fijkplayer/"
-                                   stringByAppendingString:[_playerId stringValue]]
+                                      stringByAppendingString:[_playerId
+                                                                  stringValue]]
                   binaryMessenger:[registrar messenger]];
 
         __block typeof(self) weakSelf = self;
@@ -149,7 +149,7 @@ static int renderType = 0;
     }
     [_methodChannel setMethodCallHandler:nil];
     _methodChannel = nil;
-    
+
     [_eventSink setDelegate:nil];
     _eventSink = nil;
     [_eventChannel setStreamHandler:nil];
@@ -180,7 +180,7 @@ static int renderType = 0;
         _lastBuffer = CVPixelBufferRetain(pixelbuffer);
         CFRetain(pixelbuffer);
     }
-    
+
     CVPixelBufferRef newBuffer = pixelbuffer;
 
     CVPixelBufferRef old = _latestPixelBuffer;

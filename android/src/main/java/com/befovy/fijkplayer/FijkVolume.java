@@ -4,7 +4,6 @@ import android.view.KeyEvent;
 
 public class FijkVolume {
 
-
     public interface VolumeKeyListener {
         boolean onVolumeKeyDown(int keyCode, KeyEvent event);
     }
