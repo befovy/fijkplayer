@@ -10,6 +10,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
   <tr>
     <td align="center"><a href="https://github.com/iperfectapp"><img src="https://avatars1.githubusercontent.com/u/3021764?v=4" width="100px;" alt="Newton"/><br /><sub><b>Newton</b></sub></a><br /><a href="#userTesting-iperfectapp" title="User Testing">📓</a></td>
     <td align="center"><a href="https://github.com/NewYorkFive"><img src="https://avatars3.githubusercontent.com/u/14890206?v=4" width="100px;" alt="DoubleL"/><br /><sub><b>DoubleL</b></sub></a><br /><a href="https://github.com/befovy/fijkplayer/commits?author=NewYorkFive" title="Documentation">📖</a> <a href="#translation-NewYorkFive" title="Translation">🌍</a></td>
+    <td align="center"><a href="https://github.com/zxj17815"><img src="https://avatars1.githubusercontent.com/u/32863654?v=4" width="100px;" alt="iceiceice"/><br /><sub><b>iceiceice</b></sub></a><br /><a href="https://github.com/befovy/fijkplayer/issues?q=author%3Azxj17815" title="Bug reports">🐛</a></td>
   </tr>
 </table>
 
