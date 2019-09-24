@@ -84,6 +84,7 @@ static int renderType = 0;
         //    [_ijkMediaPlayer setSpeed:4.0];
         //}
 
+        [_ijkMediaPlayer setOptionIntValue:0 forKey:@"start-on-prepared" ofCategory:kIJKFFOptionCategoryPlayer];
         [_ijkMediaPlayer setOptionIntValue:1
                                     forKey:@"videotoolbox"
                                 ofCategory:kIJKFFOptionCategoryPlayer];

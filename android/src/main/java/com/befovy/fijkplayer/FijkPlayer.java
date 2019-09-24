@@ -72,6 +72,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
         mState = 0;
         mIjkMediaPlayer = new IjkMediaPlayer();
         mIjkMediaPlayer.addIjkEventListener(this);
+        mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "start-on-prepared", 0);
 
         mContext = registrar.context();
         IjkMediaPlayer.native_setLogLevel(IjkMediaPlayer.IJK_LOG_INFO);
