@@ -15,6 +15,7 @@ Flutter plugin for ijkplayer
   s.source_files = 'Classes/**/*'
   s.public_header_files = 'Classes/**/*.h'
 
+  s.static_framework = true
 
   # @ uncomment next 3 lines to debug FIJKPlayer
   # s.preserve_paths = 'Frameworks/*.framework'
@@ -25,7 +26,7 @@ Flutter plugin for ijkplayer
   s.dependency 'Flutter'
 
   # s.use_frameworks!
-  s.dependency 'FIJKPlayer', '~> 0.3.7'
+  s.dependency 'FIJKPlayer', '~> 0.3.8'
 
   s.ios.deployment_target = '8.0'
 end

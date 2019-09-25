@@ -115,6 +115,8 @@ void main() {
           FijkPlayerTester tester = playerTesters.remove(pid);
           tester?.release();
           return null;
+        case 'logLevel':
+          return null;
         default:
           return null;
       }
@@ -311,6 +313,50 @@ void main() {
       expect(FijkPlayer.all.length, 1);
       await player2.release();
       expect(FijkPlayer.all.length, 0);
+    });
+
+    test("seekTo", () async {
+      FijkPlayer player = FijkPlayer();
+
+      expect(() async {
+        await player.seekTo(null);
+      }, throwsArgumentError);
+
+      expect(() async {
+        await player.seekTo(10);
+      }, throwsStateError);
+
+      bool argError = false;
+      await player.seekTo(null).catchError((e) {
+        argError = true;
+      }, test: (e) {
+        return e is ArgumentError;
+      });
+
+      expect(argError, true);
+      bool stateError = false;
+      await player.seekTo(10).catchError((e) {
+        stateError = true;
+      }, test: (e) {
+        return e is StateError;
+      });
+      expect(stateError, true);
+    });
+
+    test("start", () async {
+      FijkPlayer player = FijkPlayer();
+
+      expect(() async {
+        await player.start();
+      }, throwsStateError);
+
+      bool stateError = false;
+      await player.start().catchError((e) {
+        stateError = true;
+      }, test: (e) {
+        return e is StateError;
+      });
+      expect(stateError, true);
     });
   });
 }

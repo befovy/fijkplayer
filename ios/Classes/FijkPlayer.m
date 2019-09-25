@@ -6,15 +6,21 @@
 //
 
 #import "FijkPlayer.h"
-
+#import "FijkPlugin.h"
 #import "FijkQueuingEventSink.h"
 
-#import <FIJKPlayer/IJKFFMediaPlayer.h>
-#import <FIJKPlayer/IJKFFMoviePlayerController.h>
+#import <IJKPlayer/IJKPlayer.h>
 #import <Flutter/Flutter.h>
 #import <Foundation/Foundation.h>
-#import <stdatomic.h>
 #import <libkern/OSAtomic.h>
+#import <stdatomic.h>
+
+@interface FijkPlugin ()
+
+- (void)onPlayingChange:(int)delta;
+- (void)onPlayableChange:(int)delta;
+
+@end
 
 static atomic_int atomicId = 0;
 
@@ -27,10 +33,9 @@ static atomic_int atomicId = 0;
 
     id<FlutterPluginRegistrar> _registrar;
     id<FlutterTextureRegistry> _textureRegistry;
-    //CVPixelBufferRef _cachePixelBufer;
-    //CVPixelBufferRef _Atomic _pixelBuffer;
 
     CVPixelBufferRef volatile _latestPixelBuffer;
+    CVPixelBufferRef _lastBuffer;
 
     int _state;
     int _pid;
@@ -48,6 +53,10 @@ static const int stopped = 7;
 static const int __attribute__((unused)) error = 8;
 static const int end = 9;
 
+static int renderType = 0;
+
+// static int debugLeak = 0;
+
 - (instancetype)initWithRegistrar:(id<FlutterPluginRegistrar>)registrar {
     self = [super init];
     if (self) {
@@ -56,22 +65,33 @@ static const int end = 9;
         _playerId = @(pid);
         _pid = pid;
         _eventSink = [[FijkQueuingEventSink alloc] init];
-        _ijkMediaPlayer = [[IJKFFMediaPlayer alloc] init];
-        //_cachePixelBufer = nil;
-        //_pixelBuffer = nil;
         _latestPixelBuffer = nil;
         _vid = -1;
         _state = 0;
 
-        [_ijkMediaPlayer addIJKMPEventHandler:self];
+        _lastBuffer = nil;
+        if (renderType == 0) {
+            _ijkMediaPlayer = [[IJKFFMediaPlayer alloc] init];
+            [_ijkMediaPlayer setOptionValue:@"fcc-bgra"
+                                     forKey:@"overlay-format"
+                                 ofCategory:kIJKFFOptionCategoryPlayer];
+        } else {
+            // _ijkMediaPlayer = [[IJKFFMediaPlayer alloc]initWithFbo];
+        }
+        // if (debugLeak) {
+        //    [_ijkMediaPlayer setLoop:0];
+        //    [_ijkMediaPlayer setSpeed:4.0];
+        //}
 
+        [_ijkMediaPlayer setOptionIntValue:0 forKey:@"start-on-prepared" ofCategory:kIJKFFOptionCategoryPlayer];
         [_ijkMediaPlayer setOptionIntValue:1
                                     forKey:@"videotoolbox"
                                 ofCategory:kIJKFFOptionCategoryPlayer];
-        [_ijkMediaPlayer setOptionValue:@"fcc-bgra"
-                                 forKey:@"overlay-format"
-                             ofCategory:kIJKFFOptionCategoryPlayer];
-        [IJKFFMoviePlayerController setLogLevel:k_IJK_LOG_INFO];
+
+        [IJKFFMoviePlayerController setLogLevel:k_IJK_LOG_VERBOSE];
+
+        [_ijkMediaPlayer addIJKMPEventHandler:self];
+
         _methodChannel = [FlutterMethodChannel
             methodChannelWithName:[@"befovy.com/fijkplayer/"
                                       stringByAppendingString:[_playerId
@@ -115,19 +135,25 @@ static const int end = 9;
     }
 
     CVPixelBufferRef old = _latestPixelBuffer;
-    while (!OSAtomicCompareAndSwapPtrBarrier(old, nil, (void **)&_latestPixelBuffer)) {
+    while (!OSAtomicCompareAndSwapPtrBarrier(old, nil,
+                                             (void **)&_latestPixelBuffer)) {
         old = _latestPixelBuffer;
     }
     if (old) {
-        CVPixelBufferRelease(old);
+        CFRelease(old);
     }
 
-    /*
-    if (_cachePixelBufer) {
-        CVPixelBufferRelease(_cachePixelBufer);
-        _cachePixelBufer = nil;
+    if (_lastBuffer) {
+        CVPixelBufferRelease(_lastBuffer);
+        _lastBuffer = nil;
     }
-     */
+    [_methodChannel setMethodCallHandler:nil];
+    _methodChannel = nil;
+
+    [_eventSink setDelegate:nil];
+    _eventSink = nil;
+    [_eventChannel setStreamHandler:nil];
+    _eventChannel = nil;
 }
 
 - (FlutterError *_Nullable)onCancelWithArguments:(id _Nullable)arguments {
@@ -142,49 +168,43 @@ static const int end = 9;
     return nil;
 }
 
+// IJKCVPBViewProtocol delegate
+// IJKFFMediaPlayer will incoke this method whem new frame should be displayed
 - (void)display_pixelbuffer:(CVPixelBufferRef)pixelbuffer {
 
-    CVPixelBufferRef newBuffer = CVPixelBufferRetain(pixelbuffer);
+    if (_lastBuffer == nil) {
+        _lastBuffer = CVPixelBufferRetain(pixelbuffer);
+        CFRetain(pixelbuffer);
+    } else if (_lastBuffer != pixelbuffer) {
+        CVPixelBufferRelease(_lastBuffer);
+        _lastBuffer = CVPixelBufferRetain(pixelbuffer);
+        CFRetain(pixelbuffer);
+    }
+
+    CVPixelBufferRef newBuffer = pixelbuffer;
 
     CVPixelBufferRef old = _latestPixelBuffer;
-    while (!OSAtomicCompareAndSwapPtrBarrier(old, newBuffer, (void **)&_latestPixelBuffer)) {
+    while (!OSAtomicCompareAndSwapPtrBarrier(old, newBuffer,
+                                             (void **)&_latestPixelBuffer)) {
         old = _latestPixelBuffer;
     }
 
-    if (old) {
-        CVPixelBufferRelease(old);
+    if (old && old != pixelbuffer) {
+        CFRelease(old);
     }
-    /*
-    if (_cachePixelBufer != nil)
-        CVPixelBufferRelease(_cachePixelBufer);
-
-    if (pixelbuffer != nil) {
-        _cachePixelBufer = CVPixelBufferRetain(pixelbuffer);
-        //_cachePixelBufer = pixelbuffer;
-    }
-    atomic_exchange(&_pixelBuffer, _cachePixelBufer);
-    */
     if (_vid >= 0) {
         [_textureRegistry textureFrameAvailable:_vid];
     }
 }
 
+// After textureFrameAvailable has been called
+// Flutter engine call this to get new CVPixelBufferRef to render
 - (CVPixelBufferRef _Nullable)copyPixelBuffer {
     CVPixelBufferRef pixelBuffer = _latestPixelBuffer;
-    while (!OSAtomicCompareAndSwapPtrBarrier(pixelBuffer, nil, (void **)&_latestPixelBuffer)) {
+    while (!OSAtomicCompareAndSwapPtrBarrier(pixelBuffer, nil,
+                                             (void **)&_latestPixelBuffer)) {
         pixelBuffer = _latestPixelBuffer;
     }
-    /*
-    CVPixelBufferRef pixelBuffer = atomic_exchange(&_pixelBuffer, nil);
-    CVPixelBufferRef copyoutBuffer = NULL;
-    if (pixelBuffer) {
-        CVPixelBufferRetain(pixelBuffer);
-        copyoutBuffer = pixelBuffer;
-        while (!OSAtomicCompareAndSwapPtrBarrier(copyoutBuffer, pixelBuffer, (void **)&pixelBuffer)) {
-            copyoutBuffer = pixelBuffer;
-        }
-    }
-     */
     return pixelBuffer;
 }
 
@@ -196,6 +216,28 @@ static const int end = 9;
         [_ijkMediaPlayer setupCVPixelBufferView:self];
     }
     return [NSNumber numberWithLongLong:_vid];
+}
+
+- (BOOL)isPlayable:(int)state {
+    return state == started || state == paused || state == completed ||
+           state == prepared;
+}
+
+- (void)onStateChangedWithNew:(int)newState andOld:(int)oldState {
+    FijkPlugin *plugin = [FijkPlugin singleInstance];
+    if (plugin == nil)
+        return;
+    if (newState == started && oldState != started) {
+        [plugin onPlayingChange:1];
+    } else if (newState != started && oldState == started) {
+        [plugin onPlayingChange:-1];
+    }
+
+    if ([self isPlayable:newState] && ![self isPlayable:oldState]) {
+        [plugin onPlayableChange:1];
+    } else if (![self isPlayable:newState] && [self isPlayable:oldState]) {
+        [plugin onPlayableChange:-1];
+    }
 }
 
 - (void)handleEvent:(int)what
@@ -216,6 +258,7 @@ static const int end = 9;
             @"new" : @(arg1),
             @"old" : @(arg2),
         }];
+        [self onStateChangedWithNew:arg1 andOld:arg2];
         break;
     case IJKMPET_VIDEO_RENDERING_START:
     case IJKMPET_AUDIO_RENDERING_START:
@@ -327,7 +370,9 @@ static const int end = 9;
         result(nil);
     } else if ([@"setDateSource" isEqualToString:call.method]) {
         NSString *url = argsMap[@"url"];
-        NSURL *aUrl = [NSURL URLWithString:url];
+        NSURL *aUrl =
+            [NSURL URLWithString:[url stringByAddingPercentEscapesUsingEncoding:
+                                          NSUTF8StringEncoding]];
         bool file404 = false;
         if ([@"asset" isEqualToString:aUrl.scheme]) {
             NSString *host = aUrl.host;

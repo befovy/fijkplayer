@@ -12,7 +12,7 @@ A Flutter media player plugin for iOS and android based on [ijkplayer](https://g
 
 ## Documentation
 
-* Development Documentation https://fijkplayer.befovy.com/docs/en/ quick start、guide、and concept about fijkplayer 
+* Development Documentation https://fijkplayer.befovy.com/docs/en/ quick start、guide、and concepts about fijkplayer 
 * dart api https://pub.dev/documentation/fijkplayer/ detail API and argument explaination
 * Release Notes https://github.com/befovy/fijkplayer/releases and [CHANGELOG.md](./CHANGELOG.md)
 
@@ -22,7 +22,7 @@ Add `fijkplayer` as a [dependency in your pubspec.yaml file](https://flutter.io/
 
 ```yaml
 dependencies:
-  fijkplayer: ^0.1.3
+  fijkplayer: ^0.1.5
 ```
 
 Use git branch which not published to pub.
@@ -93,3 +93,7 @@ This project follows the [all-contributors](https://github.com/all-contributors/
 
 Warning: The fijkplayer video player plugin is not functional on iOS simulators. An iOS device must be used during development/testing. For more details, please refer to this [issue](https://github.com/flutter/flutter/issues/14647).
 
+
+## Next Plan
+
+See the development plan of next version v0.2.0 in https://github.com/befovy/fijkplayer/projects/2

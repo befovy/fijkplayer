@@ -1,15 +1,28 @@
 ##  next
 --------------------------------
+
+## 0.1.5
+--------------------------------
+- ios: fix NSUrl parse error
+- fijkplayer: add FijkLog with levels
+- docs: english translation
+- fijkplayer: new feature fijkvolume, system volume API
+- ijkplayer: set default option `start-on-prepated` to 0
+- iOS: fix CocoaPods use_frameworks! error
+
 ## 0.1.3
+--------------------------------
 - ffmpeg: enable concat and crypto protocol
 - fijkplayer: add static method all() to get all fijkplayer instance
 - fix: issue #31, pixelbuffer crash on iOS
 
 ## 0.1.2
+--------------------------------
 - fijkvalue: add video / audio render started
 - fijkplayer: remove setIntOption API, use setOption instead
 
 ## 0.1.1
+--------------------------------
 - fix fijkpanel slider value out of range
 - android: add androidx support
 
