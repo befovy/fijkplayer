@@ -1,6 +1,14 @@
 ##  next
 --------------------------------
-- add FijkLog class and FijkLogLevel
+
+## 0.1.5
+--------------------------------
+- ios: fix NSUrl parse error
+- fijkplayer: add FijkLog with levels
+- docs: english translation
+- fijkplayer: new feature fijkvolume, system volume API
+- ijkplayer: set default option `start-on-prepated` to 0
+- iOS: fix CocoaPods use_frameworks! error
 
 ## 0.1.3
 --------------------------------
