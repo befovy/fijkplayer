@@ -4,7 +4,7 @@
 #import "FijkQueuingEventSink.h"
 
 #import <AVKit/AVKit.h>
-#import <FIJKPlayer/IJKFFMoviePlayerController.h>
+#import <IJKPlayer/IJKPlayer.h>
 #import <Flutter/Flutter.h>
 #import <MediaPlayer/MediaPlayer.h>
 

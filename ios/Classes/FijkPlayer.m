@@ -9,8 +9,7 @@
 #import "FijkPlugin.h"
 #import "FijkQueuingEventSink.h"
 
-#import <FIJKPlayer/IJKFFMediaPlayer.h>
-#import <FIJKPlayer/IJKFFMoviePlayerController.h>
+#import <IJKPlayer/IJKPlayer.h>
 #import <Flutter/Flutter.h>
 #import <Foundation/Foundation.h>
 #import <libkern/OSAtomic.h>

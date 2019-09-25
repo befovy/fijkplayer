@@ -5,8 +5,7 @@
 //  Created by Befovy on 2019/6/21.
 //
 
-#import <FIJKPlayer/IJKFFMediaPlayer.h>
-#import <FIJKPlayer/IJKSDLGLViewProtocol.h>
+#import <IJKPlayer/IJKPlayer.h>
 #import <Foundation/Foundation.h>
 
 #import <Flutter/FlutterPlugin.h>
