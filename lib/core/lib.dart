@@ -19,9 +19,30 @@
 //LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
-//
 
-library fijkplayer;
+library core;
 
-export 'core/lib.dart';
-export 'ui/lib.dart';
+import 'dart:async';
+import 'dart:collection';
+import 'dart:core';
+import 'dart:io';
+import 'dart:math';
+import 'dart:ui';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+
+// just import the necessary default ui from library ui.
+import '../ui/lib.dart' show defaultFijkPanelBuilder;
+
+part 'fijklog.dart';
+part 'fijkoption.dart';
+part 'fijkplayer.dart';
+part 'fijkplugin.dart';
+part 'fijkvalue.dart';
+part 'fijkview.dart';
+part 'fijkvol.dart';

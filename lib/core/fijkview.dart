@@ -22,7 +22,7 @@
 //SOFTWARE.
 //
 
-part of fijkplayer;
+part of core;
 
 /// The signature of the [LayoutBuilder] builder function.
 ///

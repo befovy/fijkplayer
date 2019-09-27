@@ -13,7 +13,7 @@ PODS:
 
 DEPENDENCIES:
   - fijkplayer (from `.symlinks/plugins/fijkplayer/ios`)
-  - Flutter (from `.symlinks/flutter/ios-release`)
+  - Flutter (from `.symlinks/flutter/ios`)
   - path_provider (from `.symlinks/plugins/path_provider/ios`)
   - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
   - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
@@ -26,7 +26,7 @@ EXTERNAL SOURCES:
   fijkplayer:
     :path: ".symlinks/plugins/fijkplayer/ios"
   Flutter:
-    :path: ".symlinks/flutter/ios-release"
+    :path: ".symlinks/flutter/ios"
   path_provider:
     :path: ".symlinks/plugins/path_provider/ios"
   permission_handler:
