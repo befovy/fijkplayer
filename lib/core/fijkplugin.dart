@@ -65,8 +65,8 @@ class FijkPlugin {
   static StreamSubscription _eventSubs;
 
   static void _onLoad(String type) {
-    FijkLog.i("_onLoad $type");
     if (_eventSubs == null) {
+      FijkLog.i("_onLoad $type");
       _eventSubs = EventChannel("befovy.com/fijk/event")
           .receiveBroadcastStream()
           .listen(FijkPlugin._eventListener,

@@ -34,3 +34,4 @@ import 'package:flutter/widgets.dart';
 import '../core/lib.dart';
 
 part 'panel.dart';
+part 'volume.dart';

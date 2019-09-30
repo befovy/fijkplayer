@@ -38,6 +38,7 @@ import 'package:flutter/widgets.dart';
 
 // just import the necessary default ui from library ui.
 import '../ui/lib.dart' show defaultFijkPanelBuilder;
+import '../ui/lib.dart' show defaultFijkVolumeToast;
 
 part 'fijklog.dart';
 part 'fijkoption.dart';
