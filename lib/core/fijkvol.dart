@@ -84,6 +84,8 @@ class FijkVolume {
   static _VolumeValueNotifier _notifer =
       _VolumeValueNotifier(FijkVolumeVal(vol: 0, sui: false, type: 0));
 
+  static const double _defaultStep = 1.0 / 16.0;
+
   /// Mute system volume
   /// return system volume after mute
   static Future<double> mute() {
@@ -104,14 +106,16 @@ class FijkVolume {
 
   /// increase system volume by step
   /// return the system volume value after increase
-  static Future<double> up() {
-    return FijkPlugin._channel.invokeMethod("volumeUp");
+  static Future<double> up({double step = _defaultStep}) {
+    return FijkPlugin._channel
+        .invokeMethod("volumeUp", <String, dynamic>{'step': step});
   }
 
   /// decrease system volume by step
   /// return the system volume value after decrease
-  static Future<double> down() {
-    return FijkPlugin._channel.invokeMethod("volumeDown");
+  static Future<double> down({double step = _defaultStep}) {
+    return FijkPlugin._channel
+        .invokeMethod("volumeDown", <String, dynamic>{'step': step});
   }
 
   /// update the ui mode when system volume changed
