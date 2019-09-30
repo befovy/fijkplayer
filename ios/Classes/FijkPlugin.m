@@ -4,8 +4,8 @@
 #import "FijkQueuingEventSink.h"
 
 #import <AVKit/AVKit.h>
-#import <IJKPlayer/IJKPlayer.h>
 #import <Flutter/Flutter.h>
+#import <IJKPlayer/IJKPlayer.h>
 #import <MediaPlayer/MediaPlayer.h>
 
 typedef NS_ENUM(int, FijkVoUIMode) {
@@ -149,13 +149,17 @@ static FijkPlugin *_instance = nil;
         [UIViewController attemptRotationToDeviceOrientation];
         result(nil);
     } else if ([@"volumeUp" isEqualToString:call.method]) {
+        NSNumber *number = argsMap[@"step"];
+        float step = number == nil ? _volStep : [number floatValue];
         float vol = [self getSystemVolume];
-        vol += _volStep;
+        vol += step;
         vol = [self setSystemVolume:vol];
         result(@(vol));
     } else if ([@"volumeDown" isEqualToString:call.method]) {
+        NSNumber *number = argsMap[@"step"];
+        float step = number == nil ? _volStep : [number floatValue];
         float vol = [self getSystemVolume];
-        vol -= _volStep;
+        vol -= step;
         vol = [self setSystemVolume:vol];
         result(@(vol));
     } else if ([@"volumeMute" isEqualToString:call.method]) {

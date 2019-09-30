@@ -22,33 +22,41 @@
 
 part of core;
 
-// private class
+/// [vol] is the value of volume, and has been mapped into range [0.0, 1.0]
+/// true value of [sui] indicates that Android/iOS system volume changed UI is shown for this volume change event
+/// [type] shows track\stream type for this volume change, this value is always [FijkVolume.STREAM_MUSIC] in this version
 @immutable
-class _FijkVolChange {
+class FijkVolumeVal {
   final double vol;
-  final bool ui;
+  final bool sui;
   final int type;
 
-  _FijkVolChange({
+  const FijkVolumeVal({
     @required this.vol,
-    @required this.ui,
+    @required this.sui,
     @required this.type,
-  });
+  })  : assert(vol != null),
+        assert(sui != null),
+        assert(type != null);
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is _FijkVolChange &&
-          runtimeType == other.runtimeType &&
-          hashCode == other.hashCode;
+      (other is FijkVolumeVal &&
+          vol != 0.0 &&
+          vol != 1.0 &&
+          hashCode == other.hashCode);
 
   @override
-  int get hashCode => hashValues(vol, ui, type);
+  int get hashCode => hashValues(vol, sui, type);
+}
+
+class _VolumeValueNotifier extends ValueNotifier<FijkVolumeVal> {
+  _VolumeValueNotifier(FijkVolumeVal value) : super(value);
 }
 
 /// Fijk System Volume Manger
-class FijkVolume extends ChangeNotifier
-    implements ValueListenable<_FijkVolChange> {
+class FijkVolume {
   FijkVolume._();
 
   static const int STREAM_VOICE_CALL = 0;
@@ -73,21 +81,21 @@ class FijkVolume extends ChangeNotifier
 
   static FijkVolume _instance = FijkVolume._();
 
-  _FijkVolChange _value;
+  static _VolumeValueNotifier _notifer =
+      _VolumeValueNotifier(FijkVolumeVal(vol: 0, sui: false, type: 0));
 
-  @override
-  _FijkVolChange get value => _value;
+  static const double _defaultStep = 1.0 / 16.0;
 
   /// Mute system volume
   /// return system volume after mute
-  static Future<double> systemVolumeMute() {
+  static Future<double> mute() {
     return FijkPlugin._channel.invokeMethod("volumeMute");
   }
 
   /// set system volume to [vol]
   /// the range of [vol] is [0.0, 1,0]
   /// return the system volume value after set
-  static Future<double> systemVolumeSet(double vol) {
+  static Future<double> setVol(double vol) {
     if (vol == null) {
       return Future.error(ArgumentError.notNull("vol"));
     } else {
@@ -98,20 +106,22 @@ class FijkVolume extends ChangeNotifier
 
   /// increase system volume by step
   /// return the system volume value after increase
-  static Future<double> systemVolumeUp() {
-    return FijkPlugin._channel.invokeMethod("volumeUp");
+  static Future<double> up({double step = _defaultStep}) {
+    return FijkPlugin._channel
+        .invokeMethod("volumeUp", <String, dynamic>{'step': step});
   }
 
   /// decrease system volume by step
   /// return the system volume value after decrease
-  static Future<double> systemVolumeDown() {
-    return FijkPlugin._channel.invokeMethod("volumeDown");
+  static Future<double> down({double step = _defaultStep}) {
+    return FijkPlugin._channel
+        .invokeMethod("volumeDown", <String, dynamic>{'step': step});
   }
 
   /// update the ui mode when system volume changed
   /// mode can be one of
   /// {[hideUIWhenPlayable], [hideUIWhenPlaying], [neverShowUI], [alwaysShowUI]}
-  static Future<void> setSystemVolumeUIMode(int mode) {
+  static Future<void> setUIMode(int mode) {
     if (mode == null)
       return Future.error(ArgumentError.notNull("mode"));
     else
@@ -120,17 +130,28 @@ class FijkVolume extends ChangeNotifier
   }
 
   void _onVolCallback(double vol, bool ui) {
-    _value = _FijkVolChange(vol: vol, ui: ui, type: STREAM_MUSIC);
-    notifyListeners();
+    _notifer.value = FijkVolumeVal(vol: vol, sui: ui, type: STREAM_MUSIC);
   }
+
+  static void addListener(VoidCallback listener) {
+    FijkPlugin._onLoad("vol");
+    _notifer.addListener(listener);
+  }
+
+  static void removeListener(VoidCallback listener) {
+    _notifer.removeListener(listener);
+  }
+
+  static get value => _notifer.value;
 }
 
 /// Volume changed callback func.
 ///
+/// See [FijkVolumeVal]
 /// [vol] is the value of volume, and has been mapped into range [0.0, 1.0]
 /// true value of [ui] indicates that Android/iOS system volume changed UI is shown for this volume change event
 /// [streamType] shows track\stream type for this volume change, this value is always [FijkVolume.STREAM_MUSIC] in this version
-typedef FijkVolumeCallback = void Function(double vol, bool ui, int streamType);
+typedef FijkVolumeCallback = void Function(FijkVolumeVal value);
 
 /// stateful widget that watching system volume, no ui widget
 /// when system volume changed, [watcher] will be invoked.
@@ -164,17 +185,17 @@ class _FijkVolumeWatcherState extends State<FijkVolumeWatcher> {
   @override
   void initState() {
     super.initState();
-    FijkPlugin._onLoad("vol");
-    FijkVolume._instance.addListener(volChanged);
+    FijkVolume.addListener(volChanged);
+    FijkVolume.setUIMode(FijkVolume.hideUIWhenPlayable);
   }
 
   void volChanged() {
-    _FijkVolChange value = FijkVolume._instance.value;
+    FijkVolumeVal value = FijkVolume.value;
 
     if (widget.watcher != null) {
-      widget.watcher(value.vol, value.ui, value.type);
+      widget.watcher(value);
     }
-    if (widget.showToast && !value.ui) {
+    if (widget.showToast && !value.sui) {
       showVolToast(value.vol);
     }
   }
@@ -183,12 +204,12 @@ class _FijkVolumeWatcherState extends State<FijkVolumeWatcher> {
   void showVolToast(double vol) {
     bool active = _timer?.isActive;
     _timer?.cancel();
-    Widget widget = _FijkVolToast();
+    Widget widget = defaultFijkVolumeToast();
     if (active == null || active == false) {
       _entry = OverlayEntry(builder: (_) => widget);
       Overlay.of(context).insert(_entry);
     }
-    _timer = Timer(const Duration(milliseconds: 1500), () {
+    _timer = Timer(const Duration(milliseconds: 1000), () {
       _entry?.remove();
     });
   }
@@ -196,81 +217,11 @@ class _FijkVolumeWatcherState extends State<FijkVolumeWatcher> {
   @override
   void dispose() {
     super.dispose();
-    FijkVolume._instance.removeListener(volChanged);
+    FijkVolume.removeListener(volChanged);
   }
 
   @override
   Widget build(BuildContext context) {
     return widget.child;
-  }
-}
-
-class _FijkVolToast extends StatefulWidget {
-  @override
-  __FijkVolToastState createState() => __FijkVolToastState();
-}
-
-class __FijkVolToastState extends State<_FijkVolToast> {
-  double vol;
-
-  @override
-  void initState() {
-    super.initState();
-    vol = FijkVolume._instance.value.vol;
-    FijkVolume._instance.addListener(volChanged);
-  }
-
-  void volChanged() {
-    _FijkVolChange value = FijkVolume._instance.value;
-    setState(() {
-      vol = value.vol;
-    });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    FijkVolume._instance.removeListener(volChanged);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    IconData iconData = Icons.volume_up;
-
-    if (vol <= 0) {
-      iconData = Icons.volume_mute;
-    } else if (vol < 0.5) {
-      iconData = Icons.volume_down;
-    } else {
-      iconData = Icons.volume_up;
-    }
-
-    String v = (vol * 100).toStringAsFixed(0);
-    return Align(
-      alignment: Alignment(0, -0.6),
-      child: Container(
-          color: Color(0x44554444),
-          padding: EdgeInsets.all(5),
-          decoration: null,
-          width: 100,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Icon(
-                iconData,
-                color: Colors.white,
-                size: 30.0,
-              ),
-              Text(
-                v,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 20,
-                  decoration: null,
-                ),
-              )
-            ],
-          )),
-    );
   }
 }

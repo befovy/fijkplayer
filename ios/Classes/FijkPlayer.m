@@ -9,9 +9,9 @@
 #import "FijkPlugin.h"
 #import "FijkQueuingEventSink.h"
 
-#import <IJKPlayer/IJKPlayer.h>
 #import <Flutter/Flutter.h>
 #import <Foundation/Foundation.h>
+#import <IJKPlayer/IJKPlayer.h>
 #import <libkern/OSAtomic.h>
 #import <stdatomic.h>
 
@@ -83,7 +83,9 @@ static int renderType = 0;
         //    [_ijkMediaPlayer setSpeed:4.0];
         //}
 
-        [_ijkMediaPlayer setOptionIntValue:0 forKey:@"start-on-prepared" ofCategory:kIJKFFOptionCategoryPlayer];
+        [_ijkMediaPlayer setOptionIntValue:0
+                                    forKey:@"start-on-prepared"
+                                ofCategory:kIJKFFOptionCategoryPlayer];
         [_ijkMediaPlayer setOptionIntValue:1
                                     forKey:@"videotoolbox"
                                 ofCategory:kIJKFFOptionCategoryPlayer];
