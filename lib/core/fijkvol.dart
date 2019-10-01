@@ -22,8 +22,8 @@
 
 part of core;
 
-/// [vol] is the value of volume, and has been mapped into range [0.0, 1.0]
-/// true value of [sui] indicates that Android/iOS system volume changed UI is shown for this volume change event
+/// [vol] is the value of volume, and has been mapped into range [0.0, 1.0].  
+/// true value of [sui] indicates that Android/iOS system volume changed UI is shown for this volume change event.  
 /// [type] shows track\stream type for this volume change, this value is always [FijkVolume.STREAM_MUSIC] in this version
 @immutable
 class FijkVolumeEvent {
@@ -65,15 +65,15 @@ class FijkVolume {
   static const int STREAM_MUSIC = 3;
   static const int STREAM_ALARM = 4;
 
-  /// show system volume changed UI if no playable player
-  /// hide system volume changed UI if some players are in playable state
+  /// show system volume changed UI if no playable player.
+  /// hide system volume changed UI if some players are in playable state.
   static const int hideUIWhenPlayable = 0;
 
-  /// show system volume changed UI if no start state player
-  /// hide system volume changed UI if some players are in start state
+  /// show system volume changed UI if no start state player.
+  /// hide system volume changed UI if some players are in start state.
   static const int hideUIWhenPlaying = 1;
 
-  /// never show system volume changed UI
+  /// never show system volume changed UI.
   static const int neverShowUI = 2;
 
   /// always show system volume changed UI
@@ -86,15 +86,15 @@ class FijkVolume {
 
   static const double _defaultStep = 1.0 / 16.0;
 
-  /// Mute system volume
+  /// Mute system volume.
   /// return system volume after mute
   static Future<double> mute() {
     return FijkPlugin._channel.invokeMethod("volumeMute");
   }
 
-  /// set system volume to [vol]
-  /// the range of [vol] is [0.0, 1,0]
-  /// return the system volume value after set
+  /// set system volume to [vol].
+  /// the range of [vol] is [0.0, 1,0].
+  /// return the system volume value after set.
   static Future<double> setVol(double vol) {
     if (vol == null || vol < 0.0 || vol > 1.0) {
       return Future.error(ArgumentError.value(
@@ -105,9 +105,9 @@ class FijkVolume {
     }
   }
 
-  /// increase system volume by step, step must be in range [0.0, 1.0]
-  /// return the system volume value after increase
-  /// the return volume value may be not equals to the current volume + step
+  /// increase system volume by step, step must be in range [0.0, 1.0].
+  /// return the system volume value after increase.
+  /// the return volume value may be not equals to the current volume + step.
   static Future<double> up({double step = _defaultStep}) {
     if (step == null || step < 0.0 || step > 1.0) {
       return Future.error(ArgumentError.value(
@@ -118,9 +118,9 @@ class FijkVolume {
     }
   }
 
-  /// decrease system volume by step, step must be in range [0.0, 1.0]
-  /// return the system volume value after decrease
-  /// the return volume value may be not equals to the current volume - step
+  /// decrease system volume by step, step must be in range [0.0, 1.0].
+  /// return the system volume value after decrease.
+  /// the return volume value may be not equals to the current volume - step.
   static Future<double> down({double step = _defaultStep}) {
     if (step == null || step < 0.0 || step > 1.0) {
       return Future.error(ArgumentError.value(
@@ -131,7 +131,7 @@ class FijkVolume {
     }
   }
 
-  /// update the ui mode when system volume changed
+  /// update the ui mode when system volume changing.
   /// mode can be one of
   /// {[hideUIWhenPlayable], [hideUIWhenPlaying], [neverShowUI], [alwaysShowUI]}
   static Future<void> setUIMode(int mode) {
