@@ -20,7 +20,7 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
-part of fijkplayer;
+part of core;
 
 class FijkPlugin {
   static const MethodChannel _channel = const MethodChannel('befovy.com/fijk');
@@ -65,8 +65,8 @@ class FijkPlugin {
   static StreamSubscription _eventSubs;
 
   static void _onLoad(String type) {
-    FijkLog.i("_onLoad $type");
     if (_eventSubs == null) {
+      FijkLog.i("_onLoad $type");
       _eventSubs = EventChannel("befovy.com/fijk/event")
           .receiveBroadcastStream()
           .listen(FijkPlugin._eventListener,

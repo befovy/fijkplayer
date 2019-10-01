@@ -21,7 +21,17 @@
 //SOFTWARE.
 //
 
-library fijkplayer;
+library ui;
 
-export 'core/lib.dart';
-export 'ui/lib.dart';
+import 'dart:async';
+import 'dart:core';
+import 'dart:math';
+import 'dart:ui';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+
+import '../core/lib.dart';
+
+part 'panel.dart';
+part 'volume.dart';

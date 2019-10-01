@@ -1,5 +1,7 @@
 ##  next
 --------------------------------
+## 0.1.6
+- fijkplayer: update FijkVolume API, break change
 
 ## 0.1.5
 --------------------------------

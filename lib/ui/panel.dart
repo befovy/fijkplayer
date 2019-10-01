@@ -20,12 +20,7 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
-import 'package:flutter/widgets.dart';
-import 'package:flutter/material.dart';
-import 'dart:async';
-import 'dart:math';
-
-import '../fijkplayer.dart';
+part of ui;
 
 /// Default builder generate default [FijkPanel] UI
 Widget defaultFijkPanelBuilder(

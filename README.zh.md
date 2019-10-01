@@ -22,7 +22,7 @@
 
 ```yaml
 dependencies:
-  fijkplayer: ^0.1.5
+  fijkplayer: ^0.1.6
 ```
 
 使用未发布版本

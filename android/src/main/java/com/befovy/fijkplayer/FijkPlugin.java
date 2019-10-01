@@ -181,10 +181,18 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
                 result.success(null);
                 break;
             case "volumeDown":
-                result.success(volumeDown());
+                float stepDown = volStep;
+                if (call.hasArgument("step")) {
+                    stepDown = call.argument("step");
+                }
+                result.success(volumeDown(stepDown));
                 break;
             case "volumeUp":
-                result.success(volumeUp());
+                float stepUp = volStep;
+                if (call.hasArgument("step")) {
+                    stepUp = call.argument("step");
+                }
+                result.success(volumeUp(stepUp));
                 break;
             case "volumeMute":
                 result.success(volumeMute());
@@ -259,16 +267,16 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
         }
     }
 
-    public float volumeUp() {
+    public float volumeUp(float step) {
         float vol = systemVolume();
-        vol = vol + volStep;
+        vol = vol + step;
         vol = setSystemVolume(vol);
         return vol;
     }
 
-    public float volumeDown() {
+    public float volumeDown(float step) {
         float vol = systemVolume();
-        vol = vol - volStep;
+        vol = vol - step;
         vol = setSystemVolume(vol);
         return vol;
     }
