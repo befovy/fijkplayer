@@ -314,10 +314,10 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
     public boolean onVolumeKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_VOLUME_DOWN:
-                volumeDown();
+                volumeDown(volStep);
                 return true;
             case KeyEvent.KEYCODE_VOLUME_UP:
-                volumeUp();
+                volumeUp(volStep);
                 return true;
             case KeyEvent.KEYCODE_VOLUME_MUTE:
                 volumeMute();

@@ -22,8 +22,8 @@
 
 part of core;
 
-/// [vol] is the value of volume, and has been mapped into range [0.0, 1.0].  
-/// true value of [sui] indicates that Android/iOS system volume changed UI is shown for this volume change event.  
+/// [vol] is the value of volume, and has been mapped into range [0.0, 1.0].
+/// true value of [sui] indicates that Android/iOS system volume changed UI is shown for this volume change event.
 /// [type] shows track\stream type for this volume change, this value is always [FijkVolume.STREAM_MUSIC] in this version
 @immutable
 class FijkVolumeEvent {
