@@ -44,7 +44,7 @@ class __FijkVolToastState extends State<_FijkVolToast> {
   }
 
   void volChanged() {
-    FijkVolumeVal value = FijkVolume.value;
+    FijkVolumeEvent value = FijkVolume.value;
     setState(() {
       vol = value.vol;
     });
