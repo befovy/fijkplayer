@@ -22,7 +22,7 @@ Add `fijkplayer` as a [dependency in your pubspec.yaml file](https://flutter.io/
 
 ```yaml
 dependencies:
-  fijkplayer: ^0.1.6
+  fijkplayer: ^0.1.7
 ```
 
 Use git branch which not published to pub.
