@@ -285,10 +285,9 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
       _callId += 1;
       int cid = _callId;
       FijkLog.i("$this invoke prepareAsync and start #$cid");
+      await setOption(FijkOption.playerCategory, "start-on-prepared", 1);
       await _channel.invokeMethod("prepareAsync");
-      await _channel.invokeMethod("start").then((_) {
-        FijkLog.i("$this invoke prepareAsync and start #$cid -> done");
-      });
+      FijkLog.i("$this invoke prepareAsync and start #$cid -> done");
     } else if (state == FijkState.asyncPreparing ||
         state == FijkState.prepared ||
         state == FijkState.paused ||

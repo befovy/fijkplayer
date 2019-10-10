@@ -1,6 +1,12 @@
 ##  next
 --------------------------------
+## 0.1.7
+--------------------------------
+- fijkplayer: fix android volume double float cast error
+- fijkplayer: fix error pause state after seeking #65
+
 ## 0.1.6
+--------------------------------
 - fijkplayer: update FijkVolume API, break change
 
 ## 0.1.5
