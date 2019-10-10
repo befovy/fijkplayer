@@ -16,7 +16,8 @@
       "avatar_url": "https://avatars1.githubusercontent.com/u/3021764?v=4",
       "profile": "https://github.com/iperfectapp",
       "contributions": [
-        "userTesting"
+        "userTesting",
+        "bug"
       ]
     },
     {
@@ -45,6 +46,15 @@
       "profile": "https://github.com/yujieliang",
       "contributions": [
         "question"
+      ]
+    },
+    {
+      "login": "songguowei",
+      "name": "songguowei",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/50864191?v=4",
+      "profile": "https://github.com/songguowei",
+      "contributions": [
+        "bug"
       ]
     }
   ],
