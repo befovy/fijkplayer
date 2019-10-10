@@ -47,6 +47,15 @@
       "contributions": [
         "question"
       ]
+    },
+    {
+      "login": "songguowei",
+      "name": "songguowei",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/50864191?v=4",
+      "profile": "https://github.com/songguowei",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7
