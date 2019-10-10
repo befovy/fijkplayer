@@ -70,7 +70,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.1.6"
+    version: "0.1.7"
   file:
     dependency: transitive
     description:
