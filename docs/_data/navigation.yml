@@ -59,8 +59,10 @@ docs-zh:
         url:   /docs/zh/custom-ui.html
       - title: 错误和异常
         url:   /docs/zh/error-exception.html
-  # - title: 高级进阶
-  #   children:
+  - title: 高级进阶
+    children:
+      - title: 替换 ijkplayer
+        url:   /docs/zh/replace-ijkplayer.html
   #     - title: 播放器选项
   #     - title: 音频中断处理
   #     - title: 响应 App 生命周期
