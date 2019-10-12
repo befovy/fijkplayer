@@ -1,5 +1,9 @@
 ##  next
 --------------------------------
+## 0.1.8
+--------------------------------
+- FijkView: add fsFit argument, controls full screen FijkFit mode
+
 ## 0.1.7
 --------------------------------
 - fijkplayer: fix android volume double float cast error
