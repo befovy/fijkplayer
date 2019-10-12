@@ -120,6 +120,7 @@ class FijkView extends StatefulWidget {
     this.width,
     this.height,
     this.fit = FijkFit.contain,
+    this.fsFit = FijkFit.contain,
     this.panelBuilder = defaultFijkPanelBuilder,
     this.color = const Color(0xFF607D8B),
   }) : assert(player != null);
@@ -136,6 +137,9 @@ class FijkView extends StatefulWidget {
 
   /// How a video should be inscribed into this [FijkView].
   final FijkFit fit;
+
+  /// How a video should be inscribed into this [FijkView] at fullScreen mode.
+  final FijkFit fsFit;
 
   /// Nullable, width of [FijkView]
   /// If null, the weight will be as big as possible.
@@ -205,8 +209,7 @@ class _FijkViewState extends State<FijkView> {
     widget.player.removeListener(_fijkValueListener);
   }
 
-  double getAspectRatio(BoxConstraints constraints) {
-    double ar = widget.fit.aspectRatio;
+  double getAspectRatio(BoxConstraints constraints, double ar) {
     if (ar == null || ar < 0) {
       ar = _vWidth / _vHeight;
     } else if (ar.isInfinite) {
@@ -223,12 +226,9 @@ class _FijkViewState extends State<FijkView> {
         return Scaffold(
             resizeToAvoidBottomInset: false,
             body: LayoutBuilder(builder: (ctx, constraints) {
-              final Size childSize =
-                  applyAspectRatio(constraints, _vWidth / _vHeight);
-              // get offset
-              final Offset diff = constraints.biggest - childSize;
-              final Offset offset = Alignment.center.alongOffset(diff);
-
+              final Size childSize = getTxSize(constraints, widget.fsFit);
+              final Offset offset =
+                  getTxOffset(constraints, childSize, widget.fsFit);
               final Rect pos = Rect.fromLTWH(
                   offset.dx, offset.dy, childSize.width, childSize.height);
               List ws = <Widget>[
@@ -317,6 +317,32 @@ class _FijkViewState extends State<FijkView> {
     return constraints.constrain(Size(width, height));
   }
 
+  /// calculate Texture size
+  Size getTxSize(BoxConstraints constraints, FijkFit fit) {
+    Size childSize = applyAspectRatio(
+        constraints, getAspectRatio(constraints, fit.aspectRatio));
+    double sizeFactor = widget.fit.sizeFactor;
+    if (-1.0 < sizeFactor && sizeFactor < -0.0) {
+      sizeFactor = max(constraints.maxWidth / childSize.width,
+          constraints.maxHeight / childSize.height);
+    } else if (-2.0 < sizeFactor && sizeFactor < -1.0) {
+      sizeFactor = constraints.maxWidth / childSize.width;
+    } else if (-3.0 < sizeFactor && sizeFactor < -2.0) {
+      sizeFactor = constraints.maxHeight / childSize.height;
+    } else if (sizeFactor < 0) {
+      sizeFactor = 1.0;
+    }
+    childSize = childSize * sizeFactor;
+    return childSize;
+  }
+
+  /// calculate Texture offset
+  Offset getTxOffset(BoxConstraints constraints, Size childSize, FijkFit fit) {
+    final Alignment resolvedAlignment = fit.alignment;
+    final Offset diff = constraints.biggest - childSize;
+    return resolvedAlignment.alongOffset(diff);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -324,24 +350,8 @@ class _FijkViewState extends State<FijkView> {
       height: widget.height,
       child: LayoutBuilder(builder: (ctx, constraints) {
         // get child size
-        Size childSize =
-            applyAspectRatio(constraints, getAspectRatio(constraints));
-        double sizeFactor = widget.fit.sizeFactor;
-        if (-1.0 < sizeFactor && sizeFactor < -0.0) {
-          sizeFactor = max(constraints.maxWidth / childSize.width,
-              constraints.maxHeight / childSize.height);
-        } else if (-2.0 < sizeFactor && sizeFactor < -1.0) {
-          sizeFactor = constraints.maxWidth / childSize.width;
-        } else if (-3.0 < sizeFactor && sizeFactor < -2.0) {
-          sizeFactor = constraints.maxHeight / childSize.height;
-        } else if (sizeFactor < 0) {
-          sizeFactor = 1.0;
-        }
-        childSize = childSize * sizeFactor;
-        final Alignment resolvedAlignment = widget.fit.alignment;
-        final Offset diff = constraints.biggest - childSize;
-        final Offset offset = resolvedAlignment.alongOffset(diff);
-
+        final Size childSize = getTxSize(constraints, widget.fit);
+        final Offset offset = getTxOffset(constraints, childSize, widget.fit);
         final Rect pos = Rect.fromLTWH(
             offset.dx, offset.dy, childSize.width, childSize.height);
 
