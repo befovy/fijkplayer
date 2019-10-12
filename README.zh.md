@@ -2,6 +2,9 @@
 
 ### [English Language](README.en.md)
 
+**[程序员帮老丈人卖石榴](https://www.yuque.com/befovy/share/pomegranate)**
+
+
 [![pub package](https://img.shields.io/pub/v/fijkplayer.svg)](https://pub.dartlang.org/packages/fijkplayer) &nbsp; &nbsp;
 [![Build Status](https://travis-ci.org/befovy/fijkplayer.svg?branch=master)](https://travis-ci.org/befovy/fijkplayer) &nbsp; &nbsp;
 
