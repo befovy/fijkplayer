@@ -159,6 +159,8 @@ class _FijkViewState extends State<FijkView> {
   double _vHeight = -1;
   bool _fullScreen = false;
 
+  ValueNotifier<int> paramNotifier = ValueNotifier(0);
+
   @override
   void initState() {
     super.initState();
@@ -168,32 +170,15 @@ class _FijkViewState extends State<FijkView> {
 
   Future<void> _nativeSetup() async {
     final int vid = await widget.player.setupSurface();
-    debugPrint("view setup, vid:" + vid.toString());
+    FijkLog.i("view setup, vid:" + vid.toString());
     setState(() {
       _textureId = vid;
     });
+    paramNotifier.value = paramNotifier.value + 1;
   }
 
   void _fijkValueListener() async {
     FijkValue value = widget.player.value;
-
-    double width = _vWidth;
-    double height = _vHeight;
-
-    Size s = value.size;
-    if (value.size != null && value.prepared) {
-      debugPrint("prepared size: $s");
-      width = value.size.width;
-      height = value.size.height;
-    }
-
-    if (width != _vWidth || height != _vHeight) {
-      setState(() {
-        _vWidth = width;
-        _vHeight = height;
-      });
-    }
-
     if (value.fullScreen && !_fullScreen) {
       _fullScreen = true;
       await _pushFullScreenWidget(context);
@@ -209,47 +194,15 @@ class _FijkViewState extends State<FijkView> {
     widget.player.removeListener(_fijkValueListener);
   }
 
-  double getAspectRatio(BoxConstraints constraints, double ar) {
-    if (ar == null || ar < 0) {
-      ar = _vWidth / _vHeight;
-    } else if (ar.isInfinite) {
-      ar = constraints.maxWidth / constraints.maxHeight;
-    }
-    return ar;
-  }
-
   AnimatedWidget _defaultRoutePageBuilder(
       BuildContext context, Animation<double> animation) {
     return AnimatedBuilder(
       animation: animation,
       builder: (BuildContext context, Widget child) {
         return Scaffold(
-            resizeToAvoidBottomInset: false,
-            body: LayoutBuilder(builder: (ctx, constraints) {
-              final Size childSize = getTxSize(constraints, widget.fsFit);
-              final Offset offset =
-                  getTxOffset(constraints, childSize, widget.fsFit);
-              final Rect pos = Rect.fromLTWH(
-                  offset.dx, offset.dy, childSize.width, childSize.height);
-              List ws = <Widget>[
-                Container(
-                  width: constraints.maxWidth,
-                  height: constraints.maxHeight,
-                  color: Color(0xFF000000),
-                ),
-                Positioned.fromRect(
-                  rect: pos,
-                  child: buildTexture(),
-                ),
-              ];
-              if (widget.panelBuilder != null) {
-                ws.add(widget.panelBuilder(
-                    widget.player, ctx, constraints.biggest, pos));
-              }
-              return Stack(
-                children: ws,
-              );
-            }));
+          resizeToAvoidBottomInset: false,
+          body: _InnerFijkView(fijkViewState: this, fullScreen: true),
+        );
       },
     );
   }
@@ -267,6 +220,7 @@ class _FijkViewState extends State<FijkView> {
 
     await SystemChrome.setEnabledSystemUIOverlays([]);
     await FijkPlugin.setOrientationLandscape();
+
     await Navigator.of(context).push(route);
     _fullScreen = false;
     widget.player.exitFullScreen();
@@ -275,8 +229,90 @@ class _FijkViewState extends State<FijkView> {
     await FijkPlugin.setOrientationPortrait();
   }
 
-  Widget buildTexture() {
-    return _textureId > 0 ? Texture(textureId: _textureId) : Container();
+  @override
+  void didUpdateWidget(Widget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    paramNotifier.value = paramNotifier.value + 1;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: widget.width,
+      height: widget.height,
+      child: _fullScreen
+          ? Container()
+          : _InnerFijkView(fijkViewState: this, fullScreen: false),
+    );
+  }
+}
+
+class _InnerFijkView extends StatefulWidget {
+  _InnerFijkView({@required this.fijkViewState, @required this.fullScreen})
+      : assert(fijkViewState != null);
+
+  final _FijkViewState fijkViewState;
+  final bool fullScreen;
+
+  @override
+  __InnerFijkViewState createState() => __InnerFijkViewState();
+}
+
+class __InnerFijkViewState extends State<_InnerFijkView> {
+  FijkPlayer _player;
+  FijkPanelWidgetBuilder _panelBuilder;
+  Color _color;
+  FijkFit _fit;
+  int _textureId;
+  double _vWidth = -1;
+  double _vHeight = -1;
+  bool _vFullScreen = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _player = fView.player;
+    _fijkValueListener();
+    fView.player.addListener(_fijkValueListener);
+    if (widget.fullScreen) {
+      widget.fijkViewState.paramNotifier.addListener(_voidValueListener);
+    }
+  }
+
+  FijkView get fView => widget.fijkViewState.widget;
+
+  void _voidValueListener() {
+    WidgetsBinding.instance.addPostFrameCallback((_) => _fijkValueListener());
+  }
+
+  void _fijkValueListener() {
+    if (!mounted) return;
+
+    FijkPanelWidgetBuilder panelBuilder = fView.panelBuilder;
+    Color color = fView.color;
+    FijkFit fit = widget.fullScreen ? fView.fsFit : fView.fit;
+    int textureId = widget.fijkViewState._textureId;
+
+    FijkValue value = _player.value;
+
+    double width = _vWidth;
+    double height = _vHeight;
+    bool fullScreen = value.fullScreen;
+
+    if (value.size != null && value.prepared) {
+      width = value.size.width;
+      height = value.size.height;
+    }
+
+    if (width != _vWidth ||
+        height != _vHeight ||
+        fullScreen != _vFullScreen ||
+        panelBuilder != _panelBuilder ||
+        color != _color ||
+        fit != _fit ||
+        textureId != _textureId) {
+      setState(() {});
+    }
   }
 
   Size applyAspectRatio(BoxConstraints constraints, double aspectRatio) {
@@ -317,11 +353,20 @@ class _FijkViewState extends State<FijkView> {
     return constraints.constrain(Size(width, height));
   }
 
+  double getAspectRatio(BoxConstraints constraints, double ar) {
+    if (ar == null || ar < 0) {
+      ar = _vWidth / _vHeight;
+    } else if (ar.isInfinite) {
+      ar = constraints.maxWidth / constraints.maxHeight;
+    }
+    return ar;
+  }
+
   /// calculate Texture size
   Size getTxSize(BoxConstraints constraints, FijkFit fit) {
     Size childSize = applyAspectRatio(
         constraints, getAspectRatio(constraints, fit.aspectRatio));
-    double sizeFactor = widget.fit.sizeFactor;
+    double sizeFactor = fit.sizeFactor;
     if (-1.0 < sizeFactor && sizeFactor < -0.0) {
       sizeFactor = max(constraints.maxWidth / childSize.width,
           constraints.maxHeight / childSize.height);
@@ -343,40 +388,57 @@ class _FijkViewState extends State<FijkView> {
     return resolvedAlignment.alongOffset(diff);
   }
 
+  Widget buildTexture() {
+    return _textureId > 0 ? Texture(textureId: _textureId) : Container();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    fView.player.removeListener(_fijkValueListener);
+    widget.fijkViewState.paramNotifier.removeListener(_fijkValueListener);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: widget.width,
-      height: widget.height,
-      child: LayoutBuilder(builder: (ctx, constraints) {
-        // get child size
-        final Size childSize = getTxSize(constraints, widget.fit);
-        final Offset offset = getTxOffset(constraints, childSize, widget.fit);
-        final Rect pos = Rect.fromLTWH(
-            offset.dx, offset.dy, childSize.width, childSize.height);
+    _panelBuilder = fView.panelBuilder;
+    _color = fView.color;
+    _fit = widget.fullScreen ? fView.fsFit : fView.fit;
+    _textureId = widget.fijkViewState._textureId;
 
-        List ws = <Widget>[
-          Container(
-            width: constraints.maxWidth,
-            height: constraints.maxHeight,
-            color: widget.color,
-          ),
-          Positioned.fromRect(
-              rect: pos,
-              child: Container(
-                color: Color(0xFF000000),
-                child: buildTexture(),
-              )),
-        ];
+    FijkValue value = _player.value;
+    if (value.size != null && value.prepared) {
+      _vWidth = value.size.width;
+      _vHeight = value.size.height;
+    }
 
-        if (widget.panelBuilder != null) {
-          ws.add(widget.panelBuilder(
-              widget.player, ctx, constraints.biggest, pos));
-        }
-        return Stack(
-          children: ws,
-        );
-      }),
-    );
+    return LayoutBuilder(builder: (ctx, constraints) {
+      // get child size
+      final Size childSize = getTxSize(constraints, _fit);
+      final Offset offset = getTxOffset(constraints, childSize, _fit);
+      final Rect pos = Rect.fromLTWH(
+          offset.dx, offset.dy, childSize.width, childSize.height);
+
+      List ws = <Widget>[
+        Container(
+          width: constraints.maxWidth,
+          height: constraints.maxHeight,
+          color: _color,
+        ),
+        Positioned.fromRect(
+            rect: pos,
+            child: Container(
+              color: Color(0xFF000000),
+              child: buildTexture(),
+            )),
+      ];
+
+      if (_panelBuilder != null) {
+        ws.add(_panelBuilder(_player, ctx, constraints.biggest, pos));
+      }
+      return Stack(
+        children: ws,
+      );
+    });
   }
 }
