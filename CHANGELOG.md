@@ -1,5 +1,10 @@
 ##  next
 --------------------------------
+## 0.1.9
+--------------------------------
+- FijkView: fix fullscreen no state, no refresh when state change #77
+- panel: fix error CircularProgressIndicator when autoPlay is false #76
+
 ## 0.1.8
 --------------------------------
 - FijkView: add fsFit argument, controls full screen FijkFit mode
