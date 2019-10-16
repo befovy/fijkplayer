@@ -319,7 +319,7 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
                                   fontSize: 25,
                                 ),
                               )
-                            : _prepared
+                            : (_prepared || player.state == FijkState.initialized)
                                 ? AnimatedOpacity(
                                     opacity: _hideStuff ? 0.0 : 0.7,
                                     duration: Duration(milliseconds: 400),
