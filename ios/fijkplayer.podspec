@@ -3,7 +3,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'fijkplayer'
-  s.version          = '0.1.8'
+  s.version          = '0.1.9'
   s.summary          = 'Flutter plugin for ijkplayer'
   s.description      = <<-DESC
 Flutter plugin for ijkplayer
