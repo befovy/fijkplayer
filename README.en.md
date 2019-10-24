@@ -101,3 +101,7 @@ Warning: The fijkplayer video player plugin is not functional on iOS simulators.
 ## Next Plan
 
 See the development plan of next version v0.2.0 in https://github.com/befovy/fijkplayer/projects/2
+
+## 微信订阅号
+
+![](docs/images/wechat.jpeg)
