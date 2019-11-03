@@ -1,0 +1,5 @@
+target: lib/main_desktop.dart
+branch: "" # Change to "@latest" to download the latest go-flutter version on every build
+# cache-path: "/home/YOURUSERNAME/.cache/" #  https://github.com/go-flutter-desktop/go-flutter/issues/184
+opengl: "3.3" # Uncomment this line if you have trouble with your OpenGL driver (https://github.com/go-flutter-desktop/go-flutter/issues/272)
+docker: false
