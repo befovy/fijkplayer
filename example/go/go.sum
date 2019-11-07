@@ -5,6 +5,10 @@ github.com/fsnotify/fsnotify v1.4.7/go.mod h1:jwhsz4b93w/PPRr/qN1Yymfu8t87LnFCMo
 github.com/go-flutter-desktop/go-flutter v0.29.2/go.mod h1:NCryd/AqiRbYSd8pMzQldYkgH1tZIFGt2ToUghZcWGA=
 github.com/go-flutter-desktop/go-flutter v0.30.0 h1:tKQSB7rUOR0o9Bq5P7VpTm0KAOHxvRwC1xDlJGlWNY4=
 github.com/go-flutter-desktop/go-flutter v0.30.0/go.mod h1:NCryd/AqiRbYSd8pMzQldYkgH1tZIFGt2ToUghZcWGA=
+github.com/go-flutter-desktop/go-flutter v0.31.0 h1:b6RUfcMW5eiObx1e4F3+W0bXuvDxEL9mN/7j0j2ZCxk=
+github.com/go-flutter-desktop/go-flutter v0.31.0/go.mod h1:NCryd/AqiRbYSd8pMzQldYkgH1tZIFGt2ToUghZcWGA=
+github.com/go-flutter-desktop/go-flutter v0.32.0 h1:TwPLYFw+nCJ8ZcO7Tni0tbfahFlRweKHpGYWYQglGGg=
+github.com/go-flutter-desktop/go-flutter v0.32.0/go.mod h1:NCryd/AqiRbYSd8pMzQldYkgH1tZIFGt2ToUghZcWGA=
 github.com/go-flutter-desktop/plugins v0.0.0-20191029152040-959142b8d657 h1:XSSXxtGp/pNDt4/J3LaiooT0eWiMX5ontd60ey54aRo=
 github.com/go-flutter-desktop/plugins/path_provider v0.3.1 h1:hrT+0sH3l6ZIlopHVPUqZc9SzU8o995InMvRbWMZu5Q=
 github.com/go-flutter-desktop/plugins/path_provider v0.3.1/go.mod h1:l+dbhUqhiwKxyUaS1wpE19SYbRg1NptnqBiNp9SM+24=
