@@ -9,6 +9,8 @@ github.com/go-flutter-desktop/go-flutter v0.31.0 h1:b6RUfcMW5eiObx1e4F3+W0bXuvDx
 github.com/go-flutter-desktop/go-flutter v0.31.0/go.mod h1:NCryd/AqiRbYSd8pMzQldYkgH1tZIFGt2ToUghZcWGA=
 github.com/go-flutter-desktop/go-flutter v0.32.0 h1:TwPLYFw+nCJ8ZcO7Tni0tbfahFlRweKHpGYWYQglGGg=
 github.com/go-flutter-desktop/go-flutter v0.32.0/go.mod h1:NCryd/AqiRbYSd8pMzQldYkgH1tZIFGt2ToUghZcWGA=
+github.com/go-flutter-desktop/go-flutter v0.33.0 h1:+0R9hn+oOKj5A9p95H7jcgPoWrjdxmHFu1NODf0uOKk=
+github.com/go-flutter-desktop/go-flutter v0.33.0/go.mod h1:NCryd/AqiRbYSd8pMzQldYkgH1tZIFGt2ToUghZcWGA=
 github.com/go-flutter-desktop/plugins v0.0.0-20191029152040-959142b8d657 h1:XSSXxtGp/pNDt4/J3LaiooT0eWiMX5ontd60ey54aRo=
 github.com/go-flutter-desktop/plugins/path_provider v0.3.1 h1:hrT+0sH3l6ZIlopHVPUqZc9SzU8o995InMvRbWMZu5Q=
 github.com/go-flutter-desktop/plugins/path_provider v0.3.1/go.mod h1:l+dbhUqhiwKxyUaS1wpE19SYbRg1NptnqBiNp9SM+24=

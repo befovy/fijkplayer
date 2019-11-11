@@ -2,7 +2,6 @@ package fijkplayer
 
 import "reflect"
 
-
 func numInt(v interface{}, defalt int) int {
 	switch v.(type) {
 	case int, int8, int16, int32, int64:

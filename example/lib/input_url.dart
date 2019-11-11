@@ -10,7 +10,6 @@ class InputScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _controller.text = "http://jiasu-33.ivneu.cn/20190702/%E5%88%9D%E6%81%8B%E6%9C%AA%E6%BB%A1/2000kb/hls/index.m3u8";
     return Scaffold(
       appBar: FijkAppBar.defaultSetting(title: "Input Url"),
       body: Column(

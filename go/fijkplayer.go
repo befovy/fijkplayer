@@ -78,7 +78,7 @@ func (f *FijkPlayer) initPlayer(messenger plugin.BinaryMessenger, tex *flutter.T
 	f.texRegistry = tex
 	f.sink = &queueEventSink{}
 
-	f.ijk = newIjkplayer()
+	f.ijk = newIjkPlayer()
 	f.ijk.addEventListener(f.eventListener)
 	f.ijk.setOption(FFP_OPT_CATEGORY_PLAYER, "overlay-format", "fcc-rgba")
 	f.methodChannel = plugin.NewMethodChannel(messenger,
@@ -167,7 +167,7 @@ func (f *FijkPlayer) handleSetOption(arguments interface{}) (reply interface{}, 
 	}
 	if f.ijk != nil && cat >= 0 && len(key) > 0 {
 		if intValue, exist := args["long"]; exist {
-			f.ijk.setIntOption(cat, key, numInt64(intValue, 0) )
+			f.ijk.setIntOption(cat, key, numInt64(intValue, 0))
 		} else if strValue, exist := args["str"]; exist {
 			f.ijk.setOption(cat, key, strValue.(string))
 		}
@@ -321,6 +321,8 @@ func (f *FijkPlayer) release() {
 		f.texture.ID = -1
 	}
 
+	f.methodChannel.ClearAllHandle()
+	f.methodChannel.CatchAllHandleFunc(nil)
 	f.methodChannel = nil
 	f.sink.setSink(nil)
 	f.eventChannel.Handle(nil)
@@ -351,7 +353,6 @@ func onStateChanged(newState int32, oldState int32) {
 func (f *FijkPlayer) handleEvent(what int, arg1, arg2 int32, extra interface{}) {
 	event := make(map[interface{}]interface{})
 
-	// fmt.Println("go handleEvent", what, arg1, arg2)
 	switch what {
 	case IJKMPET_PREPARED:
 		event["event"] = "prepared"
@@ -393,8 +394,6 @@ func (f *FijkPlayer) handleEvent(what int, arg1, arg2 int32, extra interface{}) 
 		event["width"] = arg1
 		event["height"] = arg2
 		f.sink.success(event)
-
-		fmt.Println("go event size changed", arg1, arg2)
 		break
 	case IJKMPET_ERROR:
 		str := ""

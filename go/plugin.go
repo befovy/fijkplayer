@@ -23,6 +23,7 @@ type FijkplayerPlugin struct {
 }
 
 var _ flutter.Plugin = &FijkplayerPlugin{} // compile-time type check
+var _ flutter.PluginTexture = &FijkplayerPlugin{}
 
 var fplugin *FijkplayerPlugin
 
