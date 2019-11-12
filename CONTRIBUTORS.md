@@ -14,6 +14,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://github.com/yujieliang"><img src="https://avatars0.githubusercontent.com/u/18651526?v=4" width="100px;" alt="yujieliang"/><br /><sub><b>yujieliang</b></sub></a><br /><a href="#question-yujieliang" title="Answering Questions">💬</a></td>
     <td align="center"><a href="https://github.com/songguowei"><img src="https://avatars0.githubusercontent.com/u/50864191?v=4" width="100px;" alt="songguowei"/><br /><sub><b>songguowei</b></sub></a><br /><a href="https://github.com/befovy/fijkplayer/issues?q=author%3Asongguowei" title="Bug reports">🐛</a></td>
     <td align="center"><a href="https://github.com/jinsong5"><img src="https://avatars3.githubusercontent.com/u/47859664?v=4" width="100px;" alt="jinsong5"/><br /><sub><b>jinsong5</b></sub></a><br /><a href="#question-jinsong5" title="Answering Questions">💬</a> <a href="https://github.com/befovy/fijkplayer/commits?author=jinsong5" title="Documentation">📖</a></td>
+    <td align="center"><a href="https://www.kikt.top"><img src="https://avatars0.githubusercontent.com/u/14145407?v=4" width="100px;" alt="Caijinglong"/><br /><sub><b>Caijinglong</b></sub></a><br /><a href="#question-CaiJingLong" title="Answering Questions">💬</a></td>
   </tr>
 </table>
 
