@@ -16,6 +16,9 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://github.com/jinsong5"><img src="https://avatars3.githubusercontent.com/u/47859664?v=4" width="100px;" alt="jinsong5"/><br /><sub><b>jinsong5</b></sub></a><br /><a href="#question-jinsong5" title="Answering Questions">💬</a> <a href="https://github.com/befovy/fijkplayer/commits?author=jinsong5" title="Documentation">📖</a></td>
     <td align="center"><a href="https://www.kikt.top"><img src="https://avatars0.githubusercontent.com/u/14145407?v=4" width="100px;" alt="Caijinglong"/><br /><sub><b>Caijinglong</b></sub></a><br /><a href="#question-CaiJingLong" title="Answering Questions">💬</a></td>
   </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/zhangbokang"><img src="https://avatars0.githubusercontent.com/u/28351381?v=4" width="100px;" alt="zhangbokang"/><br /><sub><b>zhangbokang</b></sub></a><br /><a href="https://github.com/befovy/fijkplayer/commits?author=zhangbokang" title="Code">💻</a></td>
+  </tr>
 </table>
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
