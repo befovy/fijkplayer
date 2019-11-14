@@ -141,6 +141,11 @@ class FijkVolume {
       return FijkPlugin._channel
           .invokeMethod("volUiMode", <String, dynamic>{'mode': mode});
   }
+  /// get SystemVolume
+  static Future<double> getVol() {
+    return FijkPlugin._channel
+        .invokeMethod("systemVolume");
+  }
 
   void _onVolCallback(double vol, bool ui) {
     _notifer.value = FijkVolumeEvent(vol: vol, sui: ui, type: STREAM_MUSIC);
