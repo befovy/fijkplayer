@@ -99,4 +99,8 @@ class FijkPlugin {
   static void _errorListener(Object obj) {
     FijkLog.e("plugin errorListerner: $obj");
   }
+
+  static Future<double> getSystemVolume() {
+    return _channel.invokeMethod("systemVolume");
+  }
 }
