@@ -172,6 +172,7 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
   }
 
   void _startHideTimer() {
+    _hideTimer?.cancel();
     _hideTimer = Timer(const Duration(seconds: 3), () {
       setState(() {
         _hideStuff = true;
@@ -181,7 +182,6 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
 
   void _cancelAndRestartTimer() {
     if (_hideStuff == true) {
-      _hideTimer?.cancel();
       _startHideTimer();
     }
     setState(() {
@@ -234,6 +234,7 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
                         max: duration,
                         label: '$currentValue',
                         onChanged: (v) {
+                          _startHideTimer();
                           setState(() {
                             _seekPos = v;
                           });

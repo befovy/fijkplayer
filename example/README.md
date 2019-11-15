@@ -15,6 +15,20 @@ For help getting started with Flutter, view our
 [online documentation](https://flutter.dev/docs), which offers tutorials, 
 samples, guidance on mobile development, and a full API reference.
 
+## Run Mac OS Desktop Example
+
+```
+cd fijkplayer/go/dlib/darwin
+wget https://github.com/befovy/ijkplayer/releases/download/f0.4.0/libIjkPlayer.dylib
+```
+
+```
+go get -u -v github.com/go-flutter-desktop/hover
+cd fijkplayer/example
+hover plugins get
+hover run
+```
+
 ## Logo
 
 <div>Logo 通过 <a href="https://www.designevo.com/tw" title="免費線上logo製作軟體"> DesignEvo </a>设计制作</div>
