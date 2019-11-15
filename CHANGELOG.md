@@ -1,5 +1,14 @@
-##  next
+# Changelog
+
+
+## [0.1.10](https://github.com/befovy/fijkplayer/compare/v0.1.9...v0.1.10) (2019-11-15)
 --------------------------------
+
+* new API, FijkVolume.getVol() ([#100](https://github.com/befovy/fijkplayer/issues/100)) ([dd57cea](https://github.com/befovy/fijkplayer/commit/dd57cea4870a909cbbec71a4cc127fdbefe9cf1f))
+* set datasource member variable when setDataSource ([20f94de](https://github.com/befovy/fijkplayer/commit/20f94deb0bb561e4fc0127eb615200e26b46f6c1))
+* proguard for android class ([1f85f28](https://github.com/befovy/fijkplayer/commit/1f85f28728cb89e48576b9791909860728160751)), closes [#98](https://github.com/befovy/fijkplayer/issues/98)
+* update doc error method name. FijkVolume.setUIMode ([#102](https://github.com/befovy/fijkplayer/issues/102)) ([c33cc11](https://github.com/befovy/fijkplayer/commit/c33cc11d5676fb6b411f9b7be7f14850ea662ecc))
+
 ## 0.1.9
 --------------------------------
 - FijkView: fix fullscreen no state, no refresh when state change #77
