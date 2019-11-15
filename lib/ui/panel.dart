@@ -32,6 +32,61 @@ Widget defaultFijkPanelBuilder(
       texturePos: texturePos);
 }
 
+class _DefaultVolumeFijkPanel extends StatefulWidget {
+  final FijkPlayer player;
+  final BuildContext buildContext;
+  final Size viewSize;
+  final Rect texturePos;
+
+  const _DefaultVolumeFijkPanel(
+      {Key key,
+      @required this.player,
+      this.buildContext,
+      this.viewSize,
+      this.texturePos})
+      : assert(player != null),
+        super(key: key);
+
+  @override
+  _DefaultVolumeFijkPanelState createState() => _DefaultVolumeFijkPanelState();
+}
+
+class _DefaultVolumeFijkPanelState extends State<_DefaultVolumeFijkPanel> {
+
+  double _volume;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onVerticalDragUpdate: (d){
+        _volume+=d.primaryDelta/widget.texturePos.height;
+        if(_volume.abs()>0.1){
+          _volume=min(max(_volume,-1), 1);
+          if(_volume>0){
+            FijkVolume.down(step: _volume);
+          }else{
+            FijkVolume.up(step: _volume.abs());
+          }
+          _volume=0;
+        }
+      },
+      onVerticalDragStart: (d){
+        setState(() {
+          _volume=0;
+        });
+      },
+      child: Stack(
+        children: [_DefaultFijkPanel(
+            player: widget.player,
+            buildContext: widget.buildContext,
+            viewSize: widget.viewSize,
+            texturePos: widget.texturePos
+        )],
+      ),
+    );
+  }
+}
+
 /// Default Panel Widget
 class _DefaultFijkPanel extends StatefulWidget {
   final FijkPlayer player;
