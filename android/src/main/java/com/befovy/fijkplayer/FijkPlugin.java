@@ -40,7 +40,7 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
         player.release();
     }
 
-    public static FijkPlugin instance() {
+    static FijkPlugin instance() {
         return _instance;
     }
 

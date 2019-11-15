@@ -1,6 +1,6 @@
 package fijkplayer
 
-// #cgo darwin LDFLAGS: -L ${SRCDIR}/darwin -lIjkPlayer "-Wl,-rpath,${SRCDIR}/darwin"
+// #cgo darwin LDFLAGS: -lIjkPlayer
 // #include "ijkplayer_desktop.h"
 // #include <stdlib.h>
 // void ijkffEventCallback(void *userdatra, int what, int arg1, int arg2, void * extra);
@@ -8,9 +8,10 @@ package fijkplayer
 import "C"
 
 import (
-	"github.com/go-flutter-desktop/go-flutter"
 	"reflect"
 	"unsafe"
+
+	"github.com/go-flutter-desktop/go-flutter"
 )
 
 func ijkSetLogLevel(level int) {
