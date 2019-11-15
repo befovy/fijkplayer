@@ -56,6 +56,54 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "jinsong5",
+      "name": "jinsong5",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/47859664?v=4",
+      "profile": "https://github.com/jinsong5",
+      "contributions": [
+        "question",
+        "doc"
+      ]
+    },
+    {
+      "login": "CaiJingLong",
+      "name": "Caijinglong",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/14145407?v=4",
+      "profile": "https://www.kikt.top",
+      "contributions": [
+        "question"
+      ]
+    },
+    {
+      "login": "zhangbokang",
+      "name": "zhangbokang",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/28351381?v=4",
+      "profile": "https://github.com/zhangbokang",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "fantasy525",
+      "name": "fantasy525",
+      "avatar_url": "https://avatars1.githubusercontent.com/u/22516157?v=4",
+      "profile": "https://github.com/fantasy525",
+      "contributions": [
+        "bug",
+        "code"
+      ]
+    },
+    {
+      "login": "huluxia",
+      "name": "huluxia",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/18514186?v=4",
+      "profile": "https://github.com/huluxia",
+      "contributions": [
+        "code",
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7

@@ -2,8 +2,7 @@
 
 ### [English Language](README.en.md)
 
-**[程序员帮老丈人卖石榴](https://www.yuque.com/befovy/share/pomegranate)**
-
+**[手把手带你写 Flutter 系统音量插件](https://www.yuque.com/befovy/share/flutter_volume)**
 
 [![pub package](https://img.shields.io/pub/v/fijkplayer.svg)](https://pub.dartlang.org/packages/fijkplayer) &nbsp; &nbsp;
 [![Build Status](https://travis-ci.org/befovy/fijkplayer.svg?branch=master)](https://travis-ci.org/befovy/fijkplayer) &nbsp; &nbsp;
@@ -99,11 +98,19 @@ Flutter 纹理接入的方式目前在 iOS 模拟器上不能工作，故视频�
 当然如果不关注视频画面，比如播放音乐，在模拟器上调试是没问题的。
 
 
-## QQ 交流群
+## QQ 交流群 / 微信订阅号
 
-扫码加入 QQ 交流群  
-![qq_group](./docs/images/fijkplayer_qq_group.jpg)
-
+<table>
+  <tr>
+    <td>
+      <img src="./docs/images/fijkplayer_qq_group.jpg"  height="230"/>
+    </td>
+    <td> &nbsp; &nbsp; </td>
+    <td>
+      <img src="./docs/images/wechat.jpeg"  height=230"/>
+    </td>
+  </tr>
+</table>
 
 ## 开发计划
 

@@ -2,7 +2,7 @@
 
 ### [简体中文](README.zh.md)
 
-**[程序员帮老丈人卖石榴](https://www.yuque.com/befovy/share/pomegranate)**
+**[手把手带你写 Flutter 系统音量插件](https://www.yuque.com/befovy/share/flutter_volume)**
 
 [![pub package](https://img.shields.io/pub/v/fijkplayer.svg)](https://pub.dartlang.org/packages/fijkplayer) &nbsp; &nbsp;
 [![Build Status](https://travis-ci.org/befovy/fijkplayer.svg?branch=master)](https://travis-ci.org/befovy/fijkplayer) &nbsp; &nbsp;
@@ -35,8 +35,6 @@ dependencies:
       url: https://github.com/befovy/fijkplayer.git
       ref: develop # can be replaced to branch or tag name
 ```
-
-
 
 ## Example
 
