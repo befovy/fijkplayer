@@ -22,6 +22,9 @@ type ijkplayer struct {
 	fp            *C.struct_IjkFFMediaPlayer
 	eventCallback func(what int, arg1, arg2 int32, extra string)
 	pixelCb       func(pixelBuffer *flutter.PixelBuffer)
+
+	ocbData unsafe.Pointer
+	ecbData unsafe.Pointer
 }
 
 func newIjkPlayer() *ijkplayer {
@@ -31,7 +34,7 @@ func newIjkPlayer() *ijkplayer {
 
 //export ijkffOverlayCallback
 func ijkffOverlayCallback(userdata unsafe.Pointer, overlay *C.struct_IjkFFOverlay) {
-	i := Restore(userdata).(*ijkplayer)
+	i := gpRestore(userdata).(*ijkplayer)
 	if i != nil {
 		var pix []uint8
 		header := (*reflect.SliceHeader)(unsafe.Pointer(&pix))
@@ -48,20 +51,22 @@ func ijkffOverlayCallback(userdata unsafe.Pointer, overlay *C.struct_IjkFFOverla
 
 //export ijkffEventCallback
 func ijkffEventCallback(userdata unsafe.Pointer, what, arg1, arg2 C.int, extra unsafe.Pointer) {
-	i := Restore(userdata).(*ijkplayer)
+	i := gpRestore(userdata).(*ijkplayer)
 	ex := C.GoString((*C.char)(extra))
 	i.eventCallback(int(what), int32(arg1), int32(arg2), ex)
 }
 
 func (i *ijkplayer) addEventListener(listener func(what int, arg1, arg2 int32, extra string)) {
 	i.eventCallback = listener
-	upt := Save(i)
-	C.ijkff_set_event_cb(i.fp, upt, C.ijkff_event_cb(C.ijkffEventCallback))
+	ept := gpSave(i)
+	i.ecbData = ept
+	C.ijkff_set_event_cb(i.fp, ept, C.ijkff_event_cb(C.ijkffEventCallback))
 }
 
 func (i *ijkplayer) setPixelCallback(cb func(pixelBuffer *flutter.PixelBuffer)) {
 	i.pixelCb = cb
-	opt := Save(i)
+	opt := gpSave(i)
+	i.ocbData = opt
 	C.ijkff_set_overlay_cb(i.fp, opt, C.ijkff_overlay_cb(C.ijkffOverlayCallback))
 }
 
@@ -139,4 +144,12 @@ func (i *ijkplayer) setLoop(loop int) {
 
 func (i *ijkplayer) shutdown() {
 	C.ijkff_shutdown(i.fp)
+	if i.ocbData != nil {
+		gpUnref(i.ocbData)
+		i.ocbData = nil
+	}
+	if i.ecbData != nil {
+		gpUnref(i.ecbData)
+		i.ecbData = nil
+	}
 }

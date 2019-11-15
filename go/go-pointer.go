@@ -16,7 +16,7 @@ var (
 	store = map[unsafe.Pointer]interface{}{}
 )
 
-func Save(v interface{}) unsafe.Pointer {
+func gpSave(v interface{}) unsafe.Pointer {
 	if v == nil {
 		return nil
 	}
@@ -37,7 +37,7 @@ func Save(v interface{}) unsafe.Pointer {
 	return ptr
 }
 
-func Restore(ptr unsafe.Pointer) (v interface{}) {
+func gpRestore(ptr unsafe.Pointer) (v interface{}) {
 	if ptr == nil {
 		return nil
 	}
@@ -48,7 +48,7 @@ func Restore(ptr unsafe.Pointer) (v interface{}) {
 	return
 }
 
-func Unref(ptr unsafe.Pointer) {
+func gpUnref(ptr unsafe.Pointer) {
 	if ptr == nil {
 		return
 	}
