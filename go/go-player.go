@@ -314,10 +314,10 @@ func (f *FijkPlayer) release() {
 	if f.texRegistry != nil {
 		f.texRegistry = nil
 		fmt.Printf("texture %d\n", f.texture.ID)
-		//err := f.texture.UnRegister()
-		//if err != nil {
-		//	fmt.Printf("unRegister %s\n", err.Error())
-		//}
+		err := f.texture.UnRegister()
+		if err != nil {
+			fmt.Printf("unRegister %s\n", err.Error())
+		}
 		f.texture.ID = -1
 	}
 
