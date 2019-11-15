@@ -1,6 +1,13 @@
 # Changelog
 
 
+### [0.2.0](https://github.com/befovy/fijkplayer/compare/v0.1.10...v0.2.0) (2019-11-15)
+--------------------------------
+
+* go-flutter desktop version support ([#107](https://github.com/befovy/fijkplayer/issues/107)) ([966caef](https://github.com/befovy/fijkplayer/commit/966caef0251aecca14aa3d36c822316bb0fb0fe0))
+* fix restart timer when touch slider  ([#104](https://github.com/befovy/fijkplayer/issues/104)) ([765e2e6](https://github.com/befovy/fijkplayer/commit/765e2e61fd95d94ae4fed44e2b7e700e6c57920e))
+
+
 ## [0.1.10](https://github.com/befovy/fijkplayer/compare/v0.1.9...v0.1.10) (2019-11-15)
 --------------------------------
 
