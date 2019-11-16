@@ -1,7 +1,12 @@
 # Changelog
 
 
-### [0.2.0](https://github.com/befovy/fijkplayer/compare/v0.1.10...v0.2.0) (2019-11-15)
+## [0.2.1](https://github.com/befovy/fijkplayer/compare/v0.2.0...v0.2.1) (2019-11-16)
+--------------------------------
+
+* fix: wrong screen orientation after exit full screen mode on Android ([#108](https://github.com/befovy/fijkplayer/issues/108)) ([d0fea2c](https://github.com/befovy/fijkplayer/commit/d0fea2c11117dd4b12bdcd386a4d29cfdce40bf4)), closes [#73](https://github.com/befovy/fijkplayer/issues/73)
+
+## [0.2.0](https://github.com/befovy/fijkplayer/compare/v0.1.10...v0.2.0) (2019-11-15)
 --------------------------------
 
 * go-flutter desktop version support ([#107](https://github.com/befovy/fijkplayer/issues/107)) ([966caef](https://github.com/befovy/fijkplayer/commit/966caef0251aecca14aa3d36c822316bb0fb0fe0))

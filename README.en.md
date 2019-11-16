@@ -24,7 +24,7 @@ Add `fijkplayer` as a [dependency in your pubspec.yaml file](https://flutter.io/
 
 ```yaml
 dependencies:
-  fijkplayer: ^0.2.0
+  fijkplayer: ^0.2.1
 ```
 
 Use git branch which not published to pub.
@@ -96,4 +96,4 @@ Warning: The fijkplayer video player plugin is not functional on iOS simulators.
 
 ## Next Plan
 
-See the development plan of next version v0.2.0 in https://github.com/befovy/fijkplayer/projects/2
+See the development plan of next version in https://github.com/befovy/fijkplayer/projects/2
