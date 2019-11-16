@@ -3,6 +3,7 @@ package com.befovy.fijkplayer;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.media.AudioManager;
 import android.os.Build;
 import android.util.Log;
@@ -161,14 +162,19 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
                 result.success(null);
                 break;
             case "setOrientationLandscape":
+                boolean changed = false;
                 if (activity != null) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE);
-                    } else {
-                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+                    int current_orientation = activity.getResources().getConfiguration().orientation;
+                    if (current_orientation == Configuration.ORIENTATION_PORTRAIT) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                            activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE);
+                        } else {
+                            activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+                        }
+                        changed = true;
                     }
                 }
-                result.success(null);
+                result.success(changed);
                 break;
             case "setOrientationAuto":
                 if (activity != null) {

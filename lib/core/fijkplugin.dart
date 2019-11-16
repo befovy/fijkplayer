@@ -34,7 +34,15 @@ class FijkPlugin {
         .invokeMethod("releasePlayer", <String, dynamic>{'pid': pid});
   }
 
+  static bool isDesktop() {
+    return Platform.isWindows ||
+        Platform.isMacOS ||
+        Platform.isLinux ||
+        Platform.isFuchsia;
+  }
+
   static Future<void> setOrientationPortrait() {
+    if (isDesktop()) return Future.value();
     // ios crash Supported orientations has no common orientation with the application
     if (Platform.isAndroid) {
       SystemChrome.setPreferredOrientations(
@@ -43,7 +51,12 @@ class FijkPlugin {
     return _channel.invokeMethod("setOrientationPortrait");
   }
 
-  static Future<void> setOrientationLandscape() {
+  // return false if current orientation is landscape
+  // return true if current orientation is portrait and after this API
+  // call finished, the orientation becomes landscape.
+  // return false if can't change orientation.
+  static Future<bool> setOrientationLandscape() {
+    if (isDesktop()) return Future.value(false);
     if (Platform.isAndroid) {
       SystemChrome.setPreferredOrientations(
           [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
