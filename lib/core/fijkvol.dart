@@ -105,6 +105,12 @@ class FijkVolume {
     }
   }
 
+  /// get ths current system volume.
+  /// the range of returned value is [0.0, 1.0].
+  static Future<double> getVol() {
+    return FijkPlugin._channel.invokeMethod("systemVolume");
+  }
+
   /// increase system volume by step, step must be in range [0.0, 1.0].
   /// return the system volume value after increase.
   /// the return volume value may be not equals to the current volume + step.
@@ -140,11 +146,6 @@ class FijkVolume {
     else
       return FijkPlugin._channel
           .invokeMethod("volUiMode", <String, dynamic>{'mode': mode});
-  }
-  /// get SystemVolume
-  static Future<double> getVol() {
-    return FijkPlugin._channel
-        .invokeMethod("systemVolume");
   }
 
   void _onVolCallback(double vol, bool ui) {

@@ -219,14 +219,14 @@ class _FijkViewState extends State<FijkView> {
     );
 
     await SystemChrome.setEnabledSystemUIOverlays([]);
-    await FijkPlugin.setOrientationLandscape();
+    final changed = await FijkPlugin.setOrientationLandscape();
 
     await Navigator.of(context).push(route);
     _fullScreen = false;
     widget.player.exitFullScreen();
     await SystemChrome.setEnabledSystemUIOverlays(
         [SystemUiOverlay.top, SystemUiOverlay.bottom]);
-    await FijkPlugin.setOrientationPortrait();
+    if (changed) await FijkPlugin.setOrientationPortrait();
   }
 
   @override

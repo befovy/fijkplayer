@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'home_page.dart';
 
 void main() {
-  FijkLog.setLevel(FijkLogLevel.Debug);
   runApp(MyApp());
 }
 
@@ -16,6 +15,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
+    FijkLog.setLevel(FijkLogLevel.Debug);
     return new MaterialApp(
       theme: ThemeData(
         primaryColor: Color(0xFFffd54f),
