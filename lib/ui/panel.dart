@@ -245,13 +245,12 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
         onPressed: () {
           setState(() {
             if (widget.volumeController != null) {
-              _volume =
-                  _volume > 0 ? 0 : widget.volumeController.previousVolume ?? 1;
-              widget.volumeController.value = _volume;
+              double volume= _volume > 0 ? 0 : widget.volumeController.previousVolume ?? 1;
+              widget.volumeController.value = volume;
             } else {
               _volume = _volume > 0 ? 0.0 : 1.0;
+              player.setVolume(_volume);
             }
-            player.setVolume(_volume);
           });
         });
   }
