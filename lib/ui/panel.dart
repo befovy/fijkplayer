@@ -158,14 +158,19 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
       }
       if (widget.volumeController != null) {
         widget.volumeController.addListener(_volumeChange);
+        _setVolume(widget.volumeController.value);
       }
     }
   }
 
   void _volumeChange() {
     assert(widget.volumeController != null);
+    _setVolume(widget.volumeController.value);
+  }
+
+  void _setVolume(double valume){
     setState(() {
-      _volume = widget.volumeController.value;
+      _volume = valume;
     });
     player.setVolume(_volume);
   }
@@ -248,8 +253,7 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
               double volume= _volume > 0 ? 0 : widget.volumeController.previousVolume ?? 1;
               widget.volumeController.value = volume;
             } else {
-              _volume = _volume > 0 ? 0.0 : 1.0;
-              player.setVolume(_volume);
+              _setVolume(_volume > 0 ? 0.0 : 1.0);
             }
           });
         });
