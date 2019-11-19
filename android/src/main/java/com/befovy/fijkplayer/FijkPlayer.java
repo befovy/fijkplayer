@@ -72,6 +72,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
         mState = 0;
         mIjkMediaPlayer = new IjkMediaPlayer();
         mIjkMediaPlayer.addIjkEventListener(this);
+        mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "enable-position-notify", 1);
         mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "start-on-prepared", 0);
 
         mContext = registrar.context();
@@ -179,14 +180,16 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
                 mEventSink.success(event);
                 break;
 
-            // play position
-            // case the duration of the file
-
             // buffer / cache position
             case BUFFERING_UPDATE:
                 event.put("event", "buffering");
                 event.put("head", arg1);
                 event.put("percent", arg2);
+                mEventSink.success(event);
+                break;
+            case CURRENT_POSITION_UPDATE:
+                event.put("event", "pos");
+                event.put("pos", arg1);
                 mEventSink.success(event);
                 break;
 
@@ -217,6 +220,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
             case ERROR:
             case VIDEO_RENDERING_START:
             case AUDIO_RENDERING_START:
+            case CURRENT_POSITION_UPDATE:
                 handleEvent(what, arg1, arg2, extra);
                 break;
             default:
