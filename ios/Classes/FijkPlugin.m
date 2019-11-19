@@ -130,7 +130,7 @@ static FijkPlugin *_instance = nil;
             [UIDevice currentDevice].orientation;
         BOOL changed = NO;
         if (deviceOrientation != UIDeviceOrientationLandscapeLeft &&
-            deviceOrientation != UIDeviceOrientationLandscapeRight ) {
+            deviceOrientation != UIDeviceOrientationLandscapeRight) {
             if (mask & UIInterfaceOrientationMaskLandscapeRight) {
                 [[UIDevice currentDevice]
                     setValue:@(UIInterfaceOrientationLandscapeRight)

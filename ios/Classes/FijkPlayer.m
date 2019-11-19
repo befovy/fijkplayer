@@ -87,6 +87,9 @@ static int renderType = 0;
                                     forKey:@"start-on-prepared"
                                 ofCategory:kIJKFFOptionCategoryPlayer];
         [_ijkMediaPlayer setOptionIntValue:1
+                                    forKey:@"enable-position-notify"
+                                ofCategory:kIJKFFOptionCategoryPlayer];
+        [_ijkMediaPlayer setOptionIntValue:1
                                     forKey:@"videotoolbox"
                                 ofCategory:kIJKFFOptionCategoryPlayer];
 
@@ -105,9 +108,6 @@ static int renderType = 0;
                                                FlutterResult result) {
           [weakSelf handleMethodCall:call result:result];
         }];
-
-        //[_methodChannel setMethodCallHandler:self];
-        //[_registrar addMethodCallDelegate:self channel:_methodChannel];
 
         _eventChannel = [FlutterEventChannel
             eventChannelWithName:[@"befovy.com/fijkplayer/event/"
@@ -285,6 +285,12 @@ static int renderType = 0;
             @"percent" : @(arg2),
         }];
         break;
+    case 510: // todo update ijkplayer replace this CONSTANT
+        [_eventSink success:@{
+            @"event" : @"pos",
+            @"pos" : @(arg1),
+        }];
+        break;
     case IJKMPET_VIDEO_SIZE_CHANGED:
         [_eventSink success:@{
             @"event" : @"size_changed",
@@ -317,6 +323,7 @@ static int renderType = 0;
     case IJKMPET_VIDEO_RENDERING_START:
     case IJKMPET_AUDIO_RENDERING_START:
     case IJKMPET_ERROR:
+    case 510:
         [self handleEvent:what andArg1:arg1 andArg2:arg2 andExtra:extra];
         break;
     default:

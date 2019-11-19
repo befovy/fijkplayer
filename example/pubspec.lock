@@ -462,3 +462,4 @@ packages:
     version: "2.2.0"
 sdks:
   dart: ">=2.3.0 <3.0.0"
+  flutter: ">=1.6.7 <2.0.0"

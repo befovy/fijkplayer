@@ -34,8 +34,6 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   MethodChannel _channel;
   StreamSubscription<dynamic> _nativeEventSubscription;
 
-  StreamSubscription _looperSub;
-
   bool _startAfterSetup = false;
 
   FijkValue _value;
@@ -70,7 +68,24 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   final StreamController<Duration> _bufferPosController =
       StreamController.broadcast();
 
+  /// stream of [bufferPos].
   Stream<Duration> get onBufferPosUpdate => _bufferPosController.stream;
+
+  int _bufferPercent = 0;
+
+  /// return the buffer percent of water mark.
+  ///
+  /// If player is in [FijkState.started] state and is freezing ([isBuffering] is true),
+  /// this value starts from 0, and when reaches or exceeds 100, the player start to play again.
+  ///
+  /// This is not the quotient of [bufferPos] / [value.duration]
+  int get bufferPercent => _bufferPercent;
+
+  final StreamController<int> _bufferPercentController =
+      StreamController.broadcast();
+
+  /// stream of [bufferPercent].
+  Stream<int> get onBufferPercentUpdate => _bufferPercentController.stream;
 
   Duration _currentPos = Duration();
 
@@ -80,7 +95,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   final StreamController<Duration> _currentPosController =
       StreamController.broadcast();
 
-  /// stream of current playing position, update every 200ms.
+  /// stream of [currentPos].
   Stream<Duration> get onCurrentPosUpdate => _currentPosController.stream;
 
   bool _buffering = false;
@@ -144,9 +159,6 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
       await _startFromAnyState();
     }
 
-    _looperSub = Stream.periodic(const Duration(milliseconds: 200), (v) => v)
-        .listen(_looper);
-    _looperSub.pause();
   }
 
   /// Check if player is playable
@@ -366,8 +378,6 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     FijkLog.i("$this invoke release #$cid");
     if (isPlayable()) await stop();
     _setValue(value.copyWith(state: FijkState.end));
-    await _looperSub?.cancel();
-    _looperSub = null;
     await _nativeEventSubscription?.cancel();
     _nativeEventSubscription = null;
     _allInstance.remove(_playerId);
@@ -411,14 +421,6 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     }
   }
 
-  void _looper(int timer) {
-    _channel.invokeMethod("getCurrentPosition").then((pos) {
-      _currentPos = Duration(milliseconds: pos);
-      _currentPosController.add(_currentPos);
-      //debugPrint("currentPos $_currentPos");
-    });
-  }
-
   void _eventListener(dynamic event) {
     final Map<dynamic, dynamic> map = event;
     switch (map['event']) {
@@ -439,11 +441,6 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
 
         if (fpState != oldState) {
           FijkLog.i("$this state changed to $fpState <= $oldState");
-          if (fpState == FijkState.started) {
-            _looperSub.resume();
-          } else {
-            if (!_looperSub.isPaused) _looperSub.pause();
-          }
           FijkException fijkException =
               (fpState != FijkState.error) ? FijkException.noException : null;
           if (newStateId == FijkState.prepared.index) {
@@ -475,9 +472,16 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
         break;
       case 'buffering':
         int head = map['head'];
-        // int percent = map['percent'];
+        int percent = map['percent'];
         _bufferPos = Duration(milliseconds: head);
         _bufferPosController.add(_bufferPos);
+        _bufferPercent = percent;
+        _bufferPercentController.add(percent);
+        break;
+      case 'pos':
+        int pos = map['pos'];
+        _currentPos = Duration(milliseconds: pos);
+        _currentPosController.add(_currentPos);
         break;
       case 'size_changed':
         int width = map['width'];
