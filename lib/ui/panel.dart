@@ -32,33 +32,18 @@ Widget defaultFijkPanelBuilder(
       texturePos: texturePos);
 }
 
-class _VolumeController extends ValueNotifier<double> {
-  _VolumeController(value) : super(value);
-
-  double get previousVolume => _previousVolume;
-  double _previousVolume;
-
-  @override
-  set value(double newValue) {
-    _previousVolume = super.value;
-    super.value = newValue;
-  }
-}
-
 /// Default Panel Widget
 class _DefaultFijkPanel extends StatefulWidget {
   final FijkPlayer player;
   final BuildContext buildContext;
   final Size viewSize;
   final Rect texturePos;
-  final _VolumeController volumeController;
 
   const _DefaultFijkPanel({
     @required this.player,
     this.buildContext,
     this.viewSize,
     this.texturePos,
-    this.volumeController,
   });
 
   @override
@@ -87,7 +72,6 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
   Duration _duration = Duration();
   Duration _currentPos = Duration();
 
-  // Duration _bufferPos = Duration();
   bool _playing = false;
   bool _prepared = false;
   String _exception;
@@ -127,52 +111,6 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
         _currentPos = v;
       });
     });
-
-    if (widget.volumeController != null) {
-      widget.volumeController.addListener(_volumeChange);
-    }
-
-    /*
-    _bufferPosSubs = player.onBufferPosUpdate.listen((v) {
-      setState(() {
-        _bufferPos = v;
-      });
-    });
-    */
-
-    /*
-    _bufferingSubs = player.onBufferStateUpdate.listen((v) {
-      setState(() {
-        _buffering = v;
-      });
-    });
-    */
-  }
-
-  @override
-  void didUpdateWidget(_DefaultFijkPanel oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.volumeController != widget.volumeController) {
-      if (oldWidget.volumeController != null) {
-        oldWidget.volumeController.removeListener(_volumeChange);
-      }
-      if (widget.volumeController != null) {
-        widget.volumeController.addListener(_volumeChange);
-        _setVolume(widget.volumeController.value);
-      }
-    }
-  }
-
-  void _volumeChange() {
-    assert(widget.volumeController != null);
-    _setVolume(widget.volumeController.value);
-  }
-
-  void _setVolume(double valume){
-    setState(() {
-      _volume = valume;
-    });
-    player.setVolume(_volume);
   }
 
   void _playerValueChanged() {
@@ -212,7 +150,6 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
 
     player.removeListener(_playerValueChanged);
     _currentPosSubs?.cancel();
-    widget.volumeController?.removeListener(_volumeChange);
     //_bufferPosSubs.cancel();
     //_bufferingSubs.cancel();
   }
@@ -239,24 +176,19 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
     IconData iconData;
     if (_volume <= 0) {
       iconData = Icons.volume_off;
-    } else if (_volume < 0.5) {
-      iconData = Icons.volume_down;
     } else {
       iconData = Icons.volume_up;
     }
     return IconButton(
-        icon: Icon(iconData),
-        padding: EdgeInsets.only(left: 10.0, right: 10.0),
-        onPressed: () {
-          setState(() {
-            if (widget.volumeController != null) {
-              double volume= _volume > 0 ? 0 : widget.volumeController.previousVolume ?? 1;
-              widget.volumeController.value = volume;
-            } else {
-              _setVolume(_volume > 0 ? 0.0 : 1.0);
-            }
-          });
+      icon: Icon(iconData),
+      padding: EdgeInsets.only(left: 10.0, right: 10.0),
+      onPressed: () {
+        setState(() {
+          _volume = _volume > 0 ? 0.0 : 1.0;
+          player.setVolume(_volume);
         });
+      },
+    );
   }
 
   AnimatedOpacity _buildBottomBar(BuildContext context) {
@@ -283,9 +215,7 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
             ),
 
             _duration.inMilliseconds == 0
-                ? Expanded(
-                    child: Center(),
-                  )
+                ? Expanded(child: Center())
                 : Expanded(
                     child: Padding(
                       padding: EdgeInsets.only(right: 0, left: 0),

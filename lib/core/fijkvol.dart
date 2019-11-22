@@ -172,7 +172,7 @@ class FijkVolume {
 /// Volume changed callback func.
 ///
 /// See [FijkVolumeEvent]
-/// [vol] is the value of volume, and has been mapped into range [0.0, 1.0]
+/// [value] is the value of volume, and has been mapped into range [0.0, 1.0]
 /// true value of [ui] indicates that Android/iOS system volume changed UI is shown for this volume change event
 /// [streamType] shows track\stream type for this volume change, this value is always [FijkVolume.STREAM_MUSIC] in this version
 typedef FijkVolumeCallback = void Function(FijkVolumeEvent value);
@@ -203,19 +203,21 @@ class FijkVolumeWatcher extends StatefulWidget {
 }
 
 class _FijkVolumeWatcherState extends State<FijkVolumeWatcher> {
-  OverlayEntry _entry;
-  Timer _timer;
+  static OverlayEntry _entry;
+  static Timer _timer;
+  StreamController<double> _volController;
 
   @override
   void initState() {
     super.initState();
+    _volController = StreamController.broadcast();
     FijkVolume.addListener(volChanged);
     FijkVolume.setUIMode(FijkVolume.hideUIWhenPlayable);
   }
 
   void volChanged() {
     FijkVolumeEvent value = FijkVolume.value;
-
+    _volController.add(value.vol);
     if (widget.watcher != null) {
       widget.watcher(value);
     }
@@ -228,12 +230,12 @@ class _FijkVolumeWatcherState extends State<FijkVolumeWatcher> {
   void showVolToast(double vol) {
     bool active = _timer?.isActive;
     _timer?.cancel();
-    Widget widget = defaultFijkVolumeToast();
+    Widget widget = defaultFijkVolumeToast(vol, _volController.stream);
     if (active == null || active == false) {
       _entry = OverlayEntry(builder: (_) => widget);
       Overlay.of(context).insert(_entry);
     }
-    _timer = Timer(const Duration(milliseconds: 1000), () {
+    _timer = Timer(const Duration(milliseconds: 800), () {
       _entry?.remove();
     });
   }
@@ -242,6 +244,7 @@ class _FijkVolumeWatcherState extends State<FijkVolumeWatcher> {
   void dispose() {
     super.dispose();
     FijkVolume.removeListener(volChanged);
+    _volController.close();
   }
 
   @override

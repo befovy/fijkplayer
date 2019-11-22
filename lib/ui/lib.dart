@@ -35,4 +35,3 @@ import '../core/lib.dart';
 
 part 'panel.dart';
 part 'volume.dart';
-part 'volume_panel.dart';

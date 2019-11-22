@@ -23,77 +23,91 @@
 part of ui;
 
 /// Default builder generate default FijkVolToast UI
-Widget defaultFijkVolumeToast() {
-  return _FijkVolToast();
+Widget defaultFijkVolumeToast(double value, Stream<double> emitter) {
+  return _FijkSliderToast(value, 0, emitter);
 }
 
-class _FijkVolToast extends StatefulWidget {
+Widget defaultFijkBrightnessToast(double value, Stream<double> emitter) {
+  return _FijkSliderToast(value, 1, emitter);
+}
+
+class _FijkSliderToast extends StatefulWidget {
+  final Stream<double> emitter;
+  final double initial;
+
+  // type 0 volume
+  // type 1 screen brightness
+  final int type;
+
+  _FijkSliderToast(this.initial, this.type, this.emitter);
+
   @override
-  __FijkVolToastState createState() => __FijkVolToastState();
+  _FijkSliderToastState createState() => _FijkSliderToastState();
 }
 
-class __FijkVolToastState extends State<_FijkVolToast> {
-  double vol;
+class _FijkSliderToastState extends State<_FijkSliderToast> {
+  double value;
+  StreamSubscription subs;
 
   @override
   void initState() {
     super.initState();
-    vol = FijkVolume.value.vol;
-    FijkVolume.addListener(volChanged);
-    FijkVolume.setUIMode(FijkVolume.hideUIWhenPlayable);
-  }
-
-  void volChanged() {
-    FijkVolumeEvent value = FijkVolume.value;
-    setState(() {
-      vol = value.vol;
+    value = widget.initial;
+    subs = widget.emitter.listen((v) {
+      setState(() {
+        value = v;
+      });
     });
   }
 
   @override
   void dispose() {
     super.dispose();
-    FijkVolume.removeListener(volChanged);
+    subs?.cancel();
   }
 
   @override
   Widget build(BuildContext context) {
-    IconData iconData = Icons.volume_up;
-
-    if (vol <= 0) {
-      iconData = Icons.volume_mute;
-    } else if (vol < 0.5) {
-      iconData = Icons.volume_down;
-    } else {
-      iconData = Icons.volume_up;
+    IconData iconData;
+    final type = widget.type;
+    if (widget.type == 0) {
+      if (value <= 0) {
+        iconData = type == 0 ? Icons.volume_mute : Icons.brightness_low;
+      } else if (value < 0.5) {
+        iconData = type == 0 ? Icons.volume_down : Icons.brightness_medium;
+      } else {
+        iconData = type == 0 ? Icons.volume_up : Icons.brightness_high;
+      }
     }
 
-    String v = (vol * 100).toStringAsFixed(0);
+    final primaryColor = Theme.of(context).primaryColor;
     return Align(
-      alignment: Alignment(0, -0.6),
-      child: Container(
-          color: Color(0x44554444),
-          padding: EdgeInsets.all(5),
-          decoration: null,
-          width: 100,
+      alignment: Alignment(0, -0.4),
+      child: Card(
+        color: Color(0x33000000),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Icon(
                 iconData,
                 color: Colors.white,
-                size: 30.0,
               ),
-              Text(
-                v,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 20,
-                  decoration: null,
+              Container(
+                width: 100,
+                height: 1.5,
+                margin: EdgeInsets.only(left: 8),
+                child: LinearProgressIndicator(
+                  value: value,
+                  backgroundColor: Colors.black,
+                  valueColor: AlwaysStoppedAnimation(primaryColor),
                 ),
-              )
+              ),
             ],
-          )),
+          ),
+        ),
+      ),
     );
   }
 }
