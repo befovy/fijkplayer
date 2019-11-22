@@ -25,12 +25,14 @@ part of core;
 class FijkOption {
   final Map<int, Map<String, dynamic>> _options = HashMap();
 
+  final Map<String, dynamic> _hostOption = HashMap();
   final Map<String, dynamic> _formatOption = HashMap();
   final Map<String, dynamic> _codecOption = HashMap();
   final Map<String, dynamic> _swsOption = HashMap();
   final Map<String, dynamic> _playerOption = HashMap();
   final Map<String, dynamic> _swrOption = HashMap();
 
+  static const int hostCategory = 0;
   static const int formatCategory = 1;
   static const int codecCategory = 2;
   static const int swsCategory = 3;
@@ -39,6 +41,7 @@ class FijkOption {
 
   Map<int, Map<String, dynamic>> get data {
     final Map<int, Map<String, dynamic>> options = HashMap();
+    options[0] = Map.from(_hostOption);
     options[1] = Map.from(_formatOption);
     options[2] = Map.from(_codecOption);
     options[3] = Map.from(_swsOption);
@@ -49,11 +52,24 @@ class FijkOption {
   }
 
   FijkOption() {
+    _options[0] = _hostOption;
     _options[1] = _formatOption;
     _options[2] = _codecOption;
     _options[3] = _swsOption;
     _options[4] = _playerOption;
     _options[5] = _swrOption;
+  }
+
+  /// set host option
+  /// [value] must be int or String
+  void setHostOption(String key, dynamic value) {
+    if (value is String || value is int) {
+      _hostOption[key] = value;
+      FijkLog.v("FijkOption.setHostOption key:$key, value :$value");
+    } else {
+      FijkLog.e("FijkOption.setHostOption with invalid value:$value");
+      throw ArgumentError.value(value, "value", "Must be int or String");
+    }
   }
 
   /// set player option
