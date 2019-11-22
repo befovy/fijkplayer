@@ -20,44 +20,20 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
-package com.befovy.fijkplayer;
+#import <Foundation/Foundation.h>
 
+NS_ASSUME_NONNULL_BEGIN
 
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+@interface FijkHostOption : NSObject
 
-import tv.danmaku.ijk.media.player.misc.IMediaDataSource;
+- (void)setIntValue:(NSNumber *)value forKey:(NSString *)key;
 
-public class FileMediaDataSource implements IMediaDataSource {
-    private RandomAccessFile mFile;
-    private long mFileSize;
+- (void)setStrValue:(NSString *)value forKey:(NSString *)key;
 
-    public FileMediaDataSource(File file) throws IOException {
-        mFile = new RandomAccessFile(file, "r");
-        mFileSize = mFile.length();
-    }
+- (NSNumber *)getIntValue:(NSString *)kay defalt:(NSNumber *)defalt;
 
-    @Override
-    public int readAt(long position, byte[] buffer, int offset, int size) throws IOException {
-        if (mFile.getFilePointer() != position)
-            mFile.seek(position);
+- (NSString *)getStrValue:(NSString *)key defalt:(NSString *)defalt;
 
-        if (size == 0)
-            return 0;
+@end
 
-        return mFile.read(buffer, 0, size);
-    }
-
-    @Override
-    public long getSize() throws IOException {
-        return mFileSize;
-    }
-
-    @Override
-    public void close() throws IOException {
-        mFileSize = 0;
-        mFile.close();
-        mFile = null;
-    }
-}
+NS_ASSUME_NONNULL_END

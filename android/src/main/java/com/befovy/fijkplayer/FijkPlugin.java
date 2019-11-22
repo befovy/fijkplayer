@@ -1,9 +1,33 @@
+//MIT License
+//
+//Copyright (c) [2019] [Befovy]
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+//
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+//
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+
 package com.befovy.fijkplayer;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.media.AudioAttributes;
+import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.os.Build;
 import android.util.Log;
@@ -26,11 +50,12 @@ import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 /**
  * FijkPlugin
  */
-public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListener {
+public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListener, AudioManager.OnAudioFocusChangeListener {
 
     /**
      * Plugin registration.
      */
+    @SuppressWarnings("unused")
     public static void registerWith(Registrar registrar) {
         final MethodChannel channel = new MethodChannel(registrar.messenger(), "befovy.com/fijk");
         _instance = new FijkPlugin(registrar);
@@ -79,7 +104,10 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
     @SuppressWarnings("FieldCanBeLocal")
     final private EventChannel mEventChannel;
 
-    final QueuingEventSink mEventSink = new QueuingEventSink();
+    private final QueuingEventSink mEventSink = new QueuingEventSink();
+
+    private Object mAudioFocusRequest;
+    private boolean mAudioFocusRequested = false;
 
 
     private FijkPlugin(Registrar registrar) {
@@ -186,6 +214,14 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
                 }
                 result.success(null);
                 break;
+            case "requestAudioFocus":
+                audioFocus(true);
+                result.success(null);
+                break;
+            case "releaseAudioFocus":
+                audioFocus(false);
+                result.success(null);
+                break;
             case "volumeDown":
                 float stepDown = volStep;
                 if (call.hasArgument("step")) {
@@ -243,12 +279,61 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
         playableCnt += delta;
     }
 
-    public int getPlayableCnt() {
-        return playableCnt;
+    @Override
+    public void onAudioFocusChange(int focusChange) {
+        switch (focusChange) {
+            case AudioManager.AUDIOFOCUS_GAIN:
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS:
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                mAudioFocusRequested = false;
+                mAudioFocusRequest = null;
+                break;
+        }
+        Log.i("FIJKPLAYER", "onAudioFocusChange: " + focusChange);
     }
 
-    public int getPlayingCnt() {
-        return playingCnt;
+    /**
+     * @param request true to request audio focus
+     *                false to release audio focus
+     */
+    void audioFocus(boolean request) {
+        AudioManager audioManager = audioManager();
+        if (audioManager == null)
+            return;
+        Log.i("FIJKPLAYER", "audioFocus " + (request ? "request" : "release") + " state:" + mAudioFocusRequested);
+        if (request && !mAudioFocusRequested) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                AudioAttributes audioAttributes =
+                        new AudioAttributes.Builder()
+                                .setUsage(AudioAttributes.USAGE_MEDIA)
+                                .setContentType(AudioAttributes.CONTENT_TYPE_MOVIE)
+                                .build();
+
+                AudioFocusRequest audioFocusRequest =
+                        new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+                                .setAudioAttributes(audioAttributes)
+                                .setAcceptsDelayedFocusGain(true)
+                                .setOnAudioFocusChangeListener(this) // Need to implement listener
+                                .build();
+                mAudioFocusRequest = audioFocusRequest;
+                audioManager.requestAudioFocus(audioFocusRequest);
+            } else {
+                audioManager.requestAudioFocus(this,
+                        AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+            }
+            mAudioFocusRequested = true;
+        } else if (mAudioFocusRequested) {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                if (mAudioFocusRequest != null) {
+                    audioManager.abandonAudioFocusRequest((AudioFocusRequest) mAudioFocusRequest);
+                    mAudioFocusRequest = null;
+                }
+            } else {
+                audioManager.abandonAudioFocus(this);
+            }
+            mAudioFocusRequested = false;
+        }
     }
 
     private AudioManager audioManager() {
@@ -256,7 +341,7 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
         return (AudioManager) activity.getSystemService(Context.AUDIO_SERVICE);
     }
 
-    public float systemVolume() {
+    private float systemVolume() {
         AudioManager audioManager = audioManager();
         float max = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
         float vol = (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
@@ -275,21 +360,21 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
         }
     }
 
-    public float volumeUp(float step) {
+    private float volumeUp(float step) {
         float vol = systemVolume();
         vol = vol + step;
         vol = setSystemVolume(vol);
         return vol;
     }
 
-    public float volumeDown(float step) {
+    private float volumeDown(float step) {
         float vol = systemVolume();
         vol = vol - step;
         vol = setSystemVolume(vol);
         return vol;
     }
 
-    public float volumeMute() {
+    private float volumeMute() {
         setSystemVolume(0.0f);
         return 0.0f;
     }

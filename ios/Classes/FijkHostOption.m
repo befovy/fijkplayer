@@ -20,44 +20,45 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
-package com.befovy.fijkplayer;
+#import "FijkHostOption.h"
 
+@implementation FijkHostOption {
+    NSMutableDictionary<NSString *, NSNumber *> *_intOption;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-
-import tv.danmaku.ijk.media.player.misc.IMediaDataSource;
-
-public class FileMediaDataSource implements IMediaDataSource {
-    private RandomAccessFile mFile;
-    private long mFileSize;
-
-    public FileMediaDataSource(File file) throws IOException {
-        mFile = new RandomAccessFile(file, "r");
-        mFileSize = mFile.length();
-    }
-
-    @Override
-    public int readAt(long position, byte[] buffer, int offset, int size) throws IOException {
-        if (mFile.getFilePointer() != position)
-            mFile.seek(position);
-
-        if (size == 0)
-            return 0;
-
-        return mFile.read(buffer, 0, size);
-    }
-
-    @Override
-    public long getSize() throws IOException {
-        return mFileSize;
-    }
-
-    @Override
-    public void close() throws IOException {
-        mFileSize = 0;
-        mFile.close();
-        mFile = null;
-    }
+    NSMutableDictionary<NSString *, NSString *> *_strOption;
 }
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        _intOption = [[NSMutableDictionary alloc] init];
+        _strOption = [[NSMutableDictionary alloc] init];
+    }
+    return self;
+}
+
+- (void)setIntValue:(NSNumber *)value forKey:(NSString *)key {
+    _intOption[key] = value;
+}
+
+- (void)setStrValue:(NSString *)value forKey:(NSString *)key {
+    _strOption[key] = value;
+}
+
+- (NSNumber *)getIntValue:(NSString *)key defalt:(NSNumber *)defalt {
+    NSNumber *value = defalt;
+    if ([_intOption objectForKey:key] != nil) {
+        value = [_intOption objectForKey:key];
+    }
+    return value;
+}
+
+- (NSString *)getStrValue:(NSString *)key defalt:(NSString *)defalt {
+    NSString *value = defalt;
+    if ([_strOption objectForKey:key] != nil) {
+        value = [_strOption objectForKey:key];
+    }
+    return value;
+}
+
+@end

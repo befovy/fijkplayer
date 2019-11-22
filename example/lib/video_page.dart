@@ -21,13 +21,16 @@ class _VideoScreenState extends State<VideoScreen> {
   @override
   void initState() {
     super.initState();
+    startPlay();
+  }
+
+  void startPlay() async {
+    await player.setOption(
+        FijkOption.playerCategory, "enable-accurate-seek", 1);
+    await player.setOption(FijkOption.hostCategory, "request-audio-focus", 1);
     player.setDataSource(widget.url, autoPlay: true).catchError((e) {
-      FijkException fe = e as FijkException;
-      //setState(() {
-      //  errorMsg = fe.message;
-      //});
-      print("setDataSource exception: $fe");
-    }, test: (e) => e is FijkException);
+      print("setDataSource error: $e");
+    });
   }
 
   @override

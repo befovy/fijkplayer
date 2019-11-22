@@ -22,42 +22,50 @@
 
 package com.befovy.fijkplayer;
 
+import java.util.HashMap;
+import java.util.Map;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+final class HostOption {
 
-import tv.danmaku.ijk.media.player.misc.IMediaDataSource;
+    final public static String REQUEST_AUDIOFOCUS = "request-audio-focus";
+    final public static String RELEASE_AUDIOFOCUS = "release-audio-focus";
 
-public class FileMediaDataSource implements IMediaDataSource {
-    private RandomAccessFile mFile;
-    private long mFileSize;
+    final private Map<String, Integer> mIntOption;
 
-    public FileMediaDataSource(File file) throws IOException {
-        mFile = new RandomAccessFile(file, "r");
-        mFileSize = mFile.length();
+    final private Map<String, String> mStrOption;
+
+
+    public HostOption() {
+        this.mIntOption = new HashMap<>();
+        this.mStrOption = new HashMap<>();
     }
 
-    @Override
-    public int readAt(long position, byte[] buffer, int offset, int size) throws IOException {
-        if (mFile.getFilePointer() != position)
-            mFile.seek(position);
 
-        if (size == 0)
-            return 0;
-
-        return mFile.read(buffer, 0, size);
+    public void addIntOption(String key, Integer value) {
+        mIntOption.put(key, value);
     }
 
-    @Override
-    public long getSize() throws IOException {
-        return mFileSize;
+    public void addStrOption(String key, String value) {
+        mStrOption.put(key, value);
     }
 
-    @Override
-    public void close() throws IOException {
-        mFileSize = 0;
-        mFile.close();
-        mFile = null;
+    public int getIntOption(String key, int defalt) {
+        int value = defalt;
+        if (mIntOption.containsKey(key)) {
+            Integer v = mIntOption.get(key);
+            if (v != null)
+                value = v;
+        }
+        return value;
+    }
+
+    public String getStrOption(String key, String defalt) {
+        String value = defalt;
+        if (mStrOption.containsKey(key)) {
+            String v = mStrOption.get(key);
+            if (v != null)
+                value = v;
+        }
+        return value;
     }
 }

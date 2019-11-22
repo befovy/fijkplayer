@@ -1,3 +1,25 @@
+//MIT License
+//
+//Copyright (c) [2019] [Befovy]
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files (the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions:
+//
+//The above copyright notice and this permission notice shall be included in all
+//copies or substantial portions of the Software.
+//
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//SOFTWARE.
+
 package com.befovy.fijkplayer;
 
 import android.content.Context;
@@ -46,7 +68,6 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
     final private static int end = 9;
 
     final private int mPlayerId;
-    private int mState;
     final private IjkMediaPlayer mIjkMediaPlayer;
     final private Context mContext;
 
@@ -61,7 +82,9 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
     final private PluginRegistry.Registrar mRegistrar;
 
     final private QueuingEventSink mEventSink = new QueuingEventSink();
+    final private HostOption mHostOptions = new HostOption();
 
+    private int mState;
     private TextureRegistry.SurfaceTextureEntry mSurfaceTextureEntry;
     private SurfaceTexture mSurfaceTexture;
     private Surface mSurface;
@@ -92,7 +115,6 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
                 mEventSink.setDelegate(null);
             }
         });
-
     }
 
     int getPlayerId() {
@@ -138,8 +160,16 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
             return;
         if (newState == started && oldState != started) {
             plugin.onPlayingChange(1);
+
+            if (mHostOptions.getIntOption(HostOption.REQUEST_AUDIOFOCUS, 0) == 1) {
+                plugin.audioFocus(true);
+            }
         } else if (newState != started && oldState == started) {
             plugin.onPlayingChange(-1);
+
+            if (mHostOptions.getIntOption(HostOption.RELEASE_AUDIOFOCUS, 0) == 1) {
+                plugin.audioFocus(false);
+            }
         }
 
         if (isPlayable(newState) && !isPlayable(oldState)) {
@@ -239,12 +269,20 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
                     Map optionMap = (Map) option;
                     for (Object key : optionMap.keySet()) {
                         Object value = optionMap.get(key);
-                        if (key instanceof String) {
+                        if (key instanceof String && cat != 0) {
                             String name = (String) key;
                             if (value instanceof Integer) {
                                 mIjkMediaPlayer.setOption(cat, name, (Integer) value);
                             } else if (value instanceof String) {
                                 mIjkMediaPlayer.setOption(cat, name, (String) value);
+                            }
+                        } else if (key instanceof String) {
+                            // cat == 0, hostCategory
+                            String name = (String) key;
+                            if (value instanceof Integer) {
+                                mHostOptions.addIntOption(name, (Integer) value);
+                            } else if (value instanceof String) {
+                                mHostOptions.addStrOption(name, (String) value);
                             }
                         }
                     }
@@ -264,10 +302,20 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
             final String key = call.argument("key");
             if (call.hasArgument("long")) {
                 final Integer value = call.argument("long");
-                mIjkMediaPlayer.setOption(category != null ? category : 0, key, value != null ? value.longValue() : 0);
+                if (category != null && category != 0) {
+                    mIjkMediaPlayer.setOption(category, key, value != null ? value.longValue() : 0);
+                } else if (category != null) {
+                    // cat == 0, hostCategory
+                    mHostOptions.addIntOption(key, value);
+                }
             } else if (call.hasArgument("str")) {
                 final String value = call.argument("str");
-                mIjkMediaPlayer.setOption(category != null ? category : 0, key, value);
+                if (category != null && category != 0) {
+                    mIjkMediaPlayer.setOption(category, key, value);
+                } else if (category != null) {
+                    // cat == 0, hostCategory
+                    mHostOptions.addStrOption(key, value);
+                }
             } else {
                 Log.w("FIJKPLAYER", "error arguments for setOptions");
             }
