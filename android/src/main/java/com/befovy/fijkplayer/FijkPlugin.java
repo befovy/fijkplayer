@@ -285,6 +285,7 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
             case AudioManager.AUDIOFOCUS_GAIN:
                 break;
             case AudioManager.AUDIOFOCUS_LOSS:
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
                 mAudioFocusRequested = false;
                 mAudioFocusRequest = null;
                 break;
