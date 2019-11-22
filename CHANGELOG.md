@@ -1,5 +1,14 @@
 # Changelog
 
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+## [0.2.2](https://github.com/befovy/fijkplayer/compare/v0.2.1...v0.2.2) (2019-11-22)
+--------------------------------
+
+* add Android audiofocus request and releasse.  closes [#89](https://github.com/befovy/fijkplayer/issues/89)
+* add hostOptions for iOS and Android ([#114](https://github.com/befovy/fijkplayer/issues/114)) ([9bb344a](https://github.com/befovy/fijkplayer/commit/9bb344adcdf9069e189bf38eae9ee27ccafec12a)), closes [#113](https://github.com/befovy/fijkplayer/issues/113)
+* buffer percent, notify current position from msg queue ([#111](https://github.com/befovy/fijkplayer/issues/111)) ([86357fe](https://github.com/befovy/fijkplayer/commit/86357fef191f72065ad64dc6078c684beca2214d))
+* example: enable-accurate-seek option, fix [#113](https://github.com/befovy/fijkplayer/issues/113) ([7b72f77](https://github.com/befovy/fijkplayer/commit/7b72f7751716048c90dd3b2940c8114888f8a1f4))
 
 ## [0.2.1](https://github.com/befovy/fijkplayer/compare/v0.2.0...v0.2.1) (2019-11-16)
 --------------------------------
