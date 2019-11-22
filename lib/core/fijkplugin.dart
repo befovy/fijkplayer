@@ -41,6 +41,7 @@ class FijkPlugin {
         Platform.isFuchsia;
   }
 
+  /// Only works on Android and iOS
   static Future<void> setOrientationPortrait() {
     if (isDesktop()) return Future.value();
     // ios crash Supported orientations has no common orientation with the application
@@ -51,10 +52,11 @@ class FijkPlugin {
     return _channel.invokeMethod("setOrientationPortrait");
   }
 
-  // return false if current orientation is landscape
-  // return true if current orientation is portrait and after this API
-  // call finished, the orientation becomes landscape.
-  // return false if can't change orientation.
+  /// Only works on Android and iOS
+  /// return false if current orientation is landscape
+  /// return true if current orientation is portrait and after this API
+  /// call finished, the orientation becomes landscape.
+  /// return false if can't change orientation.
   static Future<bool> setOrientationLandscape() {
     if (isDesktop()) return Future.value(false);
     if (Platform.isAndroid) {
@@ -69,6 +71,24 @@ class FijkPlugin {
       SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     }
     return _channel.invokeMethod("setOrientationAuto");
+  }
+
+  /// Only works on Android
+  /// request audio focus for media usage
+  static Future<void> requestAudioFocus() {
+    if (Platform.isAndroid) {
+      return _channel.invokeMethod("requestAudioFocus");
+    }
+    return Future.value();
+  }
+
+  /// Only works on Android
+  /// release audio focus
+  static Future<void> releaseAudioFocus() {
+    if (Platform.isAndroid) {
+      return _channel.invokeMethod("releaseAudioFocus");
+    }
+    return Future.value();
   }
 
   static Future<void> _setLogLevel(int level) {

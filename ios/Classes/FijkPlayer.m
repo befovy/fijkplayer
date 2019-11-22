@@ -6,6 +6,7 @@
 //
 
 #import "FijkPlayer.h"
+#import "FijkHostOption.h"
 #import "FijkPlugin.h"
 #import "FijkQueuingEventSink.h"
 
@@ -37,6 +38,7 @@ static atomic_int atomicId = 0;
     CVPixelBufferRef volatile _latestPixelBuffer;
     CVPixelBufferRef _lastBuffer;
 
+    FijkHostOption *_hostOption;
     int _state;
     int _pid;
     int64_t _vid;
@@ -69,6 +71,7 @@ static int renderType = 0;
         _vid = -1;
         _state = 0;
 
+        _hostOption = [[FijkHostOption alloc] init];
         _lastBuffer = nil;
         if (renderType == 0) {
             _ijkMediaPlayer = [[IJKFFMediaPlayer alloc] init];
@@ -337,15 +340,23 @@ static int renderType = 0;
         for (NSString *key in option) {
             id optValue = [option objectForKey:key];
             if ([optValue isKindOfClass:[NSNumber class]]) {
-                [_ijkMediaPlayer
-                    setOptionIntValue:[optValue longLongValue]
-                               forKey:key
-                           ofCategory:(IJKFFOptionCategory)[cat intValue]];
+                if ([cat intValue] == 0) {
+                    [_hostOption setIntValue:optValue forKey:key];
+                } else {
+                    [_ijkMediaPlayer
+                        setOptionIntValue:[optValue longLongValue]
+                                   forKey:key
+                               ofCategory:(IJKFFOptionCategory)[cat intValue]];
+                }
             } else if ([optValue isKindOfClass:[NSString class]]) {
-                [_ijkMediaPlayer
-                    setOptionValue:optValue
-                            forKey:key
-                        ofCategory:(IJKFFOptionCategory)[cat intValue]];
+                if ([cat intValue] == 0) {
+                    [_hostOption setStrValue:optValue forKey:key];
+                } else {
+                    [_ijkMediaPlayer
+                        setOptionValue:optValue
+                                forKey:key
+                            ofCategory:(IJKFFOptionCategory)[cat intValue]];
+                }
             }
         }
     }
@@ -362,14 +373,23 @@ static int renderType = 0;
         NSString *key = argsMap[@"key"];
         if (argsMap[@"long"] != nil) {
             int64_t value = [argsMap[@"long"] longLongValue];
-            [_ijkMediaPlayer setOptionIntValue:value
-                                        forKey:key
-                                    ofCategory:(IJKFFOptionCategory)category];
+            if (category == 0) {
+                [_hostOption setIntValue:argsMap[@"long"] forKey:key];
+            } else {
+                [_ijkMediaPlayer
+                    setOptionIntValue:value
+                               forKey:key
+                           ofCategory:(IJKFFOptionCategory)category];
+            }
         } else if (argsMap[@"str"] != nil) {
             NSString *value = argsMap[@"str"];
-            [_ijkMediaPlayer setOptionValue:value
-                                     forKey:key
-                                 ofCategory:(IJKFFOptionCategory)category];
+            if (category == 0) {
+                [_hostOption setStrValue:value forKey:key];
+            } else {
+                [_ijkMediaPlayer setOptionValue:value
+                                         forKey:key
+                                     ofCategory:(IJKFFOptionCategory)category];
+            }
         } else {
             NSLog(@"FIJKPLAYER: error arguments for setOptions");
         }

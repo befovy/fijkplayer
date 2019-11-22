@@ -158,7 +158,6 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
       FijkLog.i("player id:$_playerId, start after setup");
       await _startFromAnyState();
     }
-
   }
 
   /// Check if player is playable
