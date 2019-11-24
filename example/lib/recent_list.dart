@@ -8,6 +8,7 @@ const List<MediaUrl> samples = [
   MediaUrl(
       title: "http 404", url: "https://fijkplayer.befovy.com/butterfly.flv"),
   MediaUrl(title: "assets file", url: "asset:///assets/butterfly.mp4"),
+  MediaUrl(title: "assets file 404", url: "asset:///assets/beebee.mp4"),
   MediaUrl(
       title: "Protocol not found", url: "noprotocol://assets/butterfly.mp4"),
   MediaUrl(

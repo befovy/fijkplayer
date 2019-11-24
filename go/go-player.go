@@ -26,6 +26,9 @@ import (
 	"fmt"
 	"github.com/go-flutter-desktop/go-flutter"
 	"github.com/go-flutter-desktop/go-flutter/plugin"
+	"net/url"
+	"os"
+	"path/filepath"
 	"sync/atomic"
 )
 
@@ -73,6 +76,7 @@ type FijkPlayer struct {
 
 	ijk *ijkplayer
 
+	hostOptions   *hostOptions
 	lastBuffer    *flutter.PixelBuffer
 	pixels        *flutter.PixelBuffer
 	texture       flutter.Texture
@@ -100,6 +104,7 @@ func (f *FijkPlayer) initPlayer(messenger plugin.BinaryMessenger, tex *flutter.T
 	f.texRegistry = tex
 	f.sink = &queueEventSink{}
 
+	f.hostOptions = newHostOptions()
 	f.ijk = newIjkPlayer()
 	f.ijk.addEventListener(f.eventListener)
 	f.ijk.setOption(FFP_OPT_CATEGORY_PLAYER, "overlay-format", "fcc-rgba")
@@ -189,9 +194,17 @@ func (f *FijkPlayer) handleSetOption(arguments interface{}) (reply interface{}, 
 	}
 	if f.ijk != nil && cat >= 0 && len(key) > 0 {
 		if intValue, exist := args["long"]; exist {
-			f.ijk.setIntOption(cat, key, numInt64(intValue, 0))
+			if cat != 0 {
+				f.ijk.setIntOption(cat, key, numInt64(intValue, 0))
+			} else {
+				f.hostOptions.addIntOption(key, numInt64(intValue, 0))
+			}
 		} else if strValue, exist := args["str"]; exist {
-			f.ijk.setOption(cat, key, strValue.(string))
+			if cat != 0 {
+				f.ijk.setOption(cat, key, strValue.(string))
+			} else {
+				f.hostOptions.addStrOption(key, strValue.(string))
+			}
 		}
 	}
 	return nil, nil
@@ -208,9 +221,17 @@ func (f *FijkPlayer) handleApplyOptions(arguments interface{}) (reply interface{
 				intValue, intValueOk := v.(int64)
 				strValue, strValueOk := v.(string)
 				if kOk && intValueOk {
-					f.ijk.setIntOption(cat, key, intValue)
+					if cat != 0 {
+						f.ijk.setIntOption(cat, key, intValue)
+					} else {
+						f.hostOptions.addIntOption(key, intValue)
+					}
 				} else if kOk && strValueOk {
-					f.ijk.setOption(cat, key, strValue)
+					if cat != 0 {
+						f.ijk.setOption(cat, key, strValue)
+					} else {
+						f.hostOptions.addStrOption(key, strValue)
+					}
 				}
 			}
 		}
@@ -220,9 +241,17 @@ func (f *FijkPlayer) handleApplyOptions(arguments interface{}) (reply interface{
 
 func (f *FijkPlayer) handleSetDataSource(arguments interface{}) (reply interface{}, err error) {
 	args := arguments.(map[interface{}]interface{})
-	url, ok := args["url"]
+	source, ok := args["url"]
 	if ok {
-		if urlStr, urlStrOk := url.(string); urlStrOk {
+		if urlStr, urlStrOk := source.(string); urlStrOk {
+			u, err := url.Parse(urlStr)
+			if err == nil && u != nil && u.Scheme == "asset" {
+				ex, err := os.Executable()
+				if err == nil {
+					exPath := filepath.Dir(ex)
+					urlStr = filepath.Join(exPath, "flutter_assets", u.Path)
+				}
+			}
 			f.ijk.setDataSource(urlStr)
 		}
 	}
