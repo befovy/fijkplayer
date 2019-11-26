@@ -68,6 +68,8 @@ docs-zh:
   #     - title: 响应 App 生命周期
   - title: 附加内容
     children:
+      - title: FAQ
+        url:   /docs/zh/faq.html
       - title: 系统音量调节
         url:   /docs/zh/system-volume.html
   - title: 其他语言
