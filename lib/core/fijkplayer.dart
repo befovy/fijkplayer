@@ -429,6 +429,11 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
         _setValue(value.copyWith(duration: dur, prepared: true));
         FijkLog.i("$this prepared duration $dur");
         break;
+      case 'rotate':
+        int degree = map['degree'];
+        _setValue(value.copyWith(rotate: degree));
+        FijkLog.i("$this rotate degree $degree");
+        break;
       case 'state_change':
         int newStateId = map['new'];
         int _oldState = map['old'];

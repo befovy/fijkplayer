@@ -72,7 +72,6 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
   Duration _duration = Duration();
   Duration _currentPos = Duration();
 
-  // Duration _bufferPos = Duration();
   bool _playing = false;
   bool _prepared = false;
   String _exception;
@@ -112,22 +111,6 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
         _currentPos = v;
       });
     });
-
-    /*
-    _bufferPosSubs = player.onBufferPosUpdate.listen((v) {
-      setState(() {
-        _bufferPos = v;
-      });
-    });
-    */
-
-    /*
-    _bufferingSubs = player.onBufferStateUpdate.listen((v) {
-      setState(() {
-        _buffering = v;
-      });
-    });
-    */
   }
 
   void _playerValueChanged() {
@@ -189,6 +172,25 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
     });
   }
 
+  Widget _buildVolumeButton() {
+    IconData iconData;
+    if (_volume <= 0) {
+      iconData = Icons.volume_off;
+    } else {
+      iconData = Icons.volume_up;
+    }
+    return IconButton(
+      icon: Icon(iconData),
+      padding: EdgeInsets.only(left: 10.0, right: 10.0),
+      onPressed: () {
+        setState(() {
+          _volume = _volume > 0 ? 0.0 : 1.0;
+          player.setVolume(_volume);
+        });
+      },
+    );
+  }
+
   AnimatedOpacity _buildBottomBar(BuildContext context) {
     double duration = _duration.inMilliseconds.toDouble();
     double currentValue =
@@ -203,16 +205,7 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
         color: Theme.of(context).dialogBackgroundColor,
         child: Row(
           children: <Widget>[
-            IconButton(
-                icon: Icon(_volume > 0 ? Icons.volume_up : Icons.volume_off),
-                padding: EdgeInsets.only(left: 10.0, right: 10.0),
-                onPressed: () {
-                  setState(() {
-                    _volume = _volume > 0 ? 0.0 : 1.0;
-                    player.setVolume(_volume);
-                  });
-                }),
-
+            _buildVolumeButton(),
             Padding(
               padding: EdgeInsets.only(right: 5.0, left: 5),
               child: Text(
@@ -222,9 +215,7 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
             ),
 
             _duration.inMilliseconds == 0
-                ? Expanded(
-                    child: Center(),
-                  )
+                ? Expanded(child: Center())
                 : Expanded(
                     child: Padding(
                       padding: EdgeInsets.only(right: 0, left: 0),

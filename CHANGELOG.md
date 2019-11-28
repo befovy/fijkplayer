@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.2.3](https://github.com/befovy/fijkplayer/compare/v0.2.2...v0.2.3) (2019-11-28)
+--------------------------------
+
+* asset URL scheme for go-flutter ([#116](https://github.com/befovy/fijkplayer/issues/116)) ([6c72711](https://github.com/befovy/fijkplayer/commit/6c727118b1281c547a74fd25b0dd6931eda721eb))
+* new volume panel ([#119](https://github.com/befovy/fijkplayer/issues/119)) ([948ef8b](https://github.com/befovy/fijkplayer/commit/948ef8b6a3913d509dfaab757acc2d22777690fb)), closes [#109](https://github.com/befovy/fijkplayer/issues/109)
+* rotate video which has metadata rotation ([#120](https://github.com/befovy/fijkplayer/issues/120)) ([b12699b](https://github.com/befovy/fijkplayer/commit/b12699bc8a6fd2b4cfdb58afbd3b66f220526708)), closes [#81](https://github.com/befovy/fijkplayer/issues/81)
+
 ## [0.2.2](https://github.com/befovy/fijkplayer/compare/v0.2.1...v0.2.2) (2019-11-22)
 --------------------------------
 
