@@ -105,9 +105,11 @@ matrix:
             exit 1
           fi;
         - pod repo update
+        - flutter pub get
         - flutter test
         - cd example
-        - cd ios && pod install &&cd -
+        - flutter pub get
+        - cd ios && pod install && cd -
         - flutter -v build ios --no-codesign
         - flutter test
         - cd -

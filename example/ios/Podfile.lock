@@ -13,7 +13,7 @@ PODS:
 
 DEPENDENCIES:
   - fijkplayer (from `.symlinks/plugins/fijkplayer/ios`)
-  - Flutter (from `.symlinks/flutter/ios`)
+  - Flutter (from `Flutter`)
   - path_provider (from `.symlinks/plugins/path_provider/ios`)
   - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
   - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
@@ -26,7 +26,7 @@ EXTERNAL SOURCES:
   fijkplayer:
     :path: ".symlinks/plugins/fijkplayer/ios"
   Flutter:
-    :path: ".symlinks/flutter/ios"
+    :path: Flutter
   path_provider:
     :path: ".symlinks/plugins/path_provider/ios"
   permission_handler:
@@ -42,6 +42,6 @@ SPEC CHECKSUMS:
   permission_handler: 67637977b227d62d46bfbf524f335f8568de5a73
   shared_preferences: 430726339841afefe5142b9c1f50cb6bd7793e01
 
-PODFILE CHECKSUM: b6f155507492e42c4dbc2abea3e3c02cbba6e476
+PODFILE CHECKSUM: 3dbe063e9c90a5d7c9e4e76e70a821b9e2c1d271
 
 COCOAPODS: 1.7.4
