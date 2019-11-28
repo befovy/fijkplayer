@@ -1,24 +1,24 @@
-//MIT License
+// MIT License
 //
-//Copyright (c) [2019] [Befovy]
+// Copyright (c) [2019] [Befovy]
 //
-//Permission is hereby granted, free of charge, to any person obtaining a copy
-//of this software and associated documentation files (the "Software"), to deal
-//in the Software without restriction, including without limitation the rights
-//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-//copies of the Software, and to permit persons to whom the Software is
-//furnished to do so, subject to the following conditions:
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-//The above copyright notice and this permission notice shall be included in all
-//copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
-//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-//SOFTWARE.
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 
 #import "FijkPlayer.h"
 #import "FijkHostOption.h"
@@ -53,6 +53,10 @@ static atomic_int atomicId = 0;
     CVPixelBufferRef volatile _latestPixelBuffer;
     CVPixelBufferRef _lastBuffer;
 
+    int _width;
+    int _height;
+    int _rotate;
+
     FijkHostOption *_hostOption;
     int _state;
     int _pid;
@@ -84,6 +88,7 @@ static int renderType = 0;
         _eventSink = [[FijkQueuingEventSink alloc] init];
         _latestPixelBuffer = nil;
         _vid = -1;
+        _rotate = -1;
         _state = 0;
 
         _hostOption = [[FijkHostOption alloc] init];
@@ -303,18 +308,38 @@ static int renderType = 0;
             @"percent" : @(arg2),
         }];
         break;
-    case 510: // todo update ijkplayer replace this CONSTANT
+    case IJKMPET_CURRENT_POSITION_UPDATE:
         [_eventSink success:@{
             @"event" : @"pos",
             @"pos" : @(arg1),
         }];
         break;
+    case IJKMPET_VIDEO_ROTATION_CHANGED:
+        [_eventSink success:@{@"event" : @"rotate", @"degree" : @(arg1)}];
+        _rotate = arg1;
+        if (_height > 0 && _width > 0) {
+            [self handleEvent:IJKMPET_VIDEO_SIZE_CHANGED
+                      andArg1:_width
+                      andArg2:_height
+                     andExtra:nil];
+        }
+        break;
     case IJKMPET_VIDEO_SIZE_CHANGED:
-        [_eventSink success:@{
-            @"event" : @"size_changed",
-            @"width" : @(arg1),
-            @"height" : @(arg2),
-        }];
+        if (_rotate == 0 || _rotate == 180) {
+            [_eventSink success:@{
+                @"event" : @"size_changed",
+                @"width" : @(arg1),
+                @"height" : @(arg2),
+            }];
+        } else if (_rotate == 90 || _rotate == 270) {
+            [_eventSink success:@{
+                @"event" : @"size_changed",
+                @"width" : @(arg2),
+                @"height" : @(arg1),
+            }];
+        }
+        _width = arg1;
+        _height = arg2;
         break;
     case IJKMPET_ERROR:
         [_eventSink error:[NSString stringWithFormat:@"%d", arg1]
@@ -342,6 +367,7 @@ static int renderType = 0;
     case IJKMPET_AUDIO_RENDERING_START:
     case IJKMPET_ERROR:
     case 510:
+    case IJKMPET_VIDEO_ROTATION_CHANGED:
         [self handleEvent:what andArg1:arg1 andArg2:arg2 andExtra:extra];
         break;
     default:

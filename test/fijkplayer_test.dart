@@ -100,6 +100,7 @@ class FijkPlayerTester {
 /// how to mock EventChannel from native side
 /// https://github.com/flutter/flutter/issues/38954
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   const MethodChannel pluginChannel = MethodChannel('befovy.com/fijk');
 
   Map<int, FijkPlayerTester> playerTesters = HashMap();

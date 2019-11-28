@@ -267,6 +267,7 @@ class __InnerFijkViewState extends State<_InnerFijkView> {
   double _vWidth = -1;
   double _vHeight = -1;
   bool _vFullScreen = false;
+  int degree = 0;
 
   @override
   void initState() {
@@ -295,6 +296,7 @@ class __InnerFijkViewState extends State<_InnerFijkView> {
 
     FijkValue value = _player.value;
 
+    degree = value.rotate;
     double width = _vWidth;
     double height = _vHeight;
     bool fullScreen = value.fullScreen;
@@ -389,7 +391,14 @@ class __InnerFijkViewState extends State<_InnerFijkView> {
   }
 
   Widget buildTexture() {
-    return _textureId > 0 ? Texture(textureId: _textureId) : Container();
+    Widget tex = _textureId > 0 ? Texture(textureId: _textureId) : Container();
+    if (degree != 0 && _textureId > 0) {
+      return RotatedBox(
+        quarterTurns: degree ~/ 90,
+        child: tex,
+      );
+    }
+    return tex;
   }
 
   @override

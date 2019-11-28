@@ -84,13 +84,16 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
 
     // show system volume changed UI if no playable player
     // hide system volume changed UI if some players are in playable state
+    @SuppressWarnings("FieldCanBeLocal")
     private static int NO_UI_IF_PLAYABLE = 0;
 
     // show system volume changed UI if no start state player
     // hide system volume changed UI if some players are in start state
+    @SuppressWarnings("FieldCanBeLocal")
     private static int NO_UI_IF_PLAYING = 1;
 
     // never show system volume changed UI
+    @SuppressWarnings("FieldCanBeLocal")
     private static int NEVER_SHOW_UI = 2;
     // always show system volume changed UI
     private static int ALWAYS_SHOW_UI = 3;

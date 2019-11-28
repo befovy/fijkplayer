@@ -148,6 +148,9 @@ class FijkValue {
   /// Is negative width and height if playback is audio only.
   final Size size;
 
+  /// The rotation degrees
+  final int rotate;
+
   /// The current playback duration
   ///
   /// Is null when [prepared] is false.
@@ -167,6 +170,7 @@ class FijkValue {
     @required this.videoRenderStart,
     @required this.state,
     @required this.size,
+    @required this.rotate,
     @required this.duration,
     @required this.fullScreen,
     @required this.exception,
@@ -181,6 +185,7 @@ class FijkValue {
           audioRenderStart: false,
           state: FijkState.idle,
           size: null,
+          rotate: 0,
           duration: const Duration(),
           fullScreen: false,
           exception: FijkException.noException,
@@ -194,6 +199,7 @@ class FijkValue {
     bool audioRenderStart,
     FijkState state,
     Size size,
+    int rotate,
     Duration duration,
     bool fullScreen,
     FijkException exception,
@@ -205,6 +211,7 @@ class FijkValue {
       audioRenderStart: audioRenderStart ?? this.audioRenderStart,
       state: state ?? this.state,
       size: size ?? this.size,
+      rotate: rotate ?? this.rotate,
       duration: duration ?? this.duration,
       fullScreen: fullScreen ?? this.fullScreen,
       exception: exception ?? this.exception,
@@ -219,13 +226,14 @@ class FijkValue {
           hashCode == other.hashCode;
 
   @override
-  int get hashCode => hashValues(
-      prepared, completed, state, size, duration, fullScreen, exception);
+  int get hashCode => hashValues(prepared, completed, state, size, rotate,
+      duration, fullScreen, exception);
 
   @override
   String toString() {
-    return "prepared:$prepared, completed:$completed, state:$state, size:$size, "
-        "duration:$duration, fullScreen:$fullScreen, exception:$exception";
+    return "prepared:$prepared, completed:$completed, state:$state, "
+        "size:$size, rotate:$rotate, duration:$duration, "
+        "fullScreen:$fullScreen, exception:$exception";
   }
 }
 
