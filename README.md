@@ -19,6 +19,7 @@ A Flutter media player plugin for iOS and android based on [ijkplayer](https://g
 * 开发文档  https://fijkplayer.befovy.com/docs/zh/ 包含快速开始、使用指南、fijkplayer 中的概念理解
 * dart api https://pub.dev/documentation/fijkplayer/ detail API and argument explaination
 * Release Notes https://github.com/befovy/fijkplayer/releases and [CHANGELOG.md](./CHANGELOG.md)
+* FAQ https://fijkplayer.befovy.com/docs/zh/faq.html
 
 ## Installation 安装
 
