@@ -33,13 +33,14 @@ void main() {
 
       var data = fijkOption.data;
       expect(data, isInstanceOf<Map>());
+      expect(data[0], isInstanceOf<Map>());
       expect(data[1], isInstanceOf<Map>());
       expect(data[2], isInstanceOf<Map>());
       expect(data[3], isInstanceOf<Map>());
       expect(data[4], isInstanceOf<Map>());
       expect(data[5], isInstanceOf<Map>());
 
-      expect(data.length, 5);
+      expect(data.length, 6);
     });
 
     test("throwsArgumentError", () async {
