@@ -85,6 +85,9 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
     final private HostOption mHostOptions = new HostOption();
 
     private int mState;
+    private int mRotate = -1;
+    private int mWidth = 0;
+    private int mHeight = 0;
     private TextureRegistry.SurfaceTextureEntry mSurfaceTextureEntry;
     private SurfaceTexture mSurfaceTexture;
     private Surface mSurface;
@@ -222,11 +225,26 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
                 event.put("pos", arg1);
                 mEventSink.success(event);
                 break;
-
+            case VIDEO_ROTATION_CHANGED:
+                event.put("event", "rotate");
+                event.put("degree", arg1);
+                mRotate = arg1;
+                mEventSink.success(event);
+                if (mWidth > 0 && mHeight > 0) {
+                    handleEvent(VIDEO_SIZE_CHANGED, mWidth, mHeight, null);
+                }
+                break;
             case VIDEO_SIZE_CHANGED:
                 event.put("event", "size_changed");
-                event.put("width", arg1);
-                event.put("height", arg2);
+                if (mRotate == 0 || mRotate == 180) {
+                    event.put("width", arg1);
+                    event.put("height", arg2);
+                } else if (mRotate == 90 || mRotate == 270) {
+                    event.put("width", arg2);
+                    event.put("height", arg1);
+                }
+                mWidth = arg1;
+                mHeight = arg2;
                 mEventSink.success(event);
                 break;
             case ERROR:
@@ -251,6 +269,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
             case VIDEO_RENDERING_START:
             case AUDIO_RENDERING_START:
             case CURRENT_POSITION_UPDATE:
+            case VIDEO_ROTATION_CHANGED:
                 handleEvent(what, arg1, arg2, extra);
                 break;
             default:
