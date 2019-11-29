@@ -1,7 +1,5 @@
 # fijkplayer (Video player plugin for Flutter) Flutter 媒体播放器
 
-### [简体中文](README.zh.md)
-
 **[手把手带你写 Flutter 系统音量插件](https://www.yuque.com/befovy/share/flutter_volume)**
 
 [![pub package](https://img.shields.io/pub/v/fijkplayer.svg)](https://pub.dartlang.org/packages/fijkplayer) &nbsp; &nbsp;
