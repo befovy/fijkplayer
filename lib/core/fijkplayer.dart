@@ -20,7 +20,7 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
-part of core;
+part of fijkplayer;
 
 /// FijkPlayer present as a playback. It interacts with native object.
 ///
