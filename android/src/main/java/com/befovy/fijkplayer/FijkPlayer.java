@@ -342,7 +342,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
         } else if (call.method.equals("applyOptions")) {
             applyOptions(call.arguments);
             result.success(null);
-        } else if (call.method.equals("setDateSource")) {
+        } else if (call.method.equals("setDataSource")) {
             String url = call.argument("url");
             Uri uri = Uri.parse(url);
             boolean openAsset = false;

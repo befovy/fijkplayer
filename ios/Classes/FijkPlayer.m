@@ -438,7 +438,7 @@ static int renderType = 0;
     } else if ([@"applyOptions" isEqualToString:call.method]) {
         [self setOptions:argsMap];
         result(nil);
-    } else if ([@"setDateSource" isEqualToString:call.method]) {
+    } else if ([@"setDataSource" isEqualToString:call.method]) {
         NSString *url = argsMap[@"url"];
         NSURL *aUrl =
             [NSURL URLWithString:[url stringByAddingPercentEscapesUsingEncoding:

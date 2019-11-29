@@ -58,7 +58,7 @@ class FijkPlayerTester {
     switch (call.method) {
       case 'setupSurface':
         return 1;
-      case 'setDateSource':
+      case 'setDataSource':
         await sendEvent(<String, dynamic>{'event': 'prepared'});
         await sendEvent(
             <String, dynamic>{'event': 'state_change', 'new': 1, 'old': 0});

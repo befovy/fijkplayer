@@ -39,6 +39,7 @@ class FijkOption {
   static const int playerCategory = 4;
   static const int swrCategory = 5;
 
+  /// return a deep copy of option datas
   Map<int, Map<String, dynamic>> get data {
     final Map<int, Map<String, dynamic>> options = HashMap();
     options[0] = Map.from(_hostOption);

@@ -114,7 +114,7 @@ func (f *FijkPlayer) initPlayer(messenger plugin.BinaryMessenger, tex *flutter.T
 	f.methodChannel.HandleFunc("setupSurface", f.handleSetupSurface)
 	f.methodChannel.HandleFunc("setOption", f.handleSetOption)
 	f.methodChannel.HandleFunc("applyOptions", f.handleApplyOptions)
-	f.methodChannel.HandleFunc("setDateSource", f.handleSetDataSource)
+	f.methodChannel.HandleFunc("setDataSource", f.handleSetDataSource)
 	f.methodChannel.HandleFunc("prepareAsync", f.handlePrepareAsync)
 	f.methodChannel.HandleFunc("start", f.handleStart)
 	f.methodChannel.HandleFunc("pause", f.handlePause)

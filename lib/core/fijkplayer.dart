@@ -225,10 +225,10 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     await _nativeSetup.future;
     if (state == FijkState.idle || state == FijkState.initialized) {
       try {
-        FijkLog.i("$this invoke setDateSource $path");
+        FijkLog.i("$this invoke setDataSource $path");
         _dataSource = path;
         await _channel
-            .invokeMethod("setDateSource", <String, dynamic>{'url': path});
+            .invokeMethod("setDataSource", <String, dynamic>{'url': path});
       } on PlatformException catch (e) {
         return _errorListener(e);
       }
