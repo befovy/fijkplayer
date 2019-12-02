@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'app_bar.dart';
 import 'input_url.dart';
+import 'listview.dart';
 import 'local_path.dart';
 import 'recent_list.dart';
 
@@ -73,6 +74,13 @@ class HomeScreen extends StatelessWidget {
               },
               text: "Online Samples",
             ),
+            HomeItem(
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => ListScreen()));
+              },
+              text: "List View",
+            )
             /*
             Container(
               color: Theme.of(context).primaryColorLight,
