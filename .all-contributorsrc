@@ -114,6 +114,15 @@
         "code",
         "bug"
       ]
+    },
+    {
+      "login": "JamesGZM",
+      "name": "一脸懵逼",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/17449136?v=4",
+      "profile": "https://github.com/JamesGZM",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
