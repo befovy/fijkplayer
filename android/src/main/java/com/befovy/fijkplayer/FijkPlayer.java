@@ -151,6 +151,8 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
             mSurface.release();
             mSurface = null;
         }
+        mMethodChannel.setMethodCallHandler(null);
+        mEventChannel.setStreamHandler(null);
     }
 
     private boolean isPlayable(int state) {
