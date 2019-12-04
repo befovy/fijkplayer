@@ -42,7 +42,7 @@ class FijkPlugin {
   }
 
   /// Only works on Android and iOS
-  static Future<void> setOrientationPortrait() {
+  static Future<bool> setOrientationPortrait() {
     if (isDesktop()) return Future.value();
     // ios crash Supported orientations has no common orientation with the application
     if (Platform.isAndroid) {

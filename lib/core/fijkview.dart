@@ -175,6 +175,11 @@ class _FijkViewState extends State<FijkView> {
   void initState() {
     super.initState();
     _nativeSetup();
+    Size s = widget.player.value.size;
+    if (s != null) {
+      _vWidth = s.width;
+      _vHeight = s.height;
+    }
     if (widget.fs) {
       widget.player.addListener(_fijkValueListener);
     }
@@ -197,6 +202,11 @@ class _FijkViewState extends State<FijkView> {
     } else if (_fullScreen && !value.fullScreen) {
       Navigator.of(context).pop();
       _fullScreen = false;
+    }
+
+    if (value.size != null && value.prepared) {
+      _vWidth = value.size.width;
+      _vHeight = value.size.height;
     }
   }
 
@@ -231,14 +241,27 @@ class _FijkViewState extends State<FijkView> {
     );
 
     await SystemChrome.setEnabledSystemUIOverlays([]);
-    final changed = await FijkPlugin.setOrientationLandscape();
+    bool changed = false;
+    if (_vWidth >= _vHeight) {
+      if (MediaQuery.of(context).orientation == Orientation.portrait)
+        changed = await FijkPlugin.setOrientationLandscape();
+    } else {
+      if (MediaQuery.of(context).orientation == Orientation.landscape)
+        changed = await FijkPlugin.setOrientationPortrait();
+    }
 
     await Navigator.of(context).push(route);
     _fullScreen = false;
     widget.player.exitFullScreen();
     await SystemChrome.setEnabledSystemUIOverlays(
         [SystemUiOverlay.top, SystemUiOverlay.bottom]);
-    if (changed) await FijkPlugin.setOrientationPortrait();
+    if (changed) {
+      if (_vWidth >= _vHeight) {
+        await FijkPlugin.setOrientationPortrait();
+      } else {
+        await FijkPlugin.setOrientationLandscape();
+      }
+    }
   }
 
   @override
