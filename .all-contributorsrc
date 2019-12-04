@@ -111,9 +111,11 @@
       "avatar_url": "https://avatars0.githubusercontent.com/u/28224568?v=4",
       "profile": "https://github.com/MMMzq",
       "contributions": [
-        "code"
+        "code",
+        "bug"
       ]
     }
   ],
-  "contributorsPerLine": 7
+  "contributorsPerLine": 7,
+  "skipCi": true
 }
