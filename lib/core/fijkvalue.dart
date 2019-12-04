@@ -162,6 +162,9 @@ class FijkValue {
 
   final FijkException exception;
 
+  /// Userdata, set and get by fijkplayer's user.
+  final dynamic opaque;
+
   /// A constructor requires all value.
   const FijkValue({
     @required this.prepared,
@@ -174,6 +177,7 @@ class FijkValue {
     @required this.duration,
     @required this.fullScreen,
     @required this.exception,
+    @required this.opaque,
   });
 
   /// Construct FijkValue with uninitialized value
@@ -189,6 +193,7 @@ class FijkValue {
           duration: const Duration(),
           fullScreen: false,
           exception: FijkException.noException,
+          opaque: null,
         );
 
   /// Return new FijkValue which combines the old value and the assigned new value
@@ -203,6 +208,7 @@ class FijkValue {
     Duration duration,
     bool fullScreen,
     FijkException exception,
+    dynamic opaque,
   }) {
     return FijkValue(
       prepared: prepared ?? this.prepared,
@@ -214,6 +220,7 @@ class FijkValue {
       rotate: rotate ?? this.rotate,
       duration: duration ?? this.duration,
       fullScreen: fullScreen ?? this.fullScreen,
+      opaque: opaque ?? this.opaque,
       exception: exception ?? this.exception,
     );
   }
@@ -227,7 +234,7 @@ class FijkValue {
 
   @override
   int get hashCode => hashValues(prepared, completed, state, size, rotate,
-      duration, fullScreen, exception);
+      duration, fullScreen, exception, opaque);
 
   @override
   String toString() {

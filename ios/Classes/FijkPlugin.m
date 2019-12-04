@@ -134,16 +134,23 @@ static FijkPlugin *_instance = nil;
             supportedInterfaceOrientationsForWindow:nil];
         UIDeviceOrientation deviceOrientation =
             [UIDevice currentDevice].orientation;
-        if (deviceOrientation == UIDeviceOrientationPortraitUpsideDown &&
-            (mask & UIInterfaceOrientationMaskPortraitUpsideDown))
-            [[UIDevice currentDevice]
-                setValue:@(UIInterfaceOrientationPortraitUpsideDown)
-                  forKey:@"orientation"];
-        else if (mask & UIInterfaceOrientationMaskPortrait)
-            [[UIDevice currentDevice] setValue:@(UIInterfaceOrientationPortrait)
-                                        forKey:@"orientation"];
+        BOOL changed = NO;
+        if (deviceOrientation != UIDeviceOrientationPortrait &&
+            deviceOrientation != UIDeviceOrientationPortraitUpsideDown) {
+            if (mask & UIInterfaceOrientationMaskPortraitUpsideDown) {
+                [[UIDevice currentDevice]
+                    setValue:@(UIInterfaceOrientationPortraitUpsideDown)
+                      forKey:@"orientation"];
+                changed = YES;
+            } else if (mask & UIInterfaceOrientationMaskPortrait) {
+                [[UIDevice currentDevice]
+                    setValue:@(UIInterfaceOrientationPortrait)
+                      forKey:@"orientation"];
+                changed = YES;
+            }
+        }
         [UIViewController attemptRotationToDeviceOrientation];
-        result(nil);
+        result(@(changed));
     } else if ([@"setOrientationLandscape" isEqualToString:call.method]) {
         UIInterfaceOrientationMask mask = [[UIApplication sharedApplication]
             supportedInterfaceOrientationsForWindow:nil];
