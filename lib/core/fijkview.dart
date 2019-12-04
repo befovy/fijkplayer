@@ -123,6 +123,7 @@ class FijkView extends StatefulWidget {
     this.fsFit = FijkFit.contain,
     this.panelBuilder = defaultFijkPanelBuilder,
     this.color = const Color(0xFF607D8B),
+    this.fs = true,
   }) : assert(player != null);
 
   /// The player that need display video by this [FijkView].
@@ -149,6 +150,15 @@ class FijkView extends StatefulWidget {
   /// If null, the height will be as big as possible.
   final double height;
 
+  /// Enable or disable the full screen
+  /// 
+  /// If [fs] is true, FijkView make response to the [FijkValue.fullScreen] value changed,
+  /// and push o new full screen mode page when [FijkValue.fullScreen] is true, pop full screen page when [FijkValue.fullScreen]  become false.
+  /// 
+  /// If [fs] is false, FijkView never make response to the change of [FijkValue.fullScreen].
+  /// But you can still call [FijkPlayer.enterFullScreen] and [FijkPlayer.exitFullScreen] and make your own full screen pages.
+  final bool fs;
+
   @override
   createState() => _FijkViewState();
 }
@@ -165,7 +175,9 @@ class _FijkViewState extends State<FijkView> {
   void initState() {
     super.initState();
     _nativeSetup();
-    widget.player.addListener(_fijkValueListener);
+    if (widget.fs) {
+      widget.player.addListener(_fijkValueListener);
+    }
   }
 
   Future<void> _nativeSetup() async {
