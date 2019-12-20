@@ -123,6 +123,7 @@ class FijkView extends StatefulWidget {
     this.fsFit = FijkFit.contain,
     this.panelBuilder = defaultFijkPanelBuilder,
     this.color = const Color(0xFF607D8B),
+    this.cover,
     this.fs = true,
   }) : assert(player != null);
 
@@ -135,6 +136,9 @@ class FijkView extends StatefulWidget {
 
   /// background color
   final Color color;
+
+  /// cover image provider
+  final ImageProvider cover;
 
   /// How a video should be inscribed into this [FijkView].
   final FijkFit fit;
@@ -235,7 +239,11 @@ class _FijkViewState extends State<FijkView> {
       builder: (BuildContext context, Widget child) {
         return Scaffold(
           resizeToAvoidBottomInset: false,
-          body: _InnerFijkView(fijkViewState: this, fullScreen: true),
+          body: _InnerFijkView(
+            fijkViewState: this,
+            fullScreen: true,
+            cover: widget.cover,
+          ),
         );
       },
     );
@@ -289,17 +297,25 @@ class _FijkViewState extends State<FijkView> {
       height: widget.height,
       child: _fullScreen
           ? Container()
-          : _InnerFijkView(fijkViewState: this, fullScreen: false),
+          : _InnerFijkView(
+              fijkViewState: this,
+              fullScreen: false,
+              cover: widget.cover,
+            ),
     );
   }
 }
 
 class _InnerFijkView extends StatefulWidget {
-  _InnerFijkView({@required this.fijkViewState, @required this.fullScreen})
-      : assert(fijkViewState != null);
+  _InnerFijkView({
+    @required this.fijkViewState,
+    @required this.fullScreen,
+    @required this.cover,
+  }) : assert(fijkViewState != null);
 
   final _FijkViewState fijkViewState;
   final bool fullScreen;
+  final ImageProvider cover;
 
   @override
   __InnerFijkViewState createState() => __InnerFijkViewState();
@@ -314,7 +330,8 @@ class __InnerFijkViewState extends State<_InnerFijkView> {
   double _vWidth = -1;
   double _vHeight = -1;
   bool _vFullScreen = false;
-  int degree = 0;
+  int _degree = 0;
+  bool _videoRender = false;
 
   @override
   void initState() {
@@ -343,10 +360,11 @@ class __InnerFijkViewState extends State<_InnerFijkView> {
 
     FijkValue value = _player.value;
 
-    degree = value.rotate;
+    _degree = value.rotate;
     double width = _vWidth;
     double height = _vHeight;
     bool fullScreen = value.fullScreen;
+    bool videoRender = value.videoRenderStart;
 
     if (value.size != null && value.prepared) {
       width = value.size.width;
@@ -359,7 +377,8 @@ class __InnerFijkViewState extends State<_InnerFijkView> {
         panelBuilder != _panelBuilder ||
         color != _color ||
         fit != _fit ||
-        textureId != _textureId) {
+        textureId != _textureId ||
+        _videoRender != videoRender) {
       setState(() {});
     }
   }
@@ -439,9 +458,9 @@ class __InnerFijkViewState extends State<_InnerFijkView> {
 
   Widget buildTexture() {
     Widget tex = _textureId > 0 ? Texture(textureId: _textureId) : Container();
-    if (degree != 0 && _textureId > 0) {
+    if (_degree != 0 && _textureId > 0) {
       return RotatedBox(
-        quarterTurns: degree ~/ 90,
+        quarterTurns: _degree ~/ 90,
         child: tex,
       );
     }
@@ -467,6 +486,7 @@ class __InnerFijkViewState extends State<_InnerFijkView> {
       _vWidth = value.size.width;
       _vHeight = value.size.height;
     }
+    _videoRender = value.videoRenderStart;
 
     return LayoutBuilder(builder: (ctx, constraints) {
       // get child size
@@ -488,6 +508,16 @@ class __InnerFijkViewState extends State<_InnerFijkView> {
               child: buildTexture(),
             )),
       ];
+
+      if (widget.cover != null && !value.videoRenderStart) {
+        ws.add(Positioned.fromRect(
+          rect: pos,
+          child: Image(
+            image: widget.cover,
+            fit: BoxFit.fill,
+          ),
+        ));
+      }
 
       if (_panelBuilder != null) {
         ws.add(_panelBuilder(_player, ctx, constraints.biggest, pos));
