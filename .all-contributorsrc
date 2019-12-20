@@ -123,6 +123,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "jiongjarjar",
+      "name": "jiongjarjar",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/49331007?v=4",
+      "profile": "https://github.com/jiongjarjar",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
