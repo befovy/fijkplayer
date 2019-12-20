@@ -151,10 +151,10 @@ class FijkView extends StatefulWidget {
   final double height;
 
   /// Enable or disable the full screen
-  /// 
+  ///
   /// If [fs] is true, FijkView make response to the [FijkValue.fullScreen] value changed,
   /// and push o new full screen mode page when [FijkValue.fullScreen] is true, pop full screen page when [FijkValue.fullScreen]  become false.
-  /// 
+  ///
   /// If [fs] is false, FijkView never make response to the change of [FijkValue.fullScreen].
   /// But you can still call [FijkPlayer.enterFullScreen] and [FijkPlayer.exitFullScreen] and make your own full screen pages.
   final bool fs;
@@ -174,39 +174,51 @@ class _FijkViewState extends State<FijkView> {
   @override
   void initState() {
     super.initState();
-    _nativeSetup();
     Size s = widget.player.value.size;
     if (s != null) {
       _vWidth = s.width;
       _vHeight = s.height;
     }
-    if (widget.fs) {
-      widget.player.addListener(_fijkValueListener);
-    }
+    widget.player.addListener(_fijkValueListener);
+    _nativeSetup();
   }
 
   Future<void> _nativeSetup() async {
+    if (widget.player.value.prepared) {
+      _setupTexture();
+    }
+    paramNotifier.value = paramNotifier.value + 1;
+  }
+
+  void _setupTexture() async {
     final int vid = await widget.player.setupSurface();
     FijkLog.i("view setup, vid:" + vid.toString());
     setState(() {
       _textureId = vid;
     });
-    paramNotifier.value = paramNotifier.value + 1;
   }
 
   void _fijkValueListener() async {
     FijkValue value = widget.player.value;
-    if (value.fullScreen && !_fullScreen) {
-      _fullScreen = true;
-      await _pushFullScreenWidget(context);
-    } else if (_fullScreen && !value.fullScreen) {
-      Navigator.of(context).pop();
-      _fullScreen = false;
+    if (value.prepared && _textureId < 0) {
+      _setupTexture();
     }
 
-    if (value.size != null && value.prepared) {
-      _vWidth = value.size.width;
-      _vHeight = value.size.height;
+    if (widget.fs) {
+      if (value.fullScreen && !_fullScreen) {
+        _fullScreen = true;
+        await _pushFullScreenWidget(context);
+      } else if (_fullScreen && !value.fullScreen) {
+        Navigator.of(context).pop();
+        _fullScreen = false;
+      }
+
+      // save width and height to make judgement about whether to
+      // request landscape when enter full screen mode
+      if (value.size != null && value.prepared) {
+        _vWidth = value.size.width;
+        _vHeight = value.size.height;
+      }
     }
   }
 
