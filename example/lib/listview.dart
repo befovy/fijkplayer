@@ -1,52 +1,101 @@
+import 'dart:async';
+
 import 'package:fijkplayer/fijkplayer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 import 'app_bar.dart';
 
-class ListChildBuilderDelegate extends SliverChildBuilderDelegate {
-  ListChildBuilderDelegate(builder)
-      : super(
-          builder,
-        );
-
-  @override
-  void didFinishLayout(int firstIndex, int lastIndex) {
-    // print("first $firstIndex, last $lastIndex");
-  }
-}
-
 class ListItemPlayer extends StatefulWidget {
   final int index;
+  final ValueNotifier<double> notifier;
 
-  ListItemPlayer({@required this.index});
+  ListItemPlayer({@required this.index, @required this.notifier});
 
   @override
   _ListItemPlayerState createState() => _ListItemPlayerState();
 }
 
 class _ListItemPlayerState extends State<ListItemPlayer> {
+  FijkPlayer player;
+  Timer timer;
+  bool _start = false;
+  int _x = -1;
+
   @override
   void initState() {
     super.initState();
-    FijkLog.d("list initState ${widget.index}", tag: "list");
+    if (widget.index == 0) {
+      widget.notifier.addListener(scrollListener);
+    }
+    int mills = widget.index <= 3 ? 100 : 500;
+    timer = Timer(Duration(milliseconds: mills), () async {
+      player = FijkPlayer();
+      await player.setLoop(0);
+      await player.setDataSource("asset:///assets/butterfly.mp4");
+      await player.prepareAsync();
+      if (widget.index == 0 && _x == -1) {
+        widget.notifier.value = 0;
+      } else {
+        widget.notifier.addListener(scrollListener);
+      }
+      setState(() {});
+    });
   }
 
-  @override
-  void deactivate() {
-    super.deactivate();
-    FijkLog.d("list deactivate ${widget.index}", tag: "list");
+  void scrollListener() async {
+    double pixels = widget.notifier.value;
+    int x = (pixels / 200).ceil();
+    _x = x;
+    if (player != null && widget.index == x) {
+      if (_start == false) {
+        player.start();
+        _start = true;
+      }
+    } else {
+      if (player != null && player.isPlayable() && _start) {
+        player.pause();
+        _start = false;
+      }
+    }
   }
 
   @override
   void dispose() {
     super.dispose();
-    FijkLog.d("list dispose ${widget.index}", tag: "list");
+    widget.notifier.removeListener(scrollListener);
+    timer?.cancel();
+    player?.release();
+    player = null;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(height: 260, child: Image.asset('assets/cover.png'));
+    FijkFit fit = FijkFit(
+      sizeFactor: 1.0,
+      aspectRatio: 480 / 270,
+      alignment: Alignment.center,
+    );
+    return Container(
+        height: 200,
+        child: Column(
+          children: <Widget>[
+            Text("${widget.index}", style: TextStyle(fontSize: 20)),
+            Expanded(
+              child: player != null
+                  ? FijkView(
+                      player: player,
+                      fit: fit,
+                      cover: AssetImage("assets/cover.png"),
+                    )
+                  : Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(color: const Color(0xFF607D8B)),
+                      child: Image.asset("assets/cover.png"),
+                    ),
+            )
+          ],
+        ));
   }
 }
 
@@ -56,17 +105,7 @@ class ListScreen extends StatefulWidget {
 }
 
 class _ListScreenState extends State<ListScreen> {
-  static int listItemCount = 15;
-  final Map<int, FijkPlayer> _players = Map();
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  Widget listBuilder(BuildContext context, int index) {
-    return ListItemPlayer(index: index);
-  }
+  final ValueNotifier<double> notifier = ValueNotifier(-1);
 
   @override
   Widget build(BuildContext context) {
@@ -74,23 +113,16 @@ class _ListScreenState extends State<ListScreen> {
         appBar: FijkAppBar.defaultSetting(title: "List View"),
         body: NotificationListener<ScrollNotification>(
           onNotification: (ScrollNotification notification) {
-            //print("notification ${notification.metrics.pixels}");
-            return false;
+            notifier.value = notification.metrics.pixels;
+            return true;
           },
-          child: ListView.custom(
-            childrenDelegate: ListChildBuilderDelegate(listBuilder),
-            cacheExtent: 0.0,
+          child: ListView.builder(
+            itemBuilder: (BuildContext context, int index) {
+              return ListItemPlayer(index: index, notifier: notifier);
+            },
+            cacheExtent: 1,
           ),
         ));
   }
 
-
-  @override
-  void dispose() {
-    super.dispose();
-    _players.forEach((i, p) {
-      p.release();
-    });
-    _players.clear();
-  }
 }
