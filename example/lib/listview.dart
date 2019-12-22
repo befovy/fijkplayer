@@ -20,44 +20,79 @@ class _ListItemPlayerState extends State<ListItemPlayer> {
   FijkPlayer player;
   Timer timer;
   bool _start = false;
-  int _x = -1;
+  bool _finalize = false;
+  bool _expectStart = false;
 
   @override
   void initState() {
     super.initState();
-    if (widget.index == 0) {
-      widget.notifier.addListener(scrollListener);
-    }
+    widget.notifier.addListener(scrollListener);
     int mills = widget.index <= 3 ? 100 : 500;
     timer = Timer(Duration(milliseconds: mills), () async {
+      if (_finalize) return;
       player = FijkPlayer();
-      await player.setLoop(0);
+      if (_finalize) return;
       await player.setDataSource("asset:///assets/butterfly.mp4");
+      if (_finalize) return;
       await player.prepareAsync();
-      if (widget.index == 0 && _x == -1) {
-        widget.notifier.value = 0;
-      } else {
-        widget.notifier.addListener(scrollListener);
-      }
+      if (_finalize) return;
+      scrollListener();
+      if (_finalize) return;
       setState(() {});
     });
   }
 
-  void scrollListener() async {
+  void scrollListener() {
     double pixels = widget.notifier.value;
     int x = (pixels / 200).ceil();
-    _x = x;
     if (player != null && widget.index == x) {
-      if (_start == false) {
+      _expectStart = true;
+      player.removeListener(pauseListener);
+      if (_start == false && player.isPlayable()) {
+        FijkLog.i("start from scroll listener $player");
         player.start();
         _start = true;
+      } else if (_start == false){
+        FijkLog.i("add start listener $player");
+        player.addListener(startListener);
       }
-    } else {
-      if (player != null && player.isPlayable() && _start) {
+    } else if (player != null){
+      _expectStart = false;
+      player.removeListener(startListener);
+      if (player.isPlayable() && _start) {
+        FijkLog.i("pause from scroll listener $player");
         player.pause();
         _start = false;
+      } else if (_start) {
+        FijkLog.i("add pause listener $player");
+        player.addListener(pauseListener);
       }
     }
+  }
+
+  void startListener() {
+    FijkValue value = player.value;
+    if (value.prepared && !_start && _expectStart) {
+      _start = true;
+      FijkLog.i("start from player listener $player");
+      player.start();
+    }
+  }
+
+  void pauseListener() {
+    FijkValue value = player.value;
+    if (value.prepared && _start && !_expectStart) {
+      _start = false;
+      FijkLog.i("pause from player listener $player");
+      player.pause();
+    }
+  }
+
+  void finalizer() async {
+    _finalize = true;
+    player?.removeListener(startListener);
+    player?.removeListener(pauseListener);
+    await player?.release();
   }
 
   @override
@@ -65,8 +100,7 @@ class _ListItemPlayerState extends State<ListItemPlayer> {
     super.dispose();
     widget.notifier.removeListener(scrollListener);
     timer?.cancel();
-    player?.release();
-    player = null;
+    finalizer();
   }
 
   @override
