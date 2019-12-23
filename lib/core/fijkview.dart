@@ -22,7 +22,7 @@
 //SOFTWARE.
 //
 
-part of core;
+part of fijkplayer;
 
 /// The signature of the [LayoutBuilder] builder function.
 ///
@@ -123,6 +123,8 @@ class FijkView extends StatefulWidget {
     this.fsFit = FijkFit.contain,
     this.panelBuilder = defaultFijkPanelBuilder,
     this.color = const Color(0xFF607D8B),
+    this.cover,
+    this.fs = true,
   }) : assert(player != null);
 
   /// The player that need display video by this [FijkView].
@@ -134,6 +136,9 @@ class FijkView extends StatefulWidget {
 
   /// background color
   final Color color;
+
+  /// cover image provider
+  final ImageProvider cover;
 
   /// How a video should be inscribed into this [FijkView].
   final FijkFit fit;
@@ -148,6 +153,15 @@ class FijkView extends StatefulWidget {
   /// Nullable, height of [FijkView].
   /// If null, the height will be as big as possible.
   final double height;
+
+  /// Enable or disable the full screen
+  ///
+  /// If [fs] is true, FijkView make response to the [FijkValue.fullScreen] value changed,
+  /// and push o new full screen mode page when [FijkValue.fullScreen] is true, pop full screen page when [FijkValue.fullScreen]  become false.
+  ///
+  /// If [fs] is false, FijkView never make response to the change of [FijkValue.fullScreen].
+  /// But you can still call [FijkPlayer.enterFullScreen] and [FijkPlayer.exitFullScreen] and make your own full screen pages.
+  final bool fs;
 
   @override
   createState() => _FijkViewState();
@@ -164,27 +178,53 @@ class _FijkViewState extends State<FijkView> {
   @override
   void initState() {
     super.initState();
-    _nativeSetup();
+    Size s = widget.player.value.size;
+    if (s != null) {
+      _vWidth = s.width;
+      _vHeight = s.height;
+    }
     widget.player.addListener(_fijkValueListener);
+    _nativeSetup();
   }
 
   Future<void> _nativeSetup() async {
+    if (widget.player.value.prepared) {
+      _setupTexture();
+    }
+    paramNotifier.value = paramNotifier.value + 1;
+  }
+
+  void _setupTexture() async {
     final int vid = await widget.player.setupSurface();
     FijkLog.i("view setup, vid:" + vid.toString());
-    setState(() {
-      _textureId = vid;
-    });
-    paramNotifier.value = paramNotifier.value + 1;
+    if (mounted) {
+      setState(() {
+        _textureId = vid;
+      });
+    }
   }
 
   void _fijkValueListener() async {
     FijkValue value = widget.player.value;
-    if (value.fullScreen && !_fullScreen) {
-      _fullScreen = true;
-      await _pushFullScreenWidget(context);
-    } else if (_fullScreen && !value.fullScreen) {
-      Navigator.of(context).pop();
-      _fullScreen = false;
+    if (value.prepared && _textureId < 0) {
+      _setupTexture();
+    }
+
+    if (widget.fs) {
+      if (value.fullScreen && !_fullScreen) {
+        _fullScreen = true;
+        await _pushFullScreenWidget(context);
+      } else if (_fullScreen && !value.fullScreen) {
+        Navigator.of(context).pop();
+        _fullScreen = false;
+      }
+
+      // save width and height to make judgement about whether to
+      // request landscape when enter full screen mode
+      if (value.size != null && value.prepared) {
+        _vWidth = value.size.width;
+        _vHeight = value.size.height;
+      }
     }
   }
 
@@ -201,7 +241,11 @@ class _FijkViewState extends State<FijkView> {
       builder: (BuildContext context, Widget child) {
         return Scaffold(
           resizeToAvoidBottomInset: false,
-          body: _InnerFijkView(fijkViewState: this, fullScreen: true),
+          body: _InnerFijkView(
+            fijkViewState: this,
+            fullScreen: true,
+            cover: widget.cover,
+          ),
         );
       },
     );
@@ -219,14 +263,27 @@ class _FijkViewState extends State<FijkView> {
     );
 
     await SystemChrome.setEnabledSystemUIOverlays([]);
-    final changed = await FijkPlugin.setOrientationLandscape();
+    bool changed = false;
+    if (_vWidth >= _vHeight) {
+      if (MediaQuery.of(context).orientation == Orientation.portrait)
+        changed = await FijkPlugin.setOrientationLandscape();
+    } else {
+      if (MediaQuery.of(context).orientation == Orientation.landscape)
+        changed = await FijkPlugin.setOrientationPortrait();
+    }
 
     await Navigator.of(context).push(route);
     _fullScreen = false;
     widget.player.exitFullScreen();
     await SystemChrome.setEnabledSystemUIOverlays(
         [SystemUiOverlay.top, SystemUiOverlay.bottom]);
-    if (changed) await FijkPlugin.setOrientationPortrait();
+    if (changed) {
+      if (_vWidth >= _vHeight) {
+        await FijkPlugin.setOrientationPortrait();
+      } else {
+        await FijkPlugin.setOrientationLandscape();
+      }
+    }
   }
 
   @override
@@ -242,17 +299,25 @@ class _FijkViewState extends State<FijkView> {
       height: widget.height,
       child: _fullScreen
           ? Container()
-          : _InnerFijkView(fijkViewState: this, fullScreen: false),
+          : _InnerFijkView(
+              fijkViewState: this,
+              fullScreen: false,
+              cover: widget.cover,
+            ),
     );
   }
 }
 
 class _InnerFijkView extends StatefulWidget {
-  _InnerFijkView({@required this.fijkViewState, @required this.fullScreen})
-      : assert(fijkViewState != null);
+  _InnerFijkView({
+    @required this.fijkViewState,
+    @required this.fullScreen,
+    @required this.cover,
+  }) : assert(fijkViewState != null);
 
   final _FijkViewState fijkViewState;
   final bool fullScreen;
+  final ImageProvider cover;
 
   @override
   __InnerFijkViewState createState() => __InnerFijkViewState();
@@ -267,7 +332,8 @@ class __InnerFijkViewState extends State<_InnerFijkView> {
   double _vWidth = -1;
   double _vHeight = -1;
   bool _vFullScreen = false;
-  int degree = 0;
+  int _degree = 0;
+  bool _videoRender = false;
 
   @override
   void initState() {
@@ -296,10 +362,11 @@ class __InnerFijkViewState extends State<_InnerFijkView> {
 
     FijkValue value = _player.value;
 
-    degree = value.rotate;
+    _degree = value.rotate;
     double width = _vWidth;
     double height = _vHeight;
     bool fullScreen = value.fullScreen;
+    bool videoRender = value.videoRenderStart;
 
     if (value.size != null && value.prepared) {
       width = value.size.width;
@@ -312,8 +379,11 @@ class __InnerFijkViewState extends State<_InnerFijkView> {
         panelBuilder != _panelBuilder ||
         color != _color ||
         fit != _fit ||
-        textureId != _textureId) {
-      setState(() {});
+        textureId != _textureId ||
+        _videoRender != videoRender) {
+      if (mounted) {
+        setState(() {});
+      }
     }
   }
 
@@ -392,9 +462,9 @@ class __InnerFijkViewState extends State<_InnerFijkView> {
 
   Widget buildTexture() {
     Widget tex = _textureId > 0 ? Texture(textureId: _textureId) : Container();
-    if (degree != 0 && _textureId > 0) {
+    if (_degree != 0 && _textureId > 0) {
       return RotatedBox(
-        quarterTurns: degree ~/ 90,
+        quarterTurns: _degree ~/ 90,
         child: tex,
       );
     }
@@ -420,6 +490,7 @@ class __InnerFijkViewState extends State<_InnerFijkView> {
       _vWidth = value.size.width;
       _vHeight = value.size.height;
     }
+    _videoRender = value.videoRenderStart;
 
     return LayoutBuilder(builder: (ctx, constraints) {
       // get child size
@@ -441,6 +512,16 @@ class __InnerFijkViewState extends State<_InnerFijkView> {
               child: buildTexture(),
             )),
       ];
+
+      if (widget.cover != null && !value.videoRenderStart) {
+        ws.add(Positioned.fromRect(
+          rect: pos,
+          child: Image(
+            image: widget.cover,
+            fit: BoxFit.fill,
+          ),
+        ));
+      }
 
       if (_panelBuilder != null) {
         ws.add(_panelBuilder(_player, ctx, constraints.biggest, pos));

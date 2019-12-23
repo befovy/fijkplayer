@@ -20,7 +20,7 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
-part of core;
+part of fijkplayer;
 
 class FijkPlugin {
   static const MethodChannel _channel = const MethodChannel('befovy.com/fijk');
@@ -42,7 +42,7 @@ class FijkPlugin {
   }
 
   /// Only works on Android and iOS
-  static Future<void> setOrientationPortrait() {
+  static Future<bool> setOrientationPortrait() {
     if (isDesktop()) return Future.value();
     // ios crash Supported orientations has no common orientation with the application
     if (Platform.isAndroid) {

@@ -71,8 +71,11 @@ const (
 )
 
 type FijkPlayer struct {
-	id    int32
-	state int32
+	id     int32
+	state  int32
+	rotate int32
+	width  int32
+	height int32
 
 	ijk *ijkplayer
 
@@ -101,6 +104,7 @@ func (f *FijkPlayer) initPlayer(messenger plugin.BinaryMessenger, tex *flutter.T
 
 	f.id = atomic.AddInt32(&atomicId, 1)
 	f.state = idle
+	f.rotate = -1
 	f.texRegistry = tex
 	f.sink = &queueEventSink{}
 
@@ -114,7 +118,7 @@ func (f *FijkPlayer) initPlayer(messenger plugin.BinaryMessenger, tex *flutter.T
 	f.methodChannel.HandleFunc("setupSurface", f.handleSetupSurface)
 	f.methodChannel.HandleFunc("setOption", f.handleSetOption)
 	f.methodChannel.HandleFunc("applyOptions", f.handleApplyOptions)
-	f.methodChannel.HandleFunc("setDateSource", f.handleSetDataSource)
+	f.methodChannel.HandleFunc("setDataSource", f.handleSetDataSource)
 	f.methodChannel.HandleFunc("prepareAsync", f.handlePrepareAsync)
 	f.methodChannel.HandleFunc("start", f.handleStart)
 	f.methodChannel.HandleFunc("pause", f.handlePause)
@@ -440,11 +444,28 @@ func (f *FijkPlayer) handleEvent(what int, arg1, arg2 int32, extra interface{}) 
 		event["percent"] = arg2
 		f.sink.success(event)
 		break
+	case IJKMPET_VIDEO_ROTATION_CHANGED:
+		event["event"] = "rotate"
+		event["degree"] = arg1
+		f.sink.success(event)
+		f.rotate = arg1
+		if f.height > 0 && f.width > 0 {
+			f.handleEvent(IJKMPET_VIDEO_SIZE_CHANGED, f.width, f.height, nil)
+		}
+		break
 	case IJKMPET_VIDEO_SIZE_CHANGED:
 		event["event"] = "size_changed"
-		event["width"] = arg1
-		event["height"] = arg2
-		f.sink.success(event)
+		if f.rotate == 0 || f.rotate == 90 {
+			event["width"] = arg1
+			event["height"] = arg2
+			f.sink.success(event)
+		} else if f.rotate == 90 || f.rotate == 270 {
+			event["width"] = arg2
+			event["height"] = arg1
+			f.sink.success(event)
+		}
+		f.width = arg1
+		f.height = arg2
 		break
 	case IJKMPET_ERROR:
 		str := ""

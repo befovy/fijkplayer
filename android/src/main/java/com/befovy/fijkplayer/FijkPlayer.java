@@ -151,6 +151,8 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
             mSurface.release();
             mSurface = null;
         }
+        mMethodChannel.setMethodCallHandler(null);
+        mEventChannel.setStreamHandler(null);
     }
 
     private boolean isPlayable(int state) {
@@ -239,13 +241,16 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
                 if (mRotate == 0 || mRotate == 180) {
                     event.put("width", arg1);
                     event.put("height", arg2);
+                    mEventSink.success(event);
                 } else if (mRotate == 90 || mRotate == 270) {
                     event.put("width", arg2);
                     event.put("height", arg1);
+                    mEventSink.success(event);
                 }
+                // default mRotate is -1 which means unknown
+                // do not send event if mRotate is unknown
                 mWidth = arg1;
                 mHeight = arg2;
-                mEventSink.success(event);
                 break;
             case ERROR:
                 mEventSink.error(String.valueOf(arg1), extra.toString(), arg2);
@@ -342,7 +347,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
         } else if (call.method.equals("applyOptions")) {
             applyOptions(call.arguments);
             result.success(null);
-        } else if (call.method.equals("setDateSource")) {
+        } else if (call.method.equals("setDataSource")) {
             String url = call.argument("url");
             Uri uri = Uri.parse(url);
             boolean openAsset = false;

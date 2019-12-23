@@ -20,7 +20,7 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
-part of core;
+part of fijkplayer;
 
 /// [vol] is the value of volume, and has been mapped into range [0.0, 1.0].
 /// true value of [sui] indicates that Android/iOS system volume changed UI is shown for this volume change event.

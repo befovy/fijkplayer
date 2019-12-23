@@ -20,7 +20,7 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
-part of core;
+part of fijkplayer;
 
 /// FijkPlayer present as a playback. It interacts with native object.
 ///
@@ -225,10 +225,10 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     await _nativeSetup.future;
     if (state == FijkState.idle || state == FijkState.initialized) {
       try {
-        FijkLog.i("$this invoke setDateSource $path");
+        FijkLog.i("$this invoke setDataSource $path");
         _dataSource = path;
         await _channel
-            .invokeMethod("setDateSource", <String, dynamic>{'url': path});
+            .invokeMethod("setDataSource", <String, dynamic>{'url': path});
       } on PlatformException catch (e) {
         return _errorListener(e);
       }

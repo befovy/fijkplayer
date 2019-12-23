@@ -20,7 +20,7 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
-part of core;
+part of fijkplayer;
 
 class FijkOption {
   final Map<int, Map<String, dynamic>> _options = HashMap();
@@ -39,6 +39,7 @@ class FijkOption {
   static const int playerCategory = 4;
   static const int swrCategory = 5;
 
+  /// return a deep copy of option datas
   Map<int, Map<String, dynamic>> get data {
     final Map<int, Map<String, dynamic>> options = HashMap();
     options[0] = Map.from(_hostOption);

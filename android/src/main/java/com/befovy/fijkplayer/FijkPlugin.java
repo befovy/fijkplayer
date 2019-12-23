@@ -183,17 +183,22 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
                 break;
             }
             case "setOrientationPortrait":
+                boolean changedPort = false;
                 if (activity != null) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT);
-                    } else {
-                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+                    int current_orientation = activity.getResources().getConfiguration().orientation;
+                    if (current_orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                            activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT);
+                        } else {
+                            activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+                        }
+                        changedPort = true;
                     }
                 }
-                result.success(null);
+                result.success(changedPort);
                 break;
             case "setOrientationLandscape":
-                boolean changed = false;
+                boolean changedLand = false;
                 if (activity != null) {
                     int current_orientation = activity.getResources().getConfiguration().orientation;
                     if (current_orientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -202,10 +207,10 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
                         } else {
                             activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
                         }
-                        changed = true;
+                        changedLand = true;
                     }
                 }
-                result.success(changed);
+                result.success(changedLand);
                 break;
             case "setOrientationAuto":
                 if (activity != null) {
