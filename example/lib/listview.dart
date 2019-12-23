@@ -39,8 +39,7 @@ class _ListItemPlayerState extends State<ListItemPlayer> {
   }
 
   void scrollListener() {
-    if (!mounted)
-      return;
+    if (!mounted) return;
 
     /// !!important
     /// If items in your list view have different height,
@@ -56,11 +55,11 @@ class _ListItemPlayerState extends State<ListItemPlayer> {
         FijkLog.i("start from scroll listener $_player");
         _player.start();
         _start = true;
-      } else if (_start == false){
+      } else if (_start == false) {
         FijkLog.i("add start listener $_player");
         _player.addListener(startListener);
       }
-    } else if (_player != null){
+    } else if (_player != null) {
       _expectStart = false;
       _player.removeListener(startListener);
       if (_player.isPlayable() && _start) {
@@ -163,5 +162,4 @@ class _ListScreenState extends State<ListScreen> {
           ),
         ));
   }
-
 }
