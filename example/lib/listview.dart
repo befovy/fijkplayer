@@ -41,6 +41,12 @@ class _ListItemPlayerState extends State<ListItemPlayer> {
   void scrollListener() {
     if (!mounted)
       return;
+
+    /// !!important
+    /// If items in your list view have different height,
+    /// You can't get the first visible item index by
+    /// dividing a constant height simply
+
     double pixels = widget.notifier.value;
     int x = (pixels / 200).ceil();
     if (_player != null && widget.index == x) {
