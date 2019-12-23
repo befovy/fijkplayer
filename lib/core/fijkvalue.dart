@@ -233,8 +233,19 @@ class FijkValue {
           hashCode == other.hashCode;
 
   @override
-  int get hashCode => hashValues(prepared, completed, state, size, rotate,
-      duration, fullScreen, exception, opaque);
+  int get hashCode => hashValues(
+        prepared,
+        completed,
+        state,
+        size,
+        rotate,
+        videoRenderStart,
+        audioRenderStart,
+        duration,
+        fullScreen,
+        exception,
+        opaque,
+      );
 
   @override
   String toString() {
