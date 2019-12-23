@@ -197,9 +197,11 @@ class _FijkViewState extends State<FijkView> {
   void _setupTexture() async {
     final int vid = await widget.player.setupSurface();
     FijkLog.i("view setup, vid:" + vid.toString());
-    setState(() {
-      _textureId = vid;
-    });
+    if (mounted) {
+      setState(() {
+        _textureId = vid;
+      });
+    }
   }
 
   void _fijkValueListener() async {
@@ -379,7 +381,9 @@ class __InnerFijkViewState extends State<_InnerFijkView> {
         fit != _fit ||
         textureId != _textureId ||
         _videoRender != videoRender) {
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
     }
   }
 

@@ -17,10 +17,9 @@ class ListItemPlayer extends StatefulWidget {
 }
 
 class _ListItemPlayerState extends State<ListItemPlayer> {
-  FijkPlayer player;
-  Timer timer;
+  FijkPlayer _player;
+  Timer _timer;
   bool _start = false;
-  bool _finalize = false;
   bool _expectStart = false;
 
   @override
@@ -28,78 +27,78 @@ class _ListItemPlayerState extends State<ListItemPlayer> {
     super.initState();
     widget.notifier.addListener(scrollListener);
     int mills = widget.index <= 3 ? 100 : 500;
-    timer = Timer(Duration(milliseconds: mills), () async {
-      if (_finalize) return;
-      player = FijkPlayer();
-      if (_finalize) return;
-      await player.setDataSource("asset:///assets/butterfly.mp4");
-      if (_finalize) return;
-      await player.prepareAsync();
-      if (_finalize) return;
+    _timer = Timer(Duration(milliseconds: mills), () async {
+      _player = FijkPlayer();
+      await _player?.setDataSource("asset:///assets/butterfly.mp4");
+      await _player?.prepareAsync();
       scrollListener();
-      if (_finalize) return;
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
     });
   }
 
   void scrollListener() {
+    if (!mounted)
+      return;
     double pixels = widget.notifier.value;
     int x = (pixels / 200).ceil();
-    if (player != null && widget.index == x) {
+    if (_player != null && widget.index == x) {
       _expectStart = true;
-      player.removeListener(pauseListener);
-      if (_start == false && player.isPlayable()) {
-        FijkLog.i("start from scroll listener $player");
-        player.start();
+      _player.removeListener(pauseListener);
+      if (_start == false && _player.isPlayable()) {
+        FijkLog.i("start from scroll listener $_player");
+        _player.start();
         _start = true;
       } else if (_start == false){
-        FijkLog.i("add start listener $player");
-        player.addListener(startListener);
+        FijkLog.i("add start listener $_player");
+        _player.addListener(startListener);
       }
-    } else if (player != null){
+    } else if (_player != null){
       _expectStart = false;
-      player.removeListener(startListener);
-      if (player.isPlayable() && _start) {
-        FijkLog.i("pause from scroll listener $player");
-        player.pause();
+      _player.removeListener(startListener);
+      if (_player.isPlayable() && _start) {
+        FijkLog.i("pause from scroll listener $_player");
+        _player.pause();
         _start = false;
       } else if (_start) {
-        FijkLog.i("add pause listener $player");
-        player.addListener(pauseListener);
+        FijkLog.i("add pause listener $_player");
+        _player.addListener(pauseListener);
       }
     }
   }
 
   void startListener() {
-    FijkValue value = player.value;
+    FijkValue value = _player.value;
     if (value.prepared && !_start && _expectStart) {
       _start = true;
-      FijkLog.i("start from player listener $player");
-      player.start();
+      FijkLog.i("start from player listener $_player");
+      _player.start();
     }
   }
 
   void pauseListener() {
-    FijkValue value = player.value;
+    FijkValue value = _player.value;
     if (value.prepared && _start && !_expectStart) {
       _start = false;
-      FijkLog.i("pause from player listener $player");
-      player.pause();
+      FijkLog.i("pause from player listener $_player");
+      _player?.pause();
     }
   }
 
-  void finalizer() async {
-    _finalize = true;
-    player?.removeListener(startListener);
-    player?.removeListener(pauseListener);
-    await player?.release();
+  void finalizer() {
+    _player?.removeListener(startListener);
+    _player?.removeListener(pauseListener);
+    var player = _player;
+    _player = null;
+    player?.release();
   }
 
   @override
   void dispose() {
     super.dispose();
     widget.notifier.removeListener(scrollListener);
-    timer?.cancel();
+    _timer?.cancel();
     finalizer();
   }
 
@@ -116,9 +115,9 @@ class _ListItemPlayerState extends State<ListItemPlayer> {
           children: <Widget>[
             Text("${widget.index}", style: TextStyle(fontSize: 20)),
             Expanded(
-              child: player != null
+              child: _player != null
                   ? FijkView(
-                      player: player,
+                      player: _player,
                       fit: fit,
                       cover: AssetImage("assets/cover.png"),
                     )
