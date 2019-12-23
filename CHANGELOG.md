@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+---
+## [0.3.0](https://github.com/befovy/fijkplayer/compare/v0.2.3...v0.3.0) (2019-12-23)
+
+
+### Features
+
+* fullscreen update, add fs parameter, check width > height when orientation ([#125](https://github.com/befovy/fijkplayer/issues/125)) ([74779fe](https://github.com/befovy/fijkplayer/commit/74779fe0a125643d5ff4a0605f18dcad793c9bed))
+* add userdata opaque in FijkValue ([cdd8014](https://github.com/befovy/fijkplayer/commit/cdd8014b2a31d21f4d9f3931dc6c3f041c30592d))
+* add fs parameter for FijkView ([e9bddc9](https://github.com/befovy/fijkplayer/commit/e9bddc96cec4ea5448f8e928e954a5a3e74346b7))
+* lazy init surface after prepared ([#148](https://github.com/befovy/fijkplayer/issues/148)) ([2889371](https://github.com/befovy/fijkplayer/commit/28893712f9510abc27feaf84ccf5412f2707623e))
+* **example:** add ListView demo ([1062282](https://github.com/befovy/fijkplayer/commit/10622822270927c5f21f1b773f0788d693b0ec16)), closes [#117](https://github.com/befovy/fijkplayer/issues/117) ([#124](https://github.com/befovy/fijkplayer/issues/124)) ([4e9e306](https://github.com/befovy/fijkplayer/commit/4e9e3065ea405a9fbb8e4a1267f03af19d5cdaf9))  ([#149](https://github.com/befovy/fijkplayer/issues/149)) ([d6a40ca](https://github.com/befovy/fijkplayer/commit/d6a40ca3961aa83b9a64a258a2b1c4e03ac4fbd9))
+
+
+* fix java cycle reference [#126](https://github.com/befovy/fijkplayer/issues/126) ([3e1176f](https://github.com/befovy/fijkplayer/commit/3e1176f7d92549a00ee15e8ab602b2c44932838a))
+* fix null width and height event ([#147](https://github.com/befovy/fijkplayer/issues/147)) ([3bcae22](https://github.com/befovy/fijkplayer/commit/3bcae22306d959367bfbb60037c909c588f53bff)), closes [#145](https://github.com/befovy/fijkplayer/issues/145)
+---
+
+
+
 ## [0.2.3](https://github.com/befovy/fijkplayer/compare/v0.2.2...v0.2.3) (2019-11-28)
 --------------------------------
 
