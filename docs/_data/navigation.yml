@@ -72,6 +72,8 @@ docs-zh:
         url:   /docs/zh/faq.html
       - title: 系统音量调节
         url:   /docs/zh/system-volume.html
+      - title: 平台选项设置
+        url:   /docs/zh/host-option.html
   - title: 其他语言
     children:
       - title: English

@@ -24,6 +24,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#define FIJK_HOST_OPTION_REQUEST_SCREENON @"request-screen-on"
+
 @interface FijkHostOption : NSObject
 
 - (void)setIntValue:(NSNumber *)value forKey:(NSString *)key;

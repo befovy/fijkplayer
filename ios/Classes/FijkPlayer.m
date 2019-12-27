@@ -35,6 +35,7 @@
 
 - (void)onPlayingChange:(int)delta;
 - (void)onPlayableChange:(int)delta;
+- (void)setScreenOn:(BOOL)on;
 
 @end
 
@@ -254,8 +255,16 @@ static int renderType = 0;
         return;
     if (newState == started && oldState != started) {
         [plugin onPlayingChange:1];
+        if ([[_hostOption getIntValue:FIJK_HOST_OPTION_REQUEST_SCREENON
+                               defalt:@(0)] intValue] == 1) {
+            [plugin setScreenOn:YES];
+        }
     } else if (newState != started && oldState == started) {
         [plugin onPlayingChange:-1];
+        if ([[_hostOption getIntValue:FIJK_HOST_OPTION_REQUEST_SCREENON
+                               defalt:@(0)] intValue] == 1) {
+            [plugin setScreenOn:NO];
+        }
     }
 
     if ([self isPlayable:newState] && ![self isPlayable:oldState]) {

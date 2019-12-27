@@ -169,11 +169,19 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
             if (mHostOptions.getIntOption(HostOption.REQUEST_AUDIOFOCUS, 0) == 1) {
                 plugin.audioFocus(true);
             }
+
+            if (mHostOptions.getIntOption(HostOption.REQUEST_SCREENON, 0) == 1) {
+                plugin.setScreenOn(true);
+            }
         } else if (newState != started && oldState == started) {
             plugin.onPlayingChange(-1);
 
             if (mHostOptions.getIntOption(HostOption.RELEASE_AUDIOFOCUS, 0) == 1) {
                 plugin.audioFocus(false);
+            }
+
+            if (mHostOptions.getIntOption(HostOption.REQUEST_SCREENON, 0) == 1) {
+                plugin.setScreenOn(false);
             }
         }
 
