@@ -25,8 +25,7 @@ class _VideoScreenState extends State<VideoScreen> {
   }
 
   void startPlay() async {
-    await player.setOption(
-        FijkOption.playerCategory, "enable-accurate-seek", 1);
+    await player.setOption(FijkOption.hostCategory, "request-screen-on", 1);
     await player.setOption(FijkOption.hostCategory, "request-audio-focus", 1);
     player.setDataSource(widget.url, autoPlay: true).catchError((e) {
       print("setDataSource error: $e");

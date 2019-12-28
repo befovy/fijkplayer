@@ -30,6 +30,8 @@ final class HostOption {
     final public static String REQUEST_AUDIOFOCUS = "request-audio-focus";
     final public static String RELEASE_AUDIOFOCUS = "release-audio-focus";
 
+    final public static String REQUEST_SCREENON = "request-screen-on";
+
     final private Map<String, Integer> mIntOption;
 
     final private Map<String, String> mStrOption;
