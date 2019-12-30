@@ -257,6 +257,10 @@ static FijkPlugin *_instance = nil;
     [self updateVolumeVisiablity];
 }
 
+- (void)setScreenOn:(BOOL)on {
+    [UIApplication sharedApplication].idleTimerDisabled = on;
+}
+
 - (float)getSystemVolume {
     [self initVolumeView];
     if (_volumeViewSlider == nil) {

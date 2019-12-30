@@ -33,6 +33,7 @@ import android.os.Build;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.KeyEvent;
+import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 
@@ -222,6 +223,15 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
                 }
                 result.success(null);
                 break;
+            case "setScreenOn":
+                boolean screenOn = false;
+                if (call.hasArgument("on")) {
+                    Boolean on = call.argument("on");
+                    screenOn = on != null ? on : false;
+                }
+                setScreenOn(screenOn);
+                result.success(null);
+                break;
             case "requestAudioFocus":
                 audioFocus(true);
                 result.success(null);
@@ -299,6 +309,17 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
                 break;
         }
         Log.i("FIJKPLAYER", "onAudioFocusChange: " + focusChange);
+    }
+
+    void setScreenOn(boolean on) {
+        Activity activity = registrar.activity();
+        if (activity == null || activity.getWindow() == null)
+            return;
+        if (on) {
+            activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        } else {
+            activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
     }
 
     /**

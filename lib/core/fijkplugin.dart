@@ -73,6 +73,16 @@ class FijkPlugin {
     return _channel.invokeMethod("setOrientationAuto");
   }
 
+  /// Works on Android and iOS
+  /// Keep screen on or not
+  static Future<void> keepScreenOn(bool on) {
+    if (Platform.isAndroid || Platform.isIOS) {
+      FijkLog.i("keepScreenOn :$on");
+      return _channel.invokeMethod("setScreenOn", <String, dynamic>{'on': on});
+    }
+    return Future.value();
+  }
+
   /// Only works on Android
   /// request audio focus for media usage
   static Future<void> requestAudioFocus() {
