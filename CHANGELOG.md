@@ -3,10 +3,13 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 ---
+## [0.4.0](https://github.com/befovy/fijkplayer/compare/v0.3.0...v0.4.0) (2019-12-30)
+
+* api and host-option for keep screen on ([#153](https://github.com/befovy/fijkplayer/issues/153)) ([12d1df0](https://github.com/befovy/fijkplayer/commit/12d1df08243d13bbf28f99407a26721ff2daac06))
+* remove opaque in FijkValue ([34ecb83](https://github.com/befovy/fijkplayer/commit/34ecb8390cc08ad389afd44ff740af83e5928e21))
+
+---
 ## [0.3.0](https://github.com/befovy/fijkplayer/compare/v0.2.3...v0.3.0) (2019-12-23)
-
-
-### Features
 
 * fullscreen update, add fs parameter, check width > height when orientation ([#125](https://github.com/befovy/fijkplayer/issues/125)) ([74779fe](https://github.com/befovy/fijkplayer/commit/74779fe0a125643d5ff4a0605f18dcad793c9bed))
 * add userdata opaque in FijkValue ([cdd8014](https://github.com/befovy/fijkplayer/commit/cdd8014b2a31d21f4d9f3931dc6c3f041c30592d))
@@ -18,7 +21,6 @@ All notable changes to this project will be documented in this file. See [standa
 * fix java cycle reference [#126](https://github.com/befovy/fijkplayer/issues/126) ([3e1176f](https://github.com/befovy/fijkplayer/commit/3e1176f7d92549a00ee15e8ab602b2c44932838a))
 * fix null width and height event ([#147](https://github.com/befovy/fijkplayer/issues/147)) ([3bcae22](https://github.com/befovy/fijkplayer/commit/3bcae22306d959367bfbb60037c909c588f53bff)), closes [#145](https://github.com/befovy/fijkplayer/issues/145)
 ---
-
 
 
 ## [0.2.3](https://github.com/befovy/fijkplayer/compare/v0.2.2...v0.2.3) (2019-11-28)
