@@ -311,6 +311,11 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
         Log.i("FIJKPLAYER", "onAudioFocusChange: " + focusChange);
     }
 
+    /**
+     * Set screen on enable or disable
+     * @param on true to set keep screen on enable
+     *           false to set keep screen on disable
+     */
     void setScreenOn(boolean on) {
         Activity activity = registrar.activity();
         if (activity == null || activity.getWindow() == null)
