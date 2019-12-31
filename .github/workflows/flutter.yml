@@ -18,7 +18,7 @@ jobs:
     - run: flutter test
     - run: cd example
     - run: flutter pub get
-    - run: pwd && cd ios && pod install && cd -
+    - run: pwd && ls && cd example/ios && pod install && cd -
     - run: flutter test
     - run: flutter build apk
     - run: flutter build apk
