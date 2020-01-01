@@ -24,10 +24,14 @@ A Flutter media player plugin for iOS and android based on [ijkplayer](https://g
 
 Add `fijkplayer` as a [dependency in your pubspec.yaml file](https://flutter.io/using-packages/). 
 
+[![pub package](https://img.shields.io/pub/v/fijkplayer.svg)](https://pub.dartlang.org/packages/fijkplayer)
+
 ```yaml
 dependencies:
-  fijkplayer: ^0.4.0
+  fijkplayer: ^{{latest version}}
 ```
+
+Replace `{{latest version}}` with the version number in badge above.
 
 Use git branch which not published to pub.
 ```yaml
