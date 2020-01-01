@@ -366,8 +366,8 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
     }
 
     private AudioManager audioManager() {
-        Activity activity = registrar.activity();
-        return (AudioManager) activity.getSystemService(Context.AUDIO_SERVICE);
+        Context context = registrar.context();
+        return (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
     }
 
     private float systemVolume() {
