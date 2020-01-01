@@ -24,7 +24,7 @@ jobs:
     
     - name: Dart code style check
       run: |
-          output=$(dartfmt ./ -n)
+          output=$(flutter format -n .)
           if [ ! -z $output]; then
             exit 1
           fi;
