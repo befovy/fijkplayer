@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+
+---
+## [0.4.1](https://github.com/befovy/fijkplayer/compare/v0.4.0...v0.4.1) (2020-01-01)
+
+* activity null, use context instead ([#155](https://github.com/befovy/fijkplayer/issues/155)) ([7f722e1](https://github.com/befovy/fijkplayer/commit/7f722e1a0bba50f08218539aa1d36b102c1c595c)), closes [#154](https://github.com/befovy/fijkplayer/issues/154)
+
 ---
 ## [0.4.0](https://github.com/befovy/fijkplayer/compare/v0.3.0...v0.4.0) (2019-12-30)
 
