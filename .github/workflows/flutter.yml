@@ -4,22 +4,45 @@ on: [push]
 
 jobs:
   build:
+    strategy:
+      matrix:
+        channel: [stable, beta]
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v1
+
     - uses: actions/setup-java@v1
       with:
         java-version: '12.x'
+
     - uses: subosito/flutter-action@v1
       with:
-        flutter-version: '1.12.x' # you can use 1.12
-        channel: 'stable' # optional, default to: 'stable'
-    - run: flutter pub get
-    - run: flutter test
-    - run: cd example
-    - run: flutter pub get
-    - run: pwd && ls && cd example/ios && pod install && cd -
-    - run: cd example && flutter test
-    - run: cd example && flutter build apk
-    - run: cd example && flutter build apk
-    - run: cd example && flutter build ios --release --no-codesign && cd -
+        channel: ${{ matrix.channel }}
+
+    - name: Get pub files
+      run: flutter pub get
+    
+    - name: Dart code style check
+      run: |
+          output=$(dartfmt ./ -n)
+          if [ ! -z $output]; then
+            exit 1
+          fi;
+
+    - name: Unit Test
+      run: |
+        flutter test
+        cd example && flutter test
+        
+    - name: Build Apk
+      working-directory: example
+      run: |
+        flutter pub get
+        flutter build apk
+    
+    - name: Build iOS
+      working-directory: example
+      run: |
+        cd ios && pod install && cd -
+        flutter build ios --release --no-codesign
+
