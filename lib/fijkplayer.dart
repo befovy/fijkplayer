@@ -54,3 +54,5 @@ part 'core/fijkvol.dart';
 part 'ui/panel.dart';
 
 part 'ui/volume.dart';
+
+part 'ui/slider.dart';
