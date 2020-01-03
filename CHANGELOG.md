@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+---
+## [0.4.2](https://github.com/befovy/fijkplayer/compare/v0.4.1...v0.4.2) (2020-01-03)
+
+* add FijkSlider and duration support ([#158](https://github.com/befovy/fijkplayer/issues/158)) ([eae19e9](https://github.com/befovy/fijkplayer/commit/eae19e9ad07134106c8e35fa361f9d4e7692874c))
 
 ---
 ## [0.4.1](https://github.com/befovy/fijkplayer/compare/v0.4.0...v0.4.1) (2020-01-01)
