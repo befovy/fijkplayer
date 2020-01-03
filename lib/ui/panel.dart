@@ -71,6 +71,7 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
 
   Duration _duration = Duration();
   Duration _currentPos = Duration();
+  Duration _bufferPos = Duration();
 
   bool _playing = false;
   bool _prepared = false;
@@ -82,7 +83,7 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
 
   StreamSubscription _currentPosSubs;
 
-  //StreamSubscription _bufferPosSubs;
+  StreamSubscription _bufferPosSubs;
   //StreamSubscription _bufferingSubs;
 
   Timer _hideTimer;
@@ -98,7 +99,7 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
 
     _duration = player.value.duration;
     _currentPos = player.currentPos;
-    //_bufferPos = player.bufferPos;
+    _bufferPos = player.bufferPos;
     _prepared = player.state.index >= FijkState.prepared.index;
     _playing = player.state == FijkState.started;
     _exception = player.value.exception.message;
@@ -109,6 +110,12 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
     _currentPosSubs = player.onCurrentPosUpdate.listen((v) {
       setState(() {
         _currentPos = v;
+      });
+    });
+
+    _bufferPosSubs = player.onBufferPosUpdate.listen((v) {
+      setState(() {
+        _bufferPos = v;
       });
     });
   }
@@ -150,8 +157,7 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
 
     player.removeListener(_playerValueChanged);
     _currentPosSubs?.cancel();
-    //_bufferPosSubs.cancel();
-    //_bufferingSubs.cancel();
+    _bufferPosSubs?.cancel();
   }
 
   void _startHideTimer() {
@@ -219,11 +225,11 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
                 : Expanded(
                     child: Padding(
                       padding: EdgeInsets.only(right: 0, left: 0),
-                      child: Slider(
+                      child: FijkSlider(
                         value: currentValue,
+                        cacheValue: _bufferPos.inMilliseconds.toDouble(),
                         min: 0.0,
                         max: duration,
-                        label: '$currentValue',
                         onChanged: (v) {
                           _startHideTimer();
                           setState(() {
