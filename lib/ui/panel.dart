@@ -284,12 +284,15 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
   Widget _buildBackButton() {
     final ModalRoute<dynamic> parentRoute = ModalRoute.of(context);
     final bool canPop = parentRoute?.canPop ?? false;
-    return AnimatedOpacity(
-      opacity: _hideStuff ? 0.0 : 1.0,
-      duration: Duration(milliseconds: 400),
-      child: canPop ? BackButton(
-        color: Colors.white,
-      ) : SizedBox(),
+    return AbsorbPointer(
+      absorbing: _hideStuff,
+      child: AnimatedOpacity(
+        opacity: _hideStuff ? 0.0 : 1.0,
+        duration: Duration(milliseconds: 400),
+        child: canPop ? BackButton(
+          color: Colors.white,
+        ) : SizedBox(),
+      ),
     );
   }
 
