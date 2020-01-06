@@ -37,8 +37,8 @@ typedef FijkPanelWidgetBuilder = Widget Function(
 class FijkFit {
   const FijkFit(
       {this.alignment = Alignment.center,
-      this.aspectRatio = -1,
-      this.sizeFactor = 1.0})
+        this.aspectRatio = -1,
+        this.sizeFactor = 1.0})
       : assert(alignment != null),
         assert(sizeFactor != null);
 
@@ -295,15 +295,15 @@ class _FijkViewState extends State<FijkView> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: widget.width,
-      height: widget.height,
+      width: double.infinity,
+      height: double.infinity,
       child: _fullScreen
           ? Container()
           : _InnerFijkView(
-              fijkViewState: this,
-              fullScreen: false,
-              cover: widget.cover,
-            ),
+        fijkViewState: this,
+        fullScreen: false,
+        cover: widget.cover,
+      ),
     );
   }
 }
@@ -493,29 +493,44 @@ class __InnerFijkViewState extends State<_InnerFijkView> {
     _videoRender = value.videoRenderStart;
 
     return LayoutBuilder(builder: (ctx, constraints) {
-      // get child size
-      final Size childSize = getTxSize(constraints, _fit);
-      final Offset offset = getTxOffset(constraints, childSize, _fit);
-      final Rect pos = Rect.fromLTWH(
-          offset.dx, offset.dy, childSize.width, childSize.height);
-
       List ws = <Widget>[
         Container(
-          width: constraints.maxWidth,
-          height: constraints.maxHeight,
+          width: double.infinity,
+          height: double.infinity,
           color: _color,
         ),
-        Positioned.fromRect(
-            rect: pos,
-            child: Container(
-              color: Color(0xFF000000),
-              child: buildTexture(),
-            )),
+        Center(
+          child: Container(
+            width: fView.width,
+            height: fView.height,
+            child: LayoutBuilder(
+              builder: (ctx, constraints) {
+                // get child size
+                final Size childSize = getTxSize(constraints, _fit);
+                final Offset offset = getTxOffset(constraints, childSize, _fit);
+                final Rect pos = Rect.fromLTWH(
+                    offset.dx, offset.dy, childSize.width, childSize.height);
+                return Stack(
+                  children: <Widget>[
+                    Positioned.fromRect(
+                      rect: pos,
+                      child: Container(
+                        color: Color(0xFF000000),
+                        child: buildTexture(),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ),
       ];
 
       if (widget.cover != null && !value.videoRenderStart) {
-        ws.add(Positioned.fromRect(
-          rect: pos,
+        ws.add(Container(
+          width: double.infinity,
+          height: double.infinity,
           child: Image(
             image: widget.cover,
             fit: BoxFit.fill,
@@ -524,7 +539,7 @@ class __InnerFijkViewState extends State<_InnerFijkView> {
       }
 
       if (_panelBuilder != null) {
-        ws.add(_panelBuilder(_player, ctx, constraints.biggest, pos));
+        ws.add(_panelBuilder(_player, ctx, constraints.biggest, Rect.largest));
       }
       return Stack(
         children: ws,
