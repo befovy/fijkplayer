@@ -213,14 +213,32 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   ///
   /// pass "asset:///assets/butterfly.mp4" to [path]
   /// scheme is `asset`, `://` is scheme's separator， `/` is path's separator.
+  /// 
+  /// If set [autoPlay] true, player will stat to play.
+  /// The behavior of [setDataSource(url, autoPlay: true)] is like 
+  ///    await setDataSource(url);
+  ///    await setOption(FijkOption.playerCategory, "start-on-prepared", 1);
+  ///    await prepareAsync();
+  /// 
+  /// If set [showCover] true, player will display the first video frame and then enter [FijkState.paused] state.
+  /// The behavior of [setDataSource(url, showCover: true)] is like 
+  ///    await setDataSource(url);
+  ///    await setOption(FijkOption.playerCategory, "cover-after-prepared", 1);
+  ///    await prepareAsync();
+  /// 
+  /// If both [autoPlay] and [showCover] are true, [showCover] will be ignored.
   Future<void> setDataSource(
     String path, {
     bool autoPlay = false,
+    bool showCover = false,
   }) async {
     if (path == null || path.length == 0 || Uri.tryParse(path) == null) {
       FijkLog.e("$this setDataSource invalid path:$path");
       return Future.error(
           ArgumentError.value(path, "path must be a valid url"));
+    }
+    if (autoPlay == true && showCover == true) {
+      FijkLog.w("call setDataSource with both autoPlay and showCover true, showCover will be ignored");
     }
     await _nativeSetup.future;
     if (state == FijkState.idle || state == FijkState.initialized) {
@@ -234,6 +252,9 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
       }
       if (autoPlay == true) {
         await start();
+      } else if (showCover == true) {
+        await setOption(FijkOption.playerCategory, "cover-after-prepared", 1);
+        await prepareAsync();
       }
     } else {
       FijkLog.e("$this setDataSource invalid state:$state");
