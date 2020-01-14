@@ -84,12 +84,22 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
   StreamSubscription _currentPosSubs;
 
   StreamSubscription _bufferPosSubs;
+
   //StreamSubscription _bufferingSubs;
 
   Timer _hideTimer;
   bool _hideStuff = true;
 
+  bool _isChangeVolume = false;
+
   double _volume = 1.0;
+
+  //屏幕亮度[0.0,1.0]
+  double _brightness = 0.1;
+
+  Offset _startHLocation;
+
+  Offset _endHLocation;
 
   final barHeight = 40.0;
 
@@ -107,6 +117,12 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
 
     player.addListener(_playerValueChanged);
 
+    //音量
+    FijkVolume.addListener(_volChanged);
+
+    ///获取初始化的屏幕亮度
+    _getCurrentBrightness();
+
     _currentPosSubs = player.onCurrentPosUpdate.listen((v) {
       setState(() {
         _currentPos = v;
@@ -118,6 +134,54 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
         _bufferPos = v;
       });
     });
+  }
+
+  void _getCurrentBrightness() async {
+    _brightness = await Screen.brightness;
+    print("_brightness =================== :${_brightness}");
+  }
+
+  void _volChanged() {
+    setState(() {
+      _volume = FijkVolume.value.vol;
+      print("_volume =================== :${_volume}");
+    });
+  }
+
+  bool _isVolumeControl(Offset localPosition) {
+    return (widget.viewSize.width / 2) <= localPosition.dx;
+  }
+
+  void _changeVolume(Offset delta) async {
+    print("_changeVolume");
+    if (delta.dy.abs() >= 1.0) {
+      if (delta.dy < 0) {
+        if (_volume < 1.0) {
+          _volume = await FijkVolume.up();
+        }
+      } else {
+        if (_volume > 0) {
+          _volume = await FijkVolume.down();
+        }
+      }
+    }
+  }
+
+  void _changeBrightness(Offset delta) {
+    print("_changeBrightness");
+    if (delta.dy.abs() >= 1.0) {
+      if (delta.dy < 0) {
+        if (_brightness < 1.0) {
+          _brightness += 0.1;
+          Screen.setBrightness(_brightness);
+        }
+      } else {
+        if (_brightness > 0) {
+          _brightness -= 0.1;
+          Screen.setBrightness(_brightness);
+        }
+      }
+    }
   }
 
   void _playerValueChanged() {
@@ -158,6 +222,7 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
     player.removeListener(_playerValueChanged);
     _currentPosSubs?.cancel();
     _bufferPosSubs?.cancel();
+    FijkVolume.removeListener(_volChanged);
   }
 
   void _startHideTimer() {
@@ -293,6 +358,26 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
     return Positioned.fromRect(
       rect: rect,
       child: GestureDetector(
+        onVerticalDragStart: (DragStartDetails details) {
+          _isChangeVolume = _isVolumeControl(details.localPosition);
+        },
+        onVerticalDragUpdate: (DragUpdateDetails details) {
+          print("onVerticalDragUpdate：${details.delta}");
+          //仅全屏状态可以调节声音和亮度
+          if (widget.player.value.fullScreen) {
+            if (_isChangeVolume) {
+              _changeVolume(details.delta);
+            } else {
+              _changeBrightness(details.delta);
+            }
+          }
+        },
+        onHorizontalDragStart: (DragStartDetails details) {
+          _startHLocation = details.localPosition;
+        },
+        onHorizontalDragUpdate: (DragUpdateDetails details) {
+          _endHLocation = details.localPosition;
+        },
         onTap: _cancelAndRestartTimer,
         child: AbsorbPointer(
           absorbing: _hideStuff,
