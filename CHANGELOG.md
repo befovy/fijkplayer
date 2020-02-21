@@ -3,7 +3,12 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 ---
-### [0.5.1](https://github.com/befovy/fijkplayer/compare/v0.5.0...v0.5.1) (2020-02-21)
+## [0.5.2](https://github.com/befovy/fijkplayer/compare/v0.5.1...v0.5.2) (2020-02-21)
+
+* fix error log after call setVol. missing break.  fix [#180](https://github.com/befovy/fijkplayer/issues/180) ([cee1741](https://github.com/befovy/fijkplayer/commit/cee174181d590fe36d35f12f31c4747f48e7d710))
+
+---
+## [0.5.1](https://github.com/befovy/fijkplayer/compare/v0.5.0...v0.5.1) (2020-02-21)
 
 * upgrade aar to 0.5.1, use consumerProguardFiles fix [#178](https://github.com/befovy/fijkplayer/issues/178) ([f56de4e](https://github.com/befovy/fijkplayer/commit/f56de4e91b8b89af69f0338af2703c7aaa03cafa))
 ---
