@@ -83,6 +83,36 @@ class FijkPlugin {
     return Future.value();
   }
 
+  /// Check if screen is kept on
+  static Future<bool> isScreenKeptOn() {
+    if (Platform.isAndroid || Platform.isIOS) {
+      return _channel.invokeMethod("isScreenKeptOn");
+    }
+    return Future.value(false);
+  }
+
+  /// Set screen brightness.
+  /// The range of [value] is [0.0, 1.0]
+  static Future<void> setScreenBrightness(double value) {
+    if (value == null || value < 0.0 || value > 1.0) {
+      return Future.error(ArgumentError.value(
+          value, "brightness value must be not null and in range [0.0, 1.0]"));
+    } else if (Platform.isAndroid || Platform.isIOS) {
+      return _channel.invokeMethod(
+          "setBrightness", <String, dynamic>{'brightness': value});
+    }
+    return Future.value();
+  }
+
+  /// Get the screen brightness.
+  /// The range of returned value is [0.0, 1.0]
+  static Future<double> screenBrightness() {
+    if (Platform.isAndroid || Platform.isIOS) {
+      return _channel.invokeMethod("brightness");
+    }
+    return Future.value(0);
+  }
+
   /// Only works on Android
   /// request audio focus for media usage
   static Future<void> requestAudioFocus() {

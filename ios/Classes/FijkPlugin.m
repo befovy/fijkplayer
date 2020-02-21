@@ -182,6 +182,24 @@ static FijkPlugin *_instance = nil;
                                         forKey:@"orientation"];
         [UIViewController attemptRotationToDeviceOrientation];
         result(nil);
+    } else if ([@"setScreenOn" isEqualToString:call.method]) {
+        bool screenOn = false;
+        NSNumber* on = argsMap[@"on"];
+        screenOn = on == nil ? false : on.boolValue;
+        [self setScreenOn:screenOn];
+        result(nil);
+    } else if ([@"isScreenKeptOn" isEqualToString:call.method]) {
+        bool isIdleTimerDisabled =  [[UIApplication sharedApplication] isIdleTimerDisabled];
+        result(@(isIdleTimerDisabled));
+    } else if ([@"brightness" isEqualToString:call.method]) {
+        float brightness = [UIScreen mainScreen].brightness;
+        result(@(brightness));
+    } else if ([@"setBrightness" isEqualToString:call.method]) {
+        float brightness = [UIScreen mainScreen].brightness;
+        NSNumber* arg = argsMap[@"brightness"];
+        brightness = arg == nil ? brightness : arg.floatValue;
+        [[UIScreen mainScreen] setBrightness:brightness];
+        result(nil);
     } else if ([@"volumeUp" isEqualToString:call.method]) {
         NSNumber *number = argsMap[@"step"];
         float step = number == nil ? _volStep : [number floatValue];
