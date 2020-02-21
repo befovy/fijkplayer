@@ -22,6 +22,8 @@
 
 package com.befovy.fijkplayer;
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -36,28 +38,44 @@ public class RawMediaDataSource implements IMediaDataSource {
     }
 
     @Override
-    public int readAt(long position, byte[] buffer, int offset, int size) throws IOException {
+    public int readAt(long position, byte[] buffer, int offset, int size) {
         if (size <= 0)
             return size;
-        if (mPosition != position) {
-            mIs.reset();
-            mPosition = mIs.skip(position);
+        int length = -1;
+        try {
+            if (mPosition != position) {
+                mIs.reset();
+                mPosition = mIs.skip(position);
+            }
+            length = mIs.read(buffer, offset, size);
+            mPosition += length;
+        } catch ( IOException e) {
+            Log.e("DataSource", "failed to read" + e.getMessage());
         }
-        int length = mIs.read(buffer, offset, size);
-        mPosition += length;
         return length;
     }
 
     @Override
-    public long getSize() throws IOException {
-        return mIs.available();
+    public long getSize()  {
+        long size = -1;
+        try {
+            size = mIs.available();
+        } catch (IOException e) {
+            Log.e("DataSource", "failed to get size" + e.getMessage());
+        }
+        return size;
     }
 
     @Override
-    public void close() throws IOException {
-        if (mIs != null)
-            mIs.close();
-        mIs = null;
+    public void close() {
+        if (mIs != null){
+            try {
+                mIs.close();
+                mIs = null;
+            } catch (IOException e) {
+                Log.e("DataSource", "failed to close" + e.getMessage());
+            }
+        }
     }
 
 }
