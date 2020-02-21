@@ -22,6 +22,8 @@
 
 package com.befovy.fijkplayer;
 
+import android.provider.Settings;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
@@ -232,6 +234,22 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
                 setScreenOn(screenOn);
                 result.success(null);
                 break;
+            case "isScreenKeptOn":
+                result.success(isScreenKeptOn());
+                break;
+            case "brightness":
+                float brightnessGot = getScreenBrightness();
+                result.success(brightnessGot);
+                break;
+            case "setBrightness":
+                if (call.hasArgument("brightness")) {
+                    final Double var = call.argument("brightness");
+                    if (var != null) {
+                        float brightness = var.floatValue();
+                        setScreenBrightness(brightness);
+                    }
+                }
+                break;
             case "requestAudioFocus":
                 audioFocus(true);
                 result.success(null);
@@ -326,6 +344,46 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
         } else {
             activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
+    }
+
+    /**
+     * Check if screen is kept on
+     *
+     * @return true if screen is kept on
+     */
+    private boolean isScreenKeptOn() {
+        Activity activity = registrar.activity();
+        if (activity == null || activity.getWindow() == null)
+            return false;
+        int flag = activity.getWindow().getAttributes().flags;
+        return (flag & WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) != 0;
+    }
+
+
+    private float getScreenBrightness() {
+        Activity activity = registrar.activity();
+        if (activity == null || activity.getWindow() == null)
+            return 0;
+        float brightness = activity.getWindow().getAttributes().screenBrightness;
+        if (brightness < 0) {
+            Log.w("FIJKPLAYER", "window attribute brightness less than 0");
+            try {
+                brightness = Settings.System.getInt(registrar.context().getContentResolver(), Settings.System.SCREEN_BRIGHTNESS) / (float) 255;
+            } catch (Settings.SettingNotFoundException e) {
+                Log.e("FIJKPLAYER", "System brightness settings not found");
+                brightness = 1.0f;
+            }
+        }
+        return brightness;
+    }
+
+    private void setScreenBrightness(float brightness) {
+        Activity activity = registrar.activity();
+        if (activity == null || activity.getWindow() == null)
+            return;
+        WindowManager.LayoutParams layoutParams = activity.getWindow().getAttributes();
+        layoutParams.screenBrightness = brightness;
+        activity.getWindow().setAttributes(layoutParams);
     }
 
     /**
