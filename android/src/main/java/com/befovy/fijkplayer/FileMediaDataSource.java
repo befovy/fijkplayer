@@ -23,6 +23,8 @@
 package com.befovy.fijkplayer;
 
 
+import android.util.Log;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -33,31 +35,49 @@ public class FileMediaDataSource implements IMediaDataSource {
     private RandomAccessFile mFile;
     private long mFileSize;
 
-    public FileMediaDataSource(File file) throws IOException {
-        mFile = new RandomAccessFile(file, "r");
-        mFileSize = mFile.length();
+    public FileMediaDataSource(File file) {
+        try {
+            mFile = new RandomAccessFile(file, "r");
+            mFileSize = mFile.length();
+        } catch (IOException e) {
+            mFile = null;
+            mFileSize = -1;
+            Log.e("DataSource", "failed to open RandomAccess" + e.getMessage());
+        }
     }
 
     @Override
-    public int readAt(long position, byte[] buffer, int offset, int size) throws IOException {
-        if (mFile.getFilePointer() != position)
-            mFile.seek(position);
-
+    public int readAt(long position, byte[] buffer, int offset, int size) {
         if (size == 0)
             return 0;
-
-        return mFile.read(buffer, 0, size);
+        int length = -1;
+        if (mFile != null) {
+            try {
+                if (mFile.getFilePointer() != position)
+                    mFile.seek(position);
+                length = mFile.read(buffer, 0, size);
+            } catch (IOException e) {
+                Log.e("DataSource", "failed to read" + e.getMessage());
+            }
+        }
+        return length;
     }
 
     @Override
-    public long getSize() throws IOException {
+    public long getSize() {
         return mFileSize;
     }
 
     @Override
-    public void close() throws IOException {
-        mFileSize = 0;
-        mFile.close();
-        mFile = null;
+    public void close() {
+        if (mFile != null) {
+            try {
+                mFile.close();
+                mFileSize = 0;
+                mFile = null;
+            } catch (IOException e) {
+                Log.e("DataSource", "failed to close" + e.getMessage());
+            }
+        }
     }
 }
