@@ -269,6 +269,7 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
                     vol = setSystemVolume(v.floatValue());
                 }
                 result.success(vol);
+                break;
             case "volUiMode":
                 if (call.hasArgument("mode"))
                     volumeUIMode = call.argument("mode");
