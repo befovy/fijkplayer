@@ -141,6 +141,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "SpanishOnion",
+      "name": "SpanishOnion",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/27147542?v=4",
+      "profile": "http://www.lcgod.com",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
