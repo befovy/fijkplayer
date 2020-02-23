@@ -1,6 +1,6 @@
 //MIT License
 //
-//Copyright (c) [2019] [Befovy]
+//Copyright (c) [2019-2020] [Befovy]
 //
 //Permission is hereby granted, free of charge, to any person obtaining a copy
 //of this software and associated documentation files (the "Software"), to deal
@@ -74,6 +74,9 @@ class FijkLogLevel {
 /// Error, warning and info logs are always kept.
 class FijkLog {
   static FijkLogLevel _level = FijkLogLevel.Info;
+
+  /// Make constructor private
+  const FijkLog._();
 
   /// Set global whole log level
   static setLevel(final FijkLogLevel level) {
