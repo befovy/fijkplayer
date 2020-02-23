@@ -70,14 +70,12 @@ class _FijkSliderToastState extends State<_FijkSliderToast> {
   Widget build(BuildContext context) {
     IconData iconData;
     final type = widget.type;
-    if (widget.type == 0) {
-      if (value <= 0) {
-        iconData = type == 0 ? Icons.volume_mute : Icons.brightness_low;
-      } else if (value < 0.5) {
-        iconData = type == 0 ? Icons.volume_down : Icons.brightness_medium;
-      } else {
-        iconData = type == 0 ? Icons.volume_up : Icons.brightness_high;
-      }
+    if (value <= 0) {
+      iconData = type == 0 ? Icons.volume_mute : Icons.brightness_low;
+    } else if (value < 0.5) {
+      iconData = type == 0 ? Icons.volume_down : Icons.brightness_medium;
+    } else {
+      iconData = type == 0 ? Icons.volume_up : Icons.brightness_high;
     }
 
     final primaryColor = Theme.of(context).primaryColor;
