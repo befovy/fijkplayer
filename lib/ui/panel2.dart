@@ -1,6 +1,6 @@
 //MIT License
 //
-//Copyright (c) [2019] [Befovy]
+//Copyright (c) [2020] [Befovy]
 //
 //Permission is hereby granted, free of charge, to any person obtaining a copy
 //of this software and associated documentation files (the "Software"), to deal
@@ -19,42 +19,29 @@
 //LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
-//
 
-library fijkplayer;
+part of fijkplayer;
 
-import 'dart:async';
-import 'dart:collection';
-import 'dart:core';
-import 'dart:io';
-import 'dart:math';
-import 'dart:ui';
+FijkPanelWidgetBuilder panel2Builder(
+    {Key key, bool fill = false, double duration = 3.0}) {
+  return (FijkPlayer player, BuildContext context, Size viewSize,
+      Rect texturePos) {
+    return _FijkPanel2(key: key, player: player,);
+  };
+}
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
+class _FijkPanel2 extends StatefulWidget {
+  const _FijkPanel2({Key key, @required FijkPlayer player})
+      : assert(player != null),
+        super(key: key);
 
-part 'core/fijklog.dart';
+  @override
+  __FijkPanel2State createState() => __FijkPanel2State();
+}
 
-part 'core/fijkoption.dart';
-
-part 'core/fijkplayer.dart';
-
-part 'core/fijkplugin.dart';
-
-part 'core/fijkvalue.dart';
-
-part 'core/fijkview.dart';
-
-part 'core/fijkvol.dart';
-
-part 'ui/panel.dart';
-
-part 'ui/panel2.dart';
-
-part 'ui/volume.dart';
-
-part 'ui/slider.dart';
+class __FijkPanel2State extends State<_FijkPanel2> {
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
