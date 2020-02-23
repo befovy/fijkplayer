@@ -42,6 +42,7 @@ class _VideoScreenState extends State<VideoScreen> {
             showToast: true,
             child: FijkView(
               player: player,
+              panelBuilder: panel2Builder(),
               // panelBuilder: simplestUI,
               // panelBuilder: (FijkPlayer player, BuildContext context,
               //     Size viewSize, Rect texturePos) {
