@@ -23,6 +23,10 @@
 part of fijkplayer;
 
 class FijkPlugin {
+
+  /// Make constructor private
+  const FijkPlugin._();
+
   static const MethodChannel _channel = const MethodChannel('befovy.com/fijk');
 
   static Future<int> _createPlayer() {
