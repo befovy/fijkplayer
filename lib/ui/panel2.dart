@@ -491,9 +491,6 @@ class __FijkPanel2State extends State<_FijkPanel2> {
     Rect rect = panelRect();
 
     List ws = <Widget>[];
-    if (widget.onBack != null) {
-      ws.add(buildBack(context));
-    }
 
     if (_StatelessTimer != null && _StatelessTimer.isActive) {
       ws.add(buildStateless());
@@ -503,6 +500,9 @@ class __FijkPanel2State extends State<_FijkPanel2> {
       ws.add(buildStateless());
     }
     ws.add(buildGestureDetector(context));
+    if (widget.onBack != null) {
+      ws.add(buildBack(context));
+    }
     return Positioned.fromRect(
       rect: rect,
       child: Stack(children: ws),
