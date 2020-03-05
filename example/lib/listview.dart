@@ -21,6 +21,7 @@ class _ListItemPlayerState extends State<ListItemPlayer> {
   Timer _timer;
   bool _start = false;
   bool _expectStart = false;
+  final VolumeController volumeController = VolumeController();
 
   @override
   void initState() {
@@ -125,6 +126,7 @@ class _ListItemPlayerState extends State<ListItemPlayer> {
                       player: _player,
                       fit: fit,
                       cover: AssetImage("assets/cover.png"),
+                      volumeController: volumeController,
                     )
                   : Container(
                       width: double.infinity,
