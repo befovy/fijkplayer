@@ -15,6 +15,7 @@ class VideoScreen extends StatefulWidget {
 
 class _VideoScreenState extends State<VideoScreen> {
   final FijkPlayer player = FijkPlayer();
+  final VolumeController volumeController = VolumeController();
 
   _VideoScreenState();
 
@@ -42,6 +43,7 @@ class _VideoScreenState extends State<VideoScreen> {
             showToast: true,
             child: FijkView(
               player: player,
+              volumeController: volumeController,
               // panelBuilder: simplestUI,
               // panelBuilder: (FijkPlayer player, BuildContext context,
               //     Size viewSize, Rect texturePos) {

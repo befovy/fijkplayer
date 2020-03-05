@@ -22,14 +22,27 @@
 
 part of fijkplayer;
 
+class VolumeController extends ChangeNotifier {
+  double _volumevalue = 1.0;
+
+  get() {
+    return _volumevalue;
+  }
+
+  set(v) {
+    this._volumevalue = v;
+  }
+}
+
 /// Default builder generate default [FijkPanel] UI
-Widget defaultFijkPanelBuilder(
-    FijkPlayer player, BuildContext context, Size viewSize, Rect texturePos) {
+Widget defaultFijkPanelBuilder(FijkPlayer player, BuildContext context,
+    Size viewSize, Rect texturePos, VolumeController volumeController) {
   return _DefaultFijkPanel(
       player: player,
       buildContext: context,
       viewSize: viewSize,
-      texturePos: texturePos);
+      texturePos: texturePos,
+      volumeController: volumeController);
 }
 
 /// Default Panel Widget
@@ -38,13 +51,14 @@ class _DefaultFijkPanel extends StatefulWidget {
   final BuildContext buildContext;
   final Size viewSize;
   final Rect texturePos;
+  final VolumeController volumeController;
 
-  const _DefaultFijkPanel({
-    @required this.player,
-    this.buildContext,
-    this.viewSize,
-    this.texturePos,
-  });
+  const _DefaultFijkPanel(
+      {@required this.player,
+      this.buildContext,
+      this.viewSize,
+      this.texturePos,
+      @required this.volumeController});
 
   @override
   _DefaultFijkPanelState createState() => _DefaultFijkPanelState();
@@ -84,12 +98,11 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
   StreamSubscription _currentPosSubs;
 
   StreamSubscription _bufferPosSubs;
+
   //StreamSubscription _bufferingSubs;
 
   Timer _hideTimer;
   bool _hideStuff = true;
-
-  double _volume = 1.0;
 
   final barHeight = 40.0;
 
@@ -180,7 +193,7 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
 
   Widget _buildVolumeButton() {
     IconData iconData;
-    if (_volume <= 0) {
+    if (widget.volumeController.get() <= 0) {
       iconData = Icons.volume_off;
     } else {
       iconData = Icons.volume_up;
@@ -190,8 +203,9 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
       padding: EdgeInsets.only(left: 10.0, right: 10.0),
       onPressed: () {
         setState(() {
-          _volume = _volume > 0 ? 0.0 : 1.0;
-          player.setVolume(_volume);
+          widget.volumeController
+              .set(widget.volumeController.get() > 0 ? 0.0 : 1.0);
+          player.setVolume(widget.volumeController.get());
         });
       },
     );

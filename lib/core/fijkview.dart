@@ -29,7 +29,11 @@ part of fijkplayer;
 /// Must not return null.
 /// The return widget is placed as one of [Stack]'s children.
 typedef FijkPanelWidgetBuilder = Widget Function(
-    FijkPlayer player, BuildContext context, Size viewSize, Rect texturePos);
+    FijkPlayer player,
+    BuildContext context,
+    Size viewSize,
+    Rect texturePos,
+    VolumeController volumeController);
 
 /// How a video should be inscribed into [FijkView].
 ///
@@ -117,6 +121,7 @@ class FijkFit {
 class FijkView extends StatefulWidget {
   FijkView({
     @required this.player,
+    @required this.volumeController,
     this.width,
     this.height,
     this.fit = FijkFit.contain,
@@ -125,7 +130,7 @@ class FijkView extends StatefulWidget {
     this.color = const Color(0xFF607D8B),
     this.cover,
     this.fs = true,
-  }) : assert(player != null);
+  }) : assert(player != null, volumeController != null);
 
   /// The player that need display video by this [FijkView].
   /// Will be passed to [panelBuilder].
@@ -154,6 +159,8 @@ class FijkView extends StatefulWidget {
   /// If null, the height will be as big as possible.
   final double height;
 
+  final VolumeController volumeController;
+
   /// Enable or disable the full screen
   ///
   /// If [fs] is true, FijkView make response to the [FijkValue.fullScreen] value changed,
@@ -164,10 +171,14 @@ class FijkView extends StatefulWidget {
   final bool fs;
 
   @override
-  createState() => _FijkViewState();
+  createState() => _FijkViewState(volumeController);
 }
 
 class _FijkViewState extends State<FijkView> {
+  final VolumeController volumeController;
+
+  _FijkViewState(this.volumeController);
+
   int _textureId = -1;
   double _vWidth = -1;
   double _vHeight = -1;
@@ -245,6 +256,7 @@ class _FijkViewState extends State<FijkView> {
             fijkViewState: this,
             fullScreen: true,
             cover: widget.cover,
+            volumeController: volumeController,
           ),
         );
       },
@@ -303,6 +315,7 @@ class _FijkViewState extends State<FijkView> {
               fijkViewState: this,
               fullScreen: false,
               cover: widget.cover,
+              volumeController: volumeController,
             ),
     );
   }
@@ -313,11 +326,13 @@ class _InnerFijkView extends StatefulWidget {
     @required this.fijkViewState,
     @required this.fullScreen,
     @required this.cover,
-  }) : assert(fijkViewState != null);
+    @required this.volumeController,
+  }) : assert(fijkViewState != null, volumeController != null);
 
   final _FijkViewState fijkViewState;
   final bool fullScreen;
   final ImageProvider cover;
+  final VolumeController volumeController;
 
   @override
   __InnerFijkViewState createState() => __InnerFijkViewState();
@@ -524,7 +539,8 @@ class __InnerFijkViewState extends State<_InnerFijkView> {
       }
 
       if (_panelBuilder != null) {
-        ws.add(_panelBuilder(_player, ctx, constraints.biggest, pos));
+        ws.add(_panelBuilder(
+            _player, ctx, constraints.biggest, pos, widget.volumeController));
       }
       return Stack(
         children: ws,
