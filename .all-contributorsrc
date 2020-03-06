@@ -150,6 +150,16 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "PassXml",
+      "name": "PassXml",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/13743804?v=4",
+      "profile": "https://github.com/PassXml",
+      "contributions": [
+        "code",
+        "question"
+      ]
     }
   ],
   "contributorsPerLine": 7,
