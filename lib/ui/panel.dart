@@ -23,8 +23,8 @@
 part of fijkplayer;
 
 /// Default builder generate default [FijkPanel] UI
-Widget defaultFijkPanelBuilder(
-    FijkPlayer player, BuildContext context, Size viewSize, Rect texturePos) {
+Widget defaultFijkPanelBuilder(FijkPlayer player, FijkData data,
+    BuildContext context, Size viewSize, Rect texturePos) {
   return _DefaultFijkPanel(
       player: player,
       buildContext: context,

@@ -23,7 +23,6 @@
 part of fijkplayer;
 
 class FijkPlugin {
-
   /// Make constructor private
   const FijkPlugin._();
 

@@ -28,8 +28,8 @@ part of fijkplayer;
 ///
 /// Must not return null.
 /// The return widget is placed as one of [Stack]'s children.
-typedef FijkPanelWidgetBuilder = Widget Function(
-    FijkPlayer player, BuildContext context, Size viewSize, Rect texturePos);
+typedef FijkPanelWidgetBuilder = Widget Function(FijkPlayer player,
+    FijkData data, BuildContext context, Size viewSize, Rect texturePos);
 
 /// How a video should be inscribed into [FijkView].
 ///
@@ -125,6 +125,7 @@ class FijkView extends StatefulWidget {
     this.color = const Color(0xFF607D8B),
     this.cover,
     this.fs = true,
+    this.onDispose,
   }) : assert(player != null);
 
   /// The player that need display video by this [FijkView].
@@ -133,6 +134,9 @@ class FijkView extends StatefulWidget {
 
   /// builder to build panel Widget
   final FijkPanelWidgetBuilder panelBuilder;
+
+  /// This method will be called when fijkView dispose
+  final VoidCallback onDispose;
 
   /// background color
   final Color color;
@@ -173,11 +177,13 @@ class _FijkViewState extends State<FijkView> {
   double _vHeight = -1;
   bool _fullScreen = false;
 
+  FijkData _fijkData;
   ValueNotifier<int> paramNotifier = ValueNotifier(0);
 
   @override
   void initState() {
     super.initState();
+    _fijkData = FijkData();
     Size s = widget.player.value.size;
     if (s != null) {
       _vWidth = s.width;
@@ -232,6 +238,20 @@ class _FijkViewState extends State<FijkView> {
   void dispose() {
     super.dispose();
     widget.player.removeListener(_fijkValueListener);
+
+    var brightness = _fijkData.getValue(FijkData._fijkViewPanelBrightness);
+    if (brightness != null && brightness is double) {
+      FijkPlugin.setScreenBrightness(brightness);
+    }
+
+    var volume = _fijkData.getValue(FijkData._fijkViewPanelVolume);
+    if (volume != null && volume is double) {
+      FijkVolume.setVol(volume);
+    }
+
+    if (widget.onDispose != null) {
+      widget.onDispose();
+    }
   }
 
   AnimatedWidget _defaultRoutePageBuilder(
@@ -245,6 +265,7 @@ class _FijkViewState extends State<FijkView> {
             fijkViewState: this,
             fullScreen: true,
             cover: widget.cover,
+            data: _fijkData,
           ),
         );
       },
@@ -303,6 +324,7 @@ class _FijkViewState extends State<FijkView> {
               fijkViewState: this,
               fullScreen: false,
               cover: widget.cover,
+              data: _fijkData,
             ),
     );
   }
@@ -313,11 +335,13 @@ class _InnerFijkView extends StatefulWidget {
     @required this.fijkViewState,
     @required this.fullScreen,
     @required this.cover,
+    @required this.data,
   }) : assert(fijkViewState != null);
 
   final _FijkViewState fijkViewState;
   final bool fullScreen;
   final ImageProvider cover;
+  final FijkData data;
 
   @override
   __InnerFijkViewState createState() => __InnerFijkViewState();
@@ -486,6 +510,7 @@ class __InnerFijkViewState extends State<_InnerFijkView> {
     _textureId = widget.fijkViewState._textureId;
 
     FijkValue value = _player.value;
+    FijkData data = widget.data;
     if (value.size != null && value.prepared) {
       _vWidth = value.size.width;
       _vHeight = value.size.height;
@@ -524,7 +549,7 @@ class __InnerFijkViewState extends State<_InnerFijkView> {
       }
 
       if (_panelBuilder != null) {
-        ws.add(_panelBuilder(_player, ctx, constraints.biggest, pos));
+        ws.add(_panelBuilder(_player, data, ctx, constraints.biggest, pos));
       }
       return Stack(
         children: ws,
