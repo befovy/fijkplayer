@@ -354,3 +354,22 @@ class FijkException implements Exception {
     return "FijkException($code, $message)";
   }
 }
+
+class FijkData {
+  static String _fijkViewPanelVolume = "__fijkview_panel_init_volume";
+  static String _fijkViewPanelBrightness = "__fijkview_panel_init_brightness";
+
+  final Map<String, dynamic> _data = HashMap();
+
+  void setValue(String key, dynamic value) {
+    _data[key] = value;
+  }
+
+  bool contains(String key) {
+    return _data.containsKey(key);
+  }
+
+  dynamic getValue(String key) {
+    return _data[key];
+  }
+}
