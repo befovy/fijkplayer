@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.6.1](https://github.com/befovy/fijkplayer/compare/v0.6.0...v0.6.1) (2020-03-08)
+
+* docs: add fijkPanel2Builder docs
+
 ## [0.6.0](https://github.com/befovy/fijkplayer/compare/v0.5.2...v0.6.0) (2020-03-08)
 
 * add fijkview onDispose ([74d17ce](https://github.com/befovy/fijkplayer/commit/74d17cec1203718df5541e441d6c234514eb984a))
