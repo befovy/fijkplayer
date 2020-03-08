@@ -60,4 +60,19 @@ void main() {
     expect(FijkState.error.index, 8);
     expect(FijkState.end.index, 9);
   });
+
+  test("FijkData set get contains", () {
+    FijkData data = FijkData();
+
+    expect(data.contains("hello"), false);
+
+    data.setValue("hello", "world");
+    expect(data.contains("hello"), true);
+
+    expect(data.getValue("hello"), "world");
+    data.clearValue("dart");
+    data.clearValue("hello");
+
+    expect(data.contains("hello"), false);
+  });
 }

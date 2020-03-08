@@ -28,6 +28,8 @@ part of fijkplayer;
 ///
 /// Must not return null.
 /// The return widget is placed as one of [Stack]'s children.
+/// If change FijkView between normal mode and full screen mode, the panel would
+/// be rebuild. [data] can be used to pass value from different panel.
 typedef FijkPanelWidgetBuilder = Widget Function(FijkPlayer player,
     FijkData data, BuildContext context, Size viewSize, Rect texturePos);
 
@@ -135,8 +137,11 @@ class FijkView extends StatefulWidget {
   /// builder to build panel Widget
   final FijkPanelWidgetBuilder panelBuilder;
 
-  /// This method will be called when fijkView dispose
-  final VoidCallback onDispose;
+  /// This method will be called when fijkView dispose.
+  /// FijkData is managed inner FijkView. User can change fijkData in custom panel.
+  /// See [panelBuilder]'s second argument.
+  /// And check if some value need to be recover on FijkView dispose.
+  final void Function(FijkData) onDispose;
 
   /// background color
   final Color color;
@@ -242,15 +247,17 @@ class _FijkViewState extends State<FijkView> {
     var brightness = _fijkData.getValue(FijkData._fijkViewPanelBrightness);
     if (brightness != null && brightness is double) {
       FijkPlugin.setScreenBrightness(brightness);
+      _fijkData.clearValue(FijkData._fijkViewPanelBrightness);
     }
 
     var volume = _fijkData.getValue(FijkData._fijkViewPanelVolume);
     if (volume != null && volume is double) {
       FijkVolume.setVol(volume);
+      _fijkData.clearValue(FijkData._fijkViewPanelVolume);
     }
 
     if (widget.onDispose != null) {
-      widget.onDispose();
+      widget.onDispose(_fijkData);
     }
   }
 
