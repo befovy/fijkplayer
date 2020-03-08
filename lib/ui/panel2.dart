@@ -22,7 +22,7 @@
 
 part of fijkplayer;
 
-FijkPanelWidgetBuilder panel2Builder(
+FijkPanelWidgetBuilder fijkPanel2Builder(
     {Key key,
     final bool fill = false,
     final int duration = 4000,
