@@ -365,6 +365,10 @@ class FijkData {
     _data[key] = value;
   }
 
+  void clearValue(String key) {
+    _data.remove(key);
+  }
+
   bool contains(String key) {
     return _data.containsKey(key);
   }
