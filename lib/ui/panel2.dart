@@ -315,7 +315,7 @@ class __FijkPanel2State extends State<_FijkPanel2> {
     currentValue = currentValue.clamp(0, duration);
 
     double bufferPos = dura2double(_bufferPos);
-    bufferPos = bufferPos.clamp(0, duration);
+    bufferPos = bufferPos.clamp(0.0, duration);
 
     return Padding(
       padding: EdgeInsets.only(left: 3),
