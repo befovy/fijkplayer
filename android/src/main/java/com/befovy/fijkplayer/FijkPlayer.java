@@ -377,7 +377,8 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
                     mIjkMediaPlayer.setDataSource(new RawMediaDataSource(is));
                 } else {
                     if (TextUtils.isEmpty(uri.getScheme()) || "file".equals(uri.getScheme())) {
-                        IMediaDataSource dataSource = new FileMediaDataSource(new File(uri.toString()));
+                        String path = uri.getPath() != null ? uri.getPath() : "";
+                        IMediaDataSource dataSource = new FileMediaDataSource(new File(path));
                         mIjkMediaPlayer.setDataSource(dataSource);
                     } else {
                         mIjkMediaPlayer.setDataSource(mContext, uri);
