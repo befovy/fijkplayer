@@ -312,7 +312,7 @@ class __FijkPanel2State extends State<_FijkPanel2> {
     double duration = dura2double(_duration);
 
     double currentValue = _seekPos > 0 ? _seekPos : dura2double(_currentPos);
-    currentValue = currentValue.clamp(0, duration);
+    currentValue = currentValue.clamp(0.0, duration);
 
     double bufferPos = dura2double(_bufferPos);
     bufferPos = bufferPos.clamp(0.0, duration);
