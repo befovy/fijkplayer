@@ -26,6 +26,10 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://github.com/jiongjarjar"><img src="https://avatars2.githubusercontent.com/u/49331007?v=4" width="100px;" alt=""/><br /><sub><b>jiongjarjar</b></sub></a><br /><a href="https://github.com/befovy/fijkplayer/issues?q=author%3Ajiongjarjar" title="Bug reports">🐛</a></td>
     <td align="center"><a href="https://github.com/mrdong916"><img src="https://avatars2.githubusercontent.com/u/20489554?v=4" width="100px;" alt=""/><br /><sub><b>mrdong916</b></sub></a><br /><a href="https://github.com/befovy/fijkplayer/issues?q=author%3Amrdong916" title="Bug reports">🐛</a></td>
   </tr>
+  <tr>
+    <td align="center"><a href="http://www.lcgod.com"><img src="https://avatars2.githubusercontent.com/u/27147542?v=4" width="100px;" alt=""/><br /><sub><b>SpanishOnion</b></sub></a><br /><a href="https://github.com/befovy/fijkplayer/issues?q=author%3ASpanishOnion" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://github.com/PassXml"><img src="https://avatars3.githubusercontent.com/u/13743804?v=4" width="100px;" alt=""/><br /><sub><b>PassXml</b></sub></a><br /><a href="https://github.com/befovy/fijkplayer/commits?author=PassXml" title="Code">💻</a> <a href="#question-PassXml" title="Answering Questions">💬</a></td>
+  </tr>
 </table>
 
 <!-- markdownlint-enable -->
