@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.6.0](https://github.com/befovy/fijkplayer/compare/v0.5.2...v0.6.0) (2020-03-08)
+
+* add fijkview onDispose ([74d17ce](https://github.com/befovy/fijkplayer/commit/74d17cec1203718df5541e441d6c234514eb984a))
+* add screen brightness API for Android and iOS ([0879d95](https://github.com/befovy/fijkplayer/commit/0879d95e8ae3dc4ae7213272d54cdc2248571a4f))
+* panel2 , vertical drag set brightness and volume ([#184](https://github.com/befovy/fijkplayer/issues/184)) ([7a7219a](https://github.com/befovy/fijkplayer/commit/7a7219a0ebc3b66e29c64ba7c1eafa49437cf986)), closes [#140](https://github.com/befovy/fijkplayer/issues/140) [#159](https://github.com/befovy/fijkplayer/issues/159)
+* failed to play url with file scheme. fix [#189](https://github.com/befovy/fijkplayer/issues/189) ([e3567aa](https://github.com/befovy/fijkplayer/commit/e3567aac13bcdf97df32283304fe214749e82ac4))
+
+#### ⚠ BREAKING CHANGES
+
+* FijkPanelWidgetBuilder add new prarmeter, FijkData
+
 ---
 ## [0.5.2](https://github.com/befovy/fijkplayer/compare/v0.5.1...v0.5.2) (2020-02-21)
 
