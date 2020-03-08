@@ -2,6 +2,7 @@
 
 ✨ **[手把手带你写 Flutter 系统音量插件](https://www.yuque.com/befovy/share/flutter_volume)**  ✨  **[Flutter 多版本管理工具 fvm](https://github.com/befovy/fvm)** ✨
 
+[![HitCount](http://hits.dwyl.com/befovy/fijkplayer.svg)](http://hits.dwyl.com/befovy/fijkplayer) &nbsp; &nbsp;
 [![pub package](https://img.shields.io/pub/v/fijkplayer.svg)](https://pub.dartlang.org/packages/fijkplayer) &nbsp; &nbsp;
 [![Action Status](https://github.com/befovy/fijkplayer/workflows/Flutter/badge.svg?branch=master)](https://github.com/befovy/fijkplayer/actions) &nbsp; &nbsp;
 
@@ -89,9 +90,6 @@ class _VideoScreenState extends State<VideoScreen> {
 
 ```
 
-## Already in use in following apps
-Contact me or create pull request to add your app here.
-
 ## Contributors 贡献者 ✨
 
 Thanks goes to [these wonderful people](./CONTRIBUTORS.md) ([emoji key](https://allcontributors.org/docs/en/emoji-key))
@@ -102,7 +100,3 @@ This project follows the [all-contributors](https://github.com/all-contributors/
 
 Warning: The fijkplayer video player plugin is not functional on iOS simulators. An iOS device must be used during development/testing. For more details, please refer to this [issue](https://github.com/flutter/flutter/issues/14647).
 
-
-## Next Plan 计划
-
-See the development plan of next version in https://github.com/befovy/fijkplayer/projects/2
