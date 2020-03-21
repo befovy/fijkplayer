@@ -5,7 +5,6 @@ import 'package:fijkplayer_example/video_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 import 'app_bar.dart';
 
@@ -37,27 +36,8 @@ class _LocalPathState extends State<LocalPath> {
   @override
   void initState() {
     super.initState();
-    permissionRequest();
   }
 
-  void permissionRequest() async {
-    PermissionStatus permission = await PermissionHandler()
-        .checkPermissionStatus(PermissionGroup.storage);
-    if (permission != PermissionStatus.granted) {
-      PermissionHandler()
-          .requestPermissions([PermissionGroup.storage]).then((perms) {
-        final status = perms[PermissionGroup.storage];
-        print("request storage permission: $status");
-      });
-    }
-
-    Future<Directory> rootDir = Platform.isIOS
-        ? getApplicationSupportDirectory()
-        : getExternalStorageDirectory();
-    rootDir.then((dir) {
-      listDir(dir.path);
-    });
-  }
 
   void cantOpenSnackBar() {
     Scaffold.of(context).showSnackBar(SnackBar(
