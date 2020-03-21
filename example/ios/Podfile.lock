@@ -1,7 +1,7 @@
 PODS:
-  - FIJKPlayer (0.5.0)
+  - BIJKPlayer (0.5.1)
   - fijkplayer (0.6.2):
-    - FIJKPlayer (~> 0.5.0)
+    - BIJKPlayer (~> 0.5.1)
     - Flutter
   - Flutter (1.0.0)
   - path_provider (0.0.1):
@@ -25,8 +25,8 @@ DEPENDENCIES:
   - shared_preferences_web (from `.symlinks/plugins/shared_preferences_web/ios`)
 
 SPEC REPOS:
-  https://github.com/CocoaPods/Specs.git:
-    - FIJKPlayer
+  trunk:
+    - BIJKPlayer
 
 EXTERNAL SOURCES:
   fijkplayer:
@@ -45,8 +45,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/shared_preferences_web/ios"
 
 SPEC CHECKSUMS:
-  FIJKPlayer: 70d186d12e533e3d576a9b3fbafa9e462b0d911a
-  fijkplayer: df74008d2937c092aba6a7d56d24186b328edd82
+  BIJKPlayer: 8971af2734959a515e45f6650a0a37a46ae9e09a
+  fijkplayer: afebb54d424b7a42914c21428c7707bd88f80514
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
   path_provider: fb74bd0465e96b594bb3b5088ee4a4e7bb1f2a9d
   permission_handler: 67637977b227d62d46bfbf524f335f8568de5a73
@@ -56,4 +56,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 3dbe063e9c90a5d7c9e4e76e70a821b9e2c1d271
 
-COCOAPODS: 1.8.4
+COCOAPODS: 1.9.1
