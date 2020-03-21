@@ -69,11 +69,9 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
     final private IjkMediaPlayer mIjkMediaPlayer;
     final private FijkEngine mEngine;
     // non-local field prevent GC
-    @SuppressWarnings("FieldCanBeLocal")
     final private EventChannel mEventChannel;
 
     // non-local field prevent GC
-    @SuppressWarnings("FieldCanBeLocal")
     final private MethodChannel mMethodChannel;
 
     final private QueuingEventSink mEventSink = new QueuingEventSink();

@@ -22,6 +22,7 @@
 
 package com.befovy.fijkplayer;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
@@ -64,17 +65,15 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
 
     // show system volume changed UI if no playable player
     // hide system volume changed UI if some players are in playable state
-    @SuppressWarnings("FieldCanBeLocal")
-    private static int NO_UI_IF_PLAYABLE = 0;
+    private static final int NO_UI_IF_PLAYABLE = 0;
     // show system volume changed UI if no start state player
     // hide system volume changed UI if some players are in start state
-    @SuppressWarnings("FieldCanBeLocal")
-    private static int NO_UI_IF_PLAYING = 1;
+    private static final int NO_UI_IF_PLAYING = 1;
     // never show system volume changed UI
-    @SuppressWarnings("FieldCanBeLocal")
+    @SuppressWarnings("unused")
     private static int NEVER_SHOW_UI = 2;
     // always show system volume changed UI
-    private static int ALWAYS_SHOW_UI = 3;
+    private static final int ALWAYS_SHOW_UI = 3;
 
     final private SparseArray<FijkPlayer> fijkPlayers = new SparseArray<>();
 
@@ -93,7 +92,6 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
     private float volStep = 1.0f / 16.0f;
     private boolean eventListening = false;
     // non-local field prevent GC
-    @SuppressWarnings("FieldCanBeLocal")
     private EventChannel mEventChannel;
     private Object mAudioFocusRequest;
     private boolean mAudioFocusRequested = false;
@@ -520,47 +518,62 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
         activity.getWindow().setAttributes(layoutParams);
     }
 
+    @TargetApi(26)
+    @SuppressWarnings("deprecation")
+    private void requestAudioFocus() {
+        AudioManager audioManager = audioManager();
+        if (audioManager == null)
+            return;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            AudioAttributes audioAttributes =
+                    new AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_MEDIA)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_MOVIE)
+                            .build();
+
+            AudioFocusRequest audioFocusRequest =
+                    new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+                            .setAudioAttributes(audioAttributes)
+                            .setAcceptsDelayedFocusGain(true)
+                            .setOnAudioFocusChangeListener(this) // Need to implement listener
+                            .build();
+            mAudioFocusRequest = audioFocusRequest;
+            audioManager.requestAudioFocus(audioFocusRequest);
+        } else {
+            audioManager.requestAudioFocus(this,
+                    AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+        }
+        mAudioFocusRequested = true;
+    }
+
+    @TargetApi(26)
+    @SuppressWarnings("deprecation")
+    private void abandonAudioFocus() {
+        AudioManager audioManager = audioManager();
+        if (audioManager == null)
+            return;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            if (mAudioFocusRequest != null) {
+                audioManager.abandonAudioFocusRequest((AudioFocusRequest) mAudioFocusRequest);
+                mAudioFocusRequest = null;
+            }
+        } else {
+            audioManager.abandonAudioFocus(this);
+        }
+        mAudioFocusRequested = false;
+    }
+
     /**
      * @param request true to request audio focus
      *                false to release audio focus
      */
     @Override
     public void audioFocus(boolean request) {
-        AudioManager audioManager = audioManager();
-        if (audioManager == null)
-            return;
         Log.i("FIJKPLAYER", "audioFocus " + (request ? "request" : "release") + " state:" + mAudioFocusRequested);
         if (request && !mAudioFocusRequested) {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                AudioAttributes audioAttributes =
-                        new AudioAttributes.Builder()
-                                .setUsage(AudioAttributes.USAGE_MEDIA)
-                                .setContentType(AudioAttributes.CONTENT_TYPE_MOVIE)
-                                .build();
-
-                AudioFocusRequest audioFocusRequest =
-                        new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
-                                .setAudioAttributes(audioAttributes)
-                                .setAcceptsDelayedFocusGain(true)
-                                .setOnAudioFocusChangeListener(this) // Need to implement listener
-                                .build();
-                mAudioFocusRequest = audioFocusRequest;
-                audioManager.requestAudioFocus(audioFocusRequest);
-            } else {
-                audioManager.requestAudioFocus(this,
-                        AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
-            }
-            mAudioFocusRequested = true;
+            requestAudioFocus();
         } else if (mAudioFocusRequested) {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                if (mAudioFocusRequest != null) {
-                    audioManager.abandonAudioFocusRequest((AudioFocusRequest) mAudioFocusRequest);
-                    mAudioFocusRequest = null;
-                }
-            } else {
-                audioManager.abandonAudioFocus(this);
-            }
-            mAudioFocusRequested = false;
+            abandonAudioFocus();
         }
     }
 
@@ -612,6 +625,7 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
         return vol;
     }
 
+    @SuppressWarnings("SameReturnValue")
     private float volumeMute() {
         setSystemVolume(0.0f);
         return 0.0f;

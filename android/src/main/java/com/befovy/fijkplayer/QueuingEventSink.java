@@ -22,8 +22,9 @@
 
 package com.befovy.fijkplayer;
 
-import io.flutter.plugin.common.EventChannel;
 import java.util.ArrayList;
+
+import io.flutter.plugin.common.EventChannel;
 
 /**
  * And implementation of {@link EventChannel.EventSink} which can wrap an underlying sink.
@@ -37,7 +38,7 @@ import java.util.ArrayList;
 final class QueuingEventSink implements EventChannel.EventSink {
 
     private EventChannel.EventSink delegate;
-    private ArrayList<Object> eventQueue = new ArrayList<>();
+    private final ArrayList<Object> eventQueue = new ArrayList<>();
     private boolean done = false;
 
     public void setDelegate(EventChannel.EventSink delegate) {
@@ -88,12 +89,13 @@ final class QueuingEventSink implements EventChannel.EventSink {
         eventQueue.clear();
     }
 
-    private static class EndOfStreamEvent {}
+    private static class EndOfStreamEvent {
+    }
 
     private static class ErrorEvent {
-        String code;
-        String message;
-        Object details;
+        final String code;
+        final String message;
+        final Object details;
 
         ErrorEvent(String code, String message, Object details) {
             this.code = code;
