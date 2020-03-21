@@ -1,6 +1,6 @@
 //MIT License
 //
-//Copyright (c) [2019] [Befovy]
+//Copyright (c) [2019-2020] [Befovy]
 //
 //Permission is hereby granted, free of charge, to any person obtaining a copy
 //of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,6 @@
 
 package com.befovy.fijkplayer;
 
-import android.provider.Settings;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
@@ -32,28 +30,74 @@ import android.media.AudioAttributes;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.os.Build;
+import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.KeyEvent;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.flutter.embedding.engine.plugins.FlutterPlugin;
+import io.flutter.embedding.engine.plugins.activity.ActivityAware;
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
+import io.flutter.plugin.common.BinaryMessenger;
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
+import io.flutter.view.TextureRegistry;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
 /**
  * FijkPlugin
  */
-public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListener, AudioManager.OnAudioFocusChangeListener {
+public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAware, FijkEngine, FijkVolume.VolumeKeyListener, AudioManager.OnAudioFocusChangeListener {
+
+    // show system volume changed UI if no playable player
+    // hide system volume changed UI if some players are in playable state
+    @SuppressWarnings("FieldCanBeLocal")
+    private static int NO_UI_IF_PLAYABLE = 0;
+    // show system volume changed UI if no start state player
+    // hide system volume changed UI if some players are in start state
+    @SuppressWarnings("FieldCanBeLocal")
+    private static int NO_UI_IF_PLAYING = 1;
+    // never show system volume changed UI
+    @SuppressWarnings("FieldCanBeLocal")
+    private static int NEVER_SHOW_UI = 2;
+    // always show system volume changed UI
+    private static int ALWAYS_SHOW_UI = 3;
+
+    final private SparseArray<FijkPlayer> fijkPlayers = new SparseArray<>();
+
+    private final QueuingEventSink mEventSink = new QueuingEventSink();
+
+    private WeakReference<Activity> mActivity;
+    private WeakReference<Context> mContext;
+    private Registrar mRegistrar;
+    private FlutterPluginBinding mBinding;
+
+    // Count of playable players
+    private int playableCnt = 0;
+    // Count of playing players
+    private int playingCnt = 0;
+    private int volumeUIMode = ALWAYS_SHOW_UI;
+    private float volStep = 1.0f / 16.0f;
+    private boolean eventListening = false;
+    // non-local field prevent GC
+    @SuppressWarnings("FieldCanBeLocal")
+    private EventChannel mEventChannel;
+    private Object mAudioFocusRequest;
+    private boolean mAudioFocusRequested = false;
+
 
     /**
      * Plugin registration.
@@ -61,72 +105,142 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
     @SuppressWarnings("unused")
     public static void registerWith(Registrar registrar) {
         final MethodChannel channel = new MethodChannel(registrar.messenger(), "befovy.com/fijk");
-        _instance = new FijkPlugin(registrar);
-        channel.setMethodCallHandler(_instance);
+        FijkPlugin plugin = new FijkPlugin();
+        plugin.initWithRegistrar(registrar);
+        channel.setMethodCallHandler(plugin);
 
-        final FijkPlayer player = new FijkPlayer(registrar);
+        final FijkPlayer player = new FijkPlayer(plugin);
         player.setupSurface();
         player.release();
     }
 
-    static FijkPlugin instance() {
-        return _instance;
+    @Override
+    public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
+        final MethodChannel channel = new MethodChannel(binding.getBinaryMessenger(), "befovy.com/fijk");
+        initWithBinding(binding);
+        channel.setMethodCallHandler(this);
+
+        final FijkPlayer player = new FijkPlayer(this);
+        player.setupSurface();
+        player.release();
+
+        AudioManager audioManager = audioManager();
+        if (audioManager != null) {
+            int max = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+            volStep = Math.max(1.0f / (float) max, volStep);
+        }
     }
 
-    private static FijkPlugin _instance;
+    @Override
+    public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+        mContext = null;
+    }
 
-    //    final private Activity activity;
-    final private Registrar registrar;
-    final private SparseArray<FijkPlayer> fijkPlayers;
-
-    // Count of playable players
-    private int playableCnt = 0;
-
-    // Count of playing players
-    private int playingCnt = 0;
-
-    // show system volume changed UI if no playable player
-    // hide system volume changed UI if some players are in playable state
-    @SuppressWarnings("FieldCanBeLocal")
-    private static int NO_UI_IF_PLAYABLE = 0;
-
-    // show system volume changed UI if no start state player
-    // hide system volume changed UI if some players are in start state
-    @SuppressWarnings("FieldCanBeLocal")
-    private static int NO_UI_IF_PLAYING = 1;
-
-    // never show system volume changed UI
-    @SuppressWarnings("FieldCanBeLocal")
-    private static int NEVER_SHOW_UI = 2;
-    // always show system volume changed UI
-    private static int ALWAYS_SHOW_UI = 3;
-
-    private int volumeUIMode = ALWAYS_SHOW_UI;
-    private float volStep = 1.0f / 16.0f;
-
-    private boolean eventListening = false;
-
-    // non-local field prevent GC
-    @SuppressWarnings("FieldCanBeLocal")
-    final private EventChannel mEventChannel;
-
-    private final QueuingEventSink mEventSink = new QueuingEventSink();
-
-    private Object mAudioFocusRequest;
-    private boolean mAudioFocusRequested = false;
-
-
-    private FijkPlugin(Registrar registrar) {
-        this.registrar = registrar;
-        fijkPlayers = new SparseArray<>();
-        Activity activity = registrar.activity();
-
-        if (activity instanceof FijkVolume.CanListenVolumeKey) {
-            FijkVolume.CanListenVolumeKey canListenVolumeKey = (FijkVolume.CanListenVolumeKey) activity;
+    @Override
+    public void onAttachedToActivity(ActivityPluginBinding binding) {
+        mActivity = new WeakReference<>(binding.getActivity());
+        if (mActivity.get() instanceof FijkVolume.CanListenVolumeKey) {
+            FijkVolume.CanListenVolumeKey canListenVolumeKey = (FijkVolume.CanListenVolumeKey) mActivity.get();
             canListenVolumeKey.setVolumeKeyListener(this);
         }
+    }
 
-        mEventChannel = new EventChannel(registrar.messenger(), "befovy.com/fijk/event");
+    @Override
+    public void onDetachedFromActivityForConfigChanges() {
+        mActivity = null;
+    }
+
+    @Override
+    public void onReattachedToActivityForConfigChanges(ActivityPluginBinding binding) {
+        mActivity = new WeakReference<>(binding.getActivity());
+
+        if (mActivity.get() instanceof FijkVolume.CanListenVolumeKey) {
+            FijkVolume.CanListenVolumeKey canListenVolumeKey = (FijkVolume.CanListenVolumeKey) mActivity.get();
+            canListenVolumeKey.setVolumeKeyListener(this);
+        }
+    }
+
+    @Override
+    public void onDetachedFromActivity() {
+        mActivity = null;
+    }
+
+    @Override
+    public TextureRegistry.SurfaceTextureEntry createSurfaceEntry() {
+        if (mBinding != null) {
+            return mBinding.getTextureRegistry().createSurfaceTexture();
+        } else if (mRegistrar != null) {
+            return mRegistrar.textures().createSurfaceTexture();
+        }
+        return null;
+    }
+
+    @Override
+    public BinaryMessenger messenger() {
+        if (mBinding != null) {
+            return mBinding.getBinaryMessenger();
+        } else if (mRegistrar != null) {
+            return mRegistrar.messenger();
+        }
+        return null;
+    }
+
+    @Override
+    public Context context() {
+        return mContext.get();
+    }
+
+    private Activity activity() {
+        if (mRegistrar != null) {
+            return mRegistrar.activity();
+        } else {
+            return mActivity.get();
+        }
+    }
+
+    @Override
+    public String lookupKeyForAsset(@NonNull String asset, @Nullable String packageName) {
+        String path = null;
+        if (mBinding != null) {
+            if (TextUtils.isEmpty(packageName)) {
+                path = mBinding.getFlutterAssets().getAssetFilePathByName(asset);
+            } else {
+                path = mBinding.getFlutterAssets().getAssetFilePathByName(asset, packageName);
+            }
+        } else if (mRegistrar != null) {
+            if (TextUtils.isEmpty(packageName)) {
+                path = mRegistrar.lookupKeyForAsset(asset);
+            } else {
+                path = mRegistrar.lookupKeyForAsset(asset, packageName);
+            }
+        }
+        return path;
+    }
+
+
+    private void initWithRegistrar(@NonNull Registrar registrar) {
+        mRegistrar = registrar;
+        mContext = new WeakReference<>(registrar.activeContext());
+        init(registrar.messenger());
+    }
+
+    private void initWithBinding(@NonNull FlutterPluginBinding binding) {
+        mBinding = binding;
+        mContext = new WeakReference<>(binding.getApplicationContext());
+        init(binding.getBinaryMessenger());
+    }
+
+    /**
+     * Maybe call init more than once
+     *
+     * @param messenger BinaryMessenger from flutter engine
+     */
+    private void init(BinaryMessenger messenger) {
+        if (mEventChannel != null) {
+            mEventChannel.setStreamHandler(null);
+            mEventSink.setDelegate(null);
+        }
+        mEventChannel = new EventChannel(messenger, "befovy.com/fijk/event");
         mEventChannel.setStreamHandler(new EventChannel.StreamHandler() {
             @Override
             public void onListen(Object o, EventChannel.EventSink eventSink) {
@@ -139,14 +253,16 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
             }
         });
 
-        int max = audioManager().getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-
-        volStep = Math.max(1.0f / (float) max, volStep);
+        AudioManager audioManager = audioManager();
+        if (audioManager != null) {
+            int max = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+            volStep = Math.max(1.0f / (float) max, volStep);
+        }
     }
+
 
     @Override
     public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
-        Activity activity = registrar.activity();
         switch (call.method) {
             case "getPlatformVersion":
                 result.success("Android " + android.os.Build.VERSION.RELEASE);
@@ -156,7 +272,7 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
                 result.success(null);
                 break;
             case "createPlayer": {
-                FijkPlayer fijkPlayer = new FijkPlayer(registrar);
+                FijkPlayer fijkPlayer = new FijkPlayer(this);
                 int playerId = fijkPlayer.getPlayerId();
                 fijkPlayers.append(playerId, fijkPlayer);
                 result.success(playerId);
@@ -164,8 +280,9 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
             }
             case "releasePlayer": {
                 int pid = -1;
-                if (call.hasArgument("pid"))
-                    pid = call.argument("pid");
+                final Integer arg = call.argument("pid");
+                if (arg != null)
+                    pid = arg;
                 FijkPlayer fijkPlayer = fijkPlayers.get(pid);
                 if (fijkPlayer != null) {
                     fijkPlayer.release();
@@ -176,8 +293,9 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
             }
             case "logLevel": {
                 int level = 500;
-                if (call.hasArgument("level"))
-                    level = call.argument("level");
+                final Integer l = call.argument("level");
+                if (l != null)
+                    level = l;
                 level = level / 100;
                 level = level < 0 ? 0 : level;
                 level = level > 8 ? 8 : level;
@@ -187,7 +305,8 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
             }
             case "setOrientationPortrait":
                 boolean changedPort = false;
-                if (activity != null) {
+                if (activity() != null) {
+                    final Activity activity = activity();
                     int current_orientation = activity.getResources().getConfiguration().orientation;
                     if (current_orientation == Configuration.ORIENTATION_LANDSCAPE) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
@@ -202,7 +321,8 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
                 break;
             case "setOrientationLandscape":
                 boolean changedLand = false;
-                if (activity != null) {
+                if (activity() != null) {
+                    final Activity activity = activity();
                     int current_orientation = activity.getResources().getConfiguration().orientation;
                     if (current_orientation == Configuration.ORIENTATION_PORTRAIT) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
@@ -216,7 +336,8 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
                 result.success(changedLand);
                 break;
             case "setOrientationAuto":
-                if (activity != null) {
+                if (activity() != null) {
+                    final Activity activity = activity();
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
                         activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_USER);
                     } else {
@@ -282,15 +403,17 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
                 break;
             case "volumeSet":
                 float vol = systemVolume();
-                if (call.hasArgument("vol")) {
-                    final Double v = call.argument("vol");
+                final Double v = call.argument("vol");
+                if (v != null) {
                     vol = setSystemVolume(v.floatValue());
                 }
                 result.success(vol);
                 break;
             case "volUiMode":
-                if (call.hasArgument("mode"))
-                    volumeUIMode = call.argument("mode");
+                final Integer mode = call.argument("mode");
+                if (mode != null) {
+                    volumeUIMode = mode;
+                }
                 result.success(null);
                 break;
             case "onLoad":
@@ -308,11 +431,14 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
         }
     }
 
-    void onPlayingChange(int delta) {
+
+    @Override
+    public void onPlayingChange(int delta) {
         playingCnt += delta;
     }
 
-    void onPlayableChange(int delta) {
+    @Override
+    public void onPlayableChange(int delta) {
         playableCnt += delta;
     }
 
@@ -332,11 +458,13 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
 
     /**
      * Set screen on enable or disable
+     *
      * @param on true to set keep screen on enable
      *           false to set keep screen on disable
      */
-    void setScreenOn(boolean on) {
-        Activity activity = registrar.activity();
+    @Override
+    public void setScreenOn(boolean on) {
+        Activity activity = activity();
         if (activity == null || activity.getWindow() == null)
             return;
         if (on) {
@@ -352,7 +480,8 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
      * @return true if screen is kept on
      */
     private boolean isScreenKeptOn() {
-        Activity activity = registrar.activity();
+        Activity activity = activity();
+
         if (activity == null || activity.getWindow() == null)
             return false;
         int flag = activity.getWindow().getAttributes().flags;
@@ -361,14 +490,18 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
 
 
     private float getScreenBrightness() {
-        Activity activity = registrar.activity();
+        Activity activity = activity();
+
         if (activity == null || activity.getWindow() == null)
             return 0;
         float brightness = activity.getWindow().getAttributes().screenBrightness;
         if (brightness < 0) {
+            Context context = mContext.get();
             Log.w("FIJKPLAYER", "window attribute brightness less than 0");
             try {
-                brightness = Settings.System.getInt(registrar.context().getContentResolver(), Settings.System.SCREEN_BRIGHTNESS) / (float) 255;
+                if (context != null) {
+                    brightness = Settings.System.getInt(context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS) / (float) 255;
+                }
             } catch (Settings.SettingNotFoundException e) {
                 Log.e("FIJKPLAYER", "System brightness settings not found");
                 brightness = 1.0f;
@@ -378,7 +511,8 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
     }
 
     private void setScreenBrightness(float brightness) {
-        Activity activity = registrar.activity();
+        Activity activity = activity();
+
         if (activity == null || activity.getWindow() == null)
             return;
         WindowManager.LayoutParams layoutParams = activity.getWindow().getAttributes();
@@ -390,7 +524,8 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
      * @param request true to request audio focus
      *                false to release audio focus
      */
-    void audioFocus(boolean request) {
+    @Override
+    public void audioFocus(boolean request) {
         AudioManager audioManager = audioManager();
         if (audioManager == null)
             return;
@@ -429,16 +564,26 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
         }
     }
 
+    @Nullable
     private AudioManager audioManager() {
-        Context context = registrar.context();
-        return (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        Context context = mContext.get();
+        if (context != null) {
+            return (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        } else {
+            Log.e("FIJKPLAYER", "context null, can't get AudioManager");
+            return null;
+        }
     }
 
     private float systemVolume() {
         AudioManager audioManager = audioManager();
-        float max = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-        float vol = (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-        return vol / max;
+        if (audioManager != null) {
+            float max = (float) audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+            float vol = (float) audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+            return vol / max;
+        } else {
+            return 0.0f;
+        }
     }
 
     private void sendVolumeEvent() {
@@ -487,13 +632,17 @@ public class FijkPlugin implements MethodCallHandler, FijkVolume.VolumeKeyListen
     private float setSystemVolume(float vol) {
         int flag = getVolumeChangeFlag();
         AudioManager audioManager = audioManager();
-        int max = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-        int volIndex = (int) (vol * max);
-        volIndex = Math.min(volIndex, max);
-        volIndex = Math.max(volIndex, 0);
-        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volIndex, flag);
-        sendVolumeEvent();
-        return (float) volIndex / (float) max;
+        if (audioManager != null) {
+            int max = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+            int volIndex = (int) (vol * max);
+            volIndex = Math.min(volIndex, max);
+            volIndex = Math.max(volIndex, 0);
+            audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, volIndex, flag);
+            sendVolumeEvent();
+            return (float) volIndex / (float) max;
+        } else {
+            return vol;
+        }
     }
 
     @Override
