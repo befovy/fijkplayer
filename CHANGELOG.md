@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+---
+## [0.6.3](https://github.com/befovy/fijkplayer/compare/v0.6.1...v0.6.3) (2020-03-21)
+
+* change pod library name, solve name conflict
+
 ## [0.6.2](https://github.com/befovy/fijkplayer/compare/v0.6.1...v0.6.2) (2020-03-08)
 
 * fix error int not double  ([#195](https://github.com/befovy/fijkplayer/issues/195)) ([643a3c2](https://github.com/befovy/fijkplayer/commit/643a3c2848a9f6694a367c6db2ba78c527c607a7))
