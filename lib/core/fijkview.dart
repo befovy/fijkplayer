@@ -286,7 +286,7 @@ class _FijkViewState extends State<FijkView> {
 
   Future<dynamic> _pushFullScreenWidget(BuildContext context) async {
     final TransitionRoute<Null> route = PageRouteBuilder<Null>(
-      settings: RouteSettings(isInitialRoute: false),
+      settings: RouteSettings(),
       pageBuilder: _fullScreenRoutePageBuilder,
     );
 
