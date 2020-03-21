@@ -26,11 +26,11 @@ import android.view.KeyEvent;
 
 public class FijkVolume {
 
-    static public interface VolumeKeyListener {
+    public interface VolumeKeyListener {
         boolean onVolumeKeyDown(int keyCode, KeyEvent event);
     }
 
-    static public interface CanListenVolumeKey {
+    public interface CanListenVolumeKey {
         void setVolumeKeyListener(VolumeKeyListener listener);
     }
 }
