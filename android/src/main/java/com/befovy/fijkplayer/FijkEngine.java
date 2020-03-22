@@ -1,6 +1,6 @@
 //MIT License
 //
-//Copyright (c) [2019] [Befovy]
+//Copyright (c) [2019-2020] [Befovy]
 //
 //Permission is hereby granted, free of charge, to any person obtaining a copy
 //of this software and associated documentation files (the "Software"), to deal
@@ -20,17 +20,33 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
+
 package com.befovy.fijkplayer;
 
-import android.view.KeyEvent;
+import android.content.Context;
 
-public class FijkVolume {
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
-    public interface VolumeKeyListener {
-        boolean onVolumeKeyDown(int keyCode, KeyEvent event);
-    }
+import io.flutter.plugin.common.BinaryMessenger;
+import io.flutter.view.TextureRegistry;
 
-    public interface CanListenVolumeKey {
-        void setVolumeKeyListener(VolumeKeyListener listener);
-    }
+interface FijkEngine {
+
+    TextureRegistry.SurfaceTextureEntry createSurfaceEntry();
+
+    BinaryMessenger messenger();
+
+    Context context();
+
+    String lookupKeyForAsset(@NonNull String asset, @Nullable String packageName);
+
+
+    void onPlayingChange(int delta);
+
+    void onPlayableChange(int delta);
+
+    void setScreenOn(boolean on);
+
+    void audioFocus(boolean request);
 }

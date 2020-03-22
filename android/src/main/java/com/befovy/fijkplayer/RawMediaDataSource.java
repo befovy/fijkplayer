@@ -29,7 +29,7 @@ import java.io.InputStream;
 
 import tv.danmaku.ijk.media.player.misc.IMediaDataSource;
 
-public class RawMediaDataSource implements IMediaDataSource {
+class RawMediaDataSource implements IMediaDataSource {
     private InputStream mIs;
     private long mPosition = 0;
 
@@ -49,14 +49,14 @@ public class RawMediaDataSource implements IMediaDataSource {
             }
             length = mIs.read(buffer, offset, size);
             mPosition += length;
-        } catch ( IOException e) {
+        } catch (IOException e) {
             Log.e("DataSource", "failed to read" + e.getMessage());
         }
         return length;
     }
 
     @Override
-    public long getSize()  {
+    public long getSize() {
         long size = -1;
         try {
             size = mIs.available();
@@ -68,7 +68,7 @@ public class RawMediaDataSource implements IMediaDataSource {
 
     @Override
     public void close() {
-        if (mIs != null){
+        if (mIs != null) {
             try {
                 mIs.close();
                 mIs = null;

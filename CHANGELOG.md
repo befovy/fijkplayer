@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+
+---
+## [0.7.0](https://github.com/befovy/fijkplayer/compare/v0.6.3...v0.7.0) (2020-03-22)
+
+* feat: migrate to flutter 1.12 android new API ([ee02c09](https://github.com/befovy/fijkplayer/commit/ee02c0912910403afc46ded9e780cd05456f60cd))
+* fix: api changed, build failed using flutter beta version ([0aa1e9f](https://github.com/befovy/fijkplayer/commit/0aa1e9ffbaa18c96c285a49f55890f05343c7e24))
+
 ---
 ## [0.6.3](https://github.com/befovy/fijkplayer/compare/v0.6.1...v0.6.3) (2020-03-21)
 

@@ -39,6 +39,18 @@ class MediaItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    List ws = <Widget>[];
+
+    if (mediaUrl.title != null) {
+      ws.add(Text(
+        mediaUrl.title,
+        style: TextStyle(fontSize: 15),
+      ));
+    }
+    ws.add(Text(
+      mediaUrl.url,
+      style: TextStyle(fontSize: 13),
+    ));
     return ButtonTheme(
 //      height: mediaUrl.title == null ? 50 : 60,
 
@@ -57,17 +69,7 @@ class MediaItem extends StatelessWidget {
                   EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  if (mediaUrl.title != null)
-                    Text(
-                      mediaUrl.title,
-                      style: TextStyle(fontSize: 15),
-                    ),
-                  Text(
-                    mediaUrl.url,
-                    style: TextStyle(fontSize: 13),
-                  ),
-                ],
+                children: ws,
               ))),
     );
   }

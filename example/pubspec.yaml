@@ -9,7 +9,6 @@ dependencies:
   flutter:
     sdk: flutter
 
-  permission_handler: '^3.2.0'
   path_provider: ^1.2.0
   streaming_shared_preferences: ^1.0.1
 

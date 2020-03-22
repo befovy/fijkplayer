@@ -27,31 +27,32 @@ import java.util.Map;
 
 final class HostOption {
 
-    final public static String REQUEST_AUDIOFOCUS = "request-audio-focus";
-    final public static String RELEASE_AUDIOFOCUS = "release-audio-focus";
+    final static String REQUEST_AUDIOFOCUS = "request-audio-focus";
+    final static String RELEASE_AUDIOFOCUS = "release-audio-focus";
 
-    final public static String REQUEST_SCREENON = "request-screen-on";
+    final static String REQUEST_SCREENON = "request-screen-on";
 
     final private Map<String, Integer> mIntOption;
 
     final private Map<String, String> mStrOption;
 
 
-    public HostOption() {
+    HostOption() {
         this.mIntOption = new HashMap<>();
         this.mStrOption = new HashMap<>();
     }
 
 
-    public void addIntOption(String key, Integer value) {
+    void addIntOption(String key, Integer value) {
         mIntOption.put(key, value);
     }
 
-    public void addStrOption(String key, String value) {
+    void addStrOption(String key, String value) {
         mStrOption.put(key, value);
     }
 
-    public int getIntOption(String key, int defalt) {
+    @SuppressWarnings("SameParameterValue")
+    int getIntOption(String key, int defalt) {
         int value = defalt;
         if (mIntOption.containsKey(key)) {
             Integer v = mIntOption.get(key);

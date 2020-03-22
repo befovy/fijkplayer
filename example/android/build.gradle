@@ -13,7 +13,7 @@ allprojects {
     repositories {
         google()
         jcenter()
-        flatDir{
+        flatDir {
             dirs "$rootProject.projectDir/../../android/aars"
         }
     }
