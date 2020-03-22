@@ -2,7 +2,7 @@
 
 ✨ **[手把手带你写 Flutter 系统音量插件](https://www.yuque.com/befovy/share/flutter_volume)**  ✨  **[Flutter 多版本管理工具 fvm](https://github.com/befovy/fvm)** ✨
 
-[![HitCount](http://hits.dwyl.com/befovy/fijkplayer.svg)](http://hits.dwyl.com/befovy/fijkplayer) &nbsp; &nbsp;
+[![HitCount](https://hits.dwyl.com/befovy/fijkplayer.svg)](https://hits.dwyl.com/befovy/fijkplayer) &nbsp; &nbsp;
 [![pub package](https://img.shields.io/pub/v/fijkplayer.svg)](https://pub.dartlang.org/packages/fijkplayer) &nbsp; &nbsp;
 [![Action Status](https://github.com/befovy/fijkplayer/workflows/Flutter/badge.svg?branch=master)](https://github.com/befovy/fijkplayer/actions) &nbsp; &nbsp;
 
