@@ -45,14 +45,13 @@ class FijkPlugin {
   }
 
   /// Only works on Android and iOS
-  static Future<bool> setOrientationPortrait() {
+  static Future<bool> setOrientationPortrait() async {
     if (isDesktop()) return Future.value();
     // ios crash Supported orientations has no common orientation with the application
-    if (Platform.isAndroid) {
-      SystemChrome.setPreferredOrientations(
-          [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-    }
-    return _channel.invokeMethod("setOrientationPortrait");
+    bool changed = await _channel.invokeMethod("setOrientationPortrait");
+    SystemChrome.setPreferredOrientations(
+        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+    return Future.value(changed);
   }
 
   /// Only works on Android and iOS
@@ -60,13 +59,12 @@ class FijkPlugin {
   /// return true if current orientation is portrait and after this API
   /// call finished, the orientation becomes landscape.
   /// return false if can't change orientation.
-  static Future<bool> setOrientationLandscape() {
+  static Future<bool> setOrientationLandscape() async {
     if (isDesktop()) return Future.value(false);
-    if (Platform.isAndroid) {
-      SystemChrome.setPreferredOrientations(
-          [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
-    }
-    return _channel.invokeMethod("setOrientationLandscape");
+    bool changed = await _channel.invokeMethod("setOrientationLandscape");
+    SystemChrome.setPreferredOrientations(
+        [DeviceOrientation.landscapeRight, DeviceOrientation.landscapeLeft]);
+    return Future.value(changed);
   }
 
   static Future<void> setOrientationAuto() {

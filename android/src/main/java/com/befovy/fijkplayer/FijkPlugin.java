@@ -295,8 +295,8 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
                 if (l != null)
                     level = l;
                 level = level / 100;
-                level = level < 0 ? 0 : level;
-                level = level > 8 ? 8 : level;
+                level = Math.max(level, 0);
+                level = Math.min(level, 8);
                 IjkMediaPlayer.native_setLogLevel(level);
                 result.success(null);
                 break;
