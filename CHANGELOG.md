@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+
+---
+## [0.7.2](https://github.com/befovy/fijkplayer/compare/v0.7.1...v0.7.2) (2020-04-19)
+
+
+* iOS orientation changed after enter and then leave background ([d57f514](https://github.com/befovy/fijkplayer/commit/d57f5148c633bef887c8197258fc94da1f7bc2f0)), closes [#209](https://github.com/befovy/fijkplayer/issues/209)
+
 ---
 
 ## [0.7.1](https://github.com/befovy/fijkplayer/compare/v0.7.0...v0.7.1) (2020-04-11)
