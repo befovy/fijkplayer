@@ -34,6 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithRegistrar:(id<FlutterPluginRegistrar>)registrar;
 
+- (instancetype)initJustTexture;
+
 - (void)shutdown;
 
 @end

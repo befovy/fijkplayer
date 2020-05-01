@@ -79,6 +79,17 @@ static int renderType = 0;
 
 // static int debugLeak = 0;
 
+- (instancetype)initJustTexture {
+    self = [super init];
+    if (self) {
+        int pid = atomic_fetch_add(&atomicId, 1);
+        _playerId = @(pid);
+        _pid = pid;
+        _vid = -1;
+    }
+    return self;
+}
+
 - (instancetype)initWithRegistrar:(id<FlutterPluginRegistrar>)registrar {
     self = [super init];
     if (self) {

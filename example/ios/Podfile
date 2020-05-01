@@ -1,5 +1,5 @@
 # Uncomment this line to define a global platform for your project
-# platform :ios, '9.0'
+platform :ios, '8.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -72,6 +72,8 @@ target 'Runner' do
     symlink = File.join('.symlinks', 'plugins', name)
     File.symlink(path, symlink)
     pod name, :path => File.join(symlink, 'ios')
+    # specPath = "#{path}/ios/#{name}.podspec"
+    # pod name, :path => specPath
   end
 end
 
