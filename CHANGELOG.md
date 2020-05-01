@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file. See [standa
 
 
 ---
+
+## [0.7.3](https://github.com/befovy/fijkplayer/compare/v0.7.2...v0.7.3) (2020-05-01)
+
+* don't require audio session when load plugin ([839ac6a](https://github.com/befovy/fijkplayer/commit/839ac6a74448edd31458fffcd02502f423597fae)), closes [#219](https://github.com/befovy/fijkplayer/issues/219)
+
+---
+
 ## [0.7.2](https://github.com/befovy/fijkplayer/compare/v0.7.1...v0.7.2) (2020-04-19)
 
 
