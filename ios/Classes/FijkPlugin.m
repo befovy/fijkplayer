@@ -62,7 +62,8 @@ static FijkPlugin *_instance = nil;
     FijkPlugin *instance = [[FijkPlugin alloc] initWithRegistrar:registrar];
     _instance = instance;
     [registrar addMethodCallDelegate:instance channel:channel];
-    FijkPlayer *player = [[FijkPlayer alloc] initWithRegistrar:registrar];
+
+    FijkPlayer *player = [[FijkPlayer alloc] initJustTexture];
     int64_t vid = [[registrar textures] registerTexture:player];
     [player shutdown];
     [[registrar textures] unregisterTexture:vid];
