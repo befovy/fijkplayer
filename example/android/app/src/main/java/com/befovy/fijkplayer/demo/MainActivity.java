@@ -23,10 +23,12 @@ public class MainActivity extends FlutterActivity implements FijkVolume.CanListe
 
 
         ArrayList<String> noGranted = new ArrayList<>();
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET)
+                != PackageManager.PERMISSION_GRANTED) {
             noGranted.add(Manifest.permission.INTERNET);
         }
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
             noGranted.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         }
         if (noGranted.size() > 0) {
@@ -42,8 +44,11 @@ public class MainActivity extends FlutterActivity implements FijkVolume.CanListe
             case KeyEvent.KEYCODE_VOLUME_DOWN:
             case KeyEvent.KEYCODE_VOLUME_UP:
             case KeyEvent.KEYCODE_VOLUME_MUTE:
-                if (volumeKeyListener != null)
+                if (volumeKeyListener != null) {
                     return volumeKeyListener.onVolumeKeyDown(keyCode, event);
+                }
+            default:
+                break;
         }
         return super.onKeyDown(keyCode, event);
     }
