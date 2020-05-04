@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file. See [standa
 
 ---
 
+## [0.8.0](https://github.com/befovy/fijkplayer/compare/v0.7.3...v0.8.0) (2020-05-04)
+
+* add takeSnapShot api ([c4e37eb](https://github.com/befovy/fijkplayer/commit/c4e37ebf078938e8d4b2514db87a9969e0291948))
+* fix demo github action checks ([588d943](https://github.com/befovy/fijkplayer/commit/588d94355e2be0740ce0e17f912059dd64833c50))
+
+---
+
 ## [0.7.3](https://github.com/befovy/fijkplayer/compare/v0.7.2...v0.7.3) (2020-05-01)
 
 * don't require audio session when load plugin ([839ac6a](https://github.com/befovy/fijkplayer/commit/839ac6a74448edd31458fffcd02502f423597fae)), closes [#219](https://github.com/befovy/fijkplayer/issues/219)
