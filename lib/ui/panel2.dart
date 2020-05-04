@@ -27,6 +27,7 @@ FijkPanelWidgetBuilder fijkPanel2Builder(
     final bool fill = false,
     final int duration = 4000,
     final bool doubleTap = true,
+    final bool snapShot = false,
     final VoidCallback onBack}) {
   return (FijkPlayer player, FijkData data, BuildContext context, Size viewSize,
       Rect texturePos) {
@@ -39,6 +40,7 @@ FijkPanelWidgetBuilder fijkPanel2Builder(
       texPos: texturePos,
       fill: fill,
       doubleTap: doubleTap,
+      snapShot: snapShot,
       hideDuration: duration,
     );
   };
@@ -52,6 +54,7 @@ class _FijkPanel2 extends StatefulWidget {
   final Rect texPos;
   final bool fill;
   final bool doubleTap;
+  final bool snapShot;
   final int hideDuration;
 
   const _FijkPanel2(
@@ -63,6 +66,7 @@ class _FijkPanel2 extends StatefulWidget {
       this.viewSize,
       this.hideDuration,
       this.doubleTap,
+      this.snapShot,
       this.texPos})
       : assert(player != null),
         assert(
@@ -95,6 +99,10 @@ class __FijkPanel2State extends State<_FijkPanel2> {
   StreamSubscription _bufferPosSubs;
 
   StreamController<double> _valController;
+
+  // snapshot
+  ImageProvider _imageProvider;
+  Timer _snapshotTimer;
 
   static const FijkSliderColors sliderColors = FijkSliderColors(
       cursorColor: Color.fromARGB(240, 250, 100, 10),
@@ -142,6 +150,7 @@ class __FijkPanel2State extends State<_FijkPanel2> {
     _valController?.close();
     _hideTimer?.cancel();
     _statelessTimer?.cancel();
+    _snapshotTimer?.cancel();
     _currentPosSubs?.cancel();
     _bufferPosSubs?.cancel();
     player.removeListener(_playerValueChanged);
@@ -276,9 +285,10 @@ class __FijkPanel2State extends State<_FijkPanel2> {
     Icon icon = (player.state == FijkState.started)
         ? Icon(Icons.pause)
         : Icon(Icons.play_arrow);
+    bool fullScreen = player.value.fullScreen;
     return IconButton(
       padding: EdgeInsets.all(0),
-      iconSize: height * 0.8,
+      iconSize: fullScreen ? height : height * 0.8,
       color: Color(0xFFFFFFFF),
       icon: icon,
       onPressed: playOrPause,
@@ -289,9 +299,10 @@ class __FijkPanel2State extends State<_FijkPanel2> {
     Icon icon = player.value.fullScreen
         ? Icon(Icons.fullscreen_exit)
         : Icon(Icons.fullscreen);
+    bool fullScreen = player.value.fullScreen;
     return IconButton(
       padding: EdgeInsets.all(0),
-      iconSize: height * 0.8,
+      iconSize: fullScreen ? height : height * 0.8,
       color: Color(0xFFFFFFFF),
       icon: icon,
       onPressed: () {
@@ -363,8 +374,55 @@ class __FijkPanel2State extends State<_FijkPanel2> {
     }
   }
 
+  void takeSnapshot() {
+    player.takeSnapShot().then((v) {
+      var provider = MemoryImage(v);
+      precacheImage(provider, context).then((_) {
+        setState(() {
+          _imageProvider = provider;
+        });
+      });
+      FijkLog.d("get snapshot succeed");
+    }).catchError((e) {
+      FijkLog.d("get snapshot failed");
+    });
+  }
+
   Widget buildPanel(BuildContext context) {
     double height = panelHeight();
+
+    bool fullScreen = player.value.fullScreen;
+    Widget centerWidget = Container(
+      color: Color(0x00000000),
+    );
+
+    Widget centerChild = Container(
+      color: Color(0x00000000),
+    );
+
+    if (fullScreen && widget.snapShot) {
+      centerWidget = Row(
+        children: <Widget>[
+          Expanded(child: centerChild),
+          Padding(
+            padding: EdgeInsets.only(left: 10, right: 10, top: 8, bottom: 8),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: <Widget>[
+                IconButton(
+                  padding: EdgeInsets.all(0),
+                  color: Color(0xFFFFFFFF),
+                  icon: Icon(Icons.camera_alt),
+                  onPressed: () {
+                    takeSnapshot();
+                  },
+                ),
+              ],
+            ),
+          )
+        ],
+      );
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
@@ -379,9 +437,7 @@ class __FijkPanel2State extends State<_FijkPanel2> {
           ),
         ),
         Expanded(
-          child: Container(
-            color: Color(0x00000000),
-          ),
+          child: centerWidget,
         ),
         Container(
           height: height > 80 ? 80 : height / 2,
@@ -414,7 +470,7 @@ class __FijkPanel2State extends State<_FijkPanel2> {
       child: AbsorbPointer(
         absorbing: _hideStuff,
         child: AnimatedOpacity(
-          opacity: _hideStuff ? 0 : 0.8,
+          opacity: _hideStuff ? 0 : 1,
           duration: Duration(milliseconds: 300),
           child: buildPanel(context),
         ),
@@ -493,6 +549,25 @@ class __FijkPanel2State extends State<_FijkPanel2> {
           color: Color(0x99FFFFFF),
         ),
       );
+    } else if (_imageProvider != null) {
+      _snapshotTimer?.cancel();
+      _snapshotTimer = Timer(Duration(milliseconds: 1500), () {
+        if (mounted) {
+          setState(() {
+            _imageProvider = null;
+          });
+        }
+      });
+      return Center(
+        child: IgnorePointer(
+          child: Container(
+            decoration: BoxDecoration(
+                border: Border.all(color: Colors.yellowAccent, width: 3)),
+            child:
+                Image(height: 200, fit: BoxFit.contain, image: _imageProvider),
+          ),
+        ),
+      );
     } else {
       return Container();
     }
@@ -509,6 +584,8 @@ class __FijkPanel2State extends State<_FijkPanel2> {
     } else if (player.state == FijkState.asyncPreparing) {
       ws.add(buildStateless());
     } else if (player.state == FijkState.error) {
+      ws.add(buildStateless());
+    } else if (_imageProvider != null) {
       ws.add(buildStateless());
     }
     ws.add(buildGestureDetector(context));

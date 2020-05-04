@@ -20,6 +20,7 @@ class HomeItem extends StatelessWidget {
     return ButtonTheme(
       height: 45,
       child: FlatButton(
+          key: ValueKey(text),
           materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
           padding: EdgeInsets.all(0),
           onPressed: this.onPressed,

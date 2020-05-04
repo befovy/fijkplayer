@@ -32,6 +32,8 @@ final class HostOption {
 
     final static String REQUEST_SCREENON = "request-screen-on";
 
+    final static String ENABLE_SNAPSHOT = "enable-snapshot";
+
     final private Map<String, Integer> mIntOption;
 
     final private Map<String, String> mStrOption;

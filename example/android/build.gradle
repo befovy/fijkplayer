@@ -14,7 +14,7 @@ allprojects {
         google()
         jcenter()
         flatDir {
-            dirs "$rootProject.projectDir/../../android/aars"
+            dirs "$rootProject.projectDir/aars"
         }
     }
 }

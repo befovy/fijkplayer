@@ -1,7 +1,7 @@
 PODS:
-  - BIJKPlayer (0.6.0)
-  - fijkplayer (0.7.3):
-    - BIJKPlayer (~> 0.6.0)
+  - BIJKPlayer (0.7.1)
+  - fijkplayer (0.8.0):
+    - BIJKPlayer (~> 0.7.1)
     - Flutter
   - Flutter (1.0.0)
   - path_provider (0.0.1):
@@ -45,15 +45,15 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/shared_preferences_web/ios"
 
 SPEC CHECKSUMS:
-  BIJKPlayer: 3254be04cfa8957d69290ef584785563bb5eaf34
-  fijkplayer: b39c22fdef770cbfaa55df51140b189ec8751a8e
+  BIJKPlayer: 1531f71310aab1e7f4b510cf13b14eec1bf123de
+  fijkplayer: ea0099a552f7eb9badd7fa2e55e89ae1171254a3
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
   path_provider: abfe2b5c733d04e238b0d8691db0cfd63a27a93c
   path_provider_macos: f760a3c5b04357c380e2fddb6f9db6f3015897e0
-  shared_preferences: 430726339841afefe5142b9c1f50cb6bd7793e01
+  shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
   shared_preferences_macos: f3f29b71ccbb56bf40c9dd6396c9acf15e214087
   shared_preferences_web: 141cce0c3ed1a1c5bf2a0e44f52d31eeb66e5ea9
 
-PODFILE CHECKSUM: fadc781d566d6b5969b90bf56cfaab132d0f0962
+PODFILE CHECKSUM: d63691d44515f79607c497e269e550a53bee5d29
 
 COCOAPODS: 1.9.1

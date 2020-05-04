@@ -55,6 +55,7 @@ class MediaItem extends StatelessWidget {
 //      height: mediaUrl.title == null ? 50 : 60,
 
       child: FlatButton(
+          key: ValueKey(mediaUrl.url),
           materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
           padding: EdgeInsets.all(0),
           onPressed: () {

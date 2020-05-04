@@ -111,7 +111,7 @@ static int renderType = 0;
                                      forKey:@"overlay-format"
                                  ofCategory:kIJKFFOptionCategoryPlayer];
         } else {
-            // _ijkMediaPlayer = [[IJKFFMediaPlayer alloc]initWithFbo];
+            // _ijkMediaPlayer = [[IJKFFMediaPlayer alloc] initWithFbo];
         }
         // if (debugLeak) {
         //    [_ijkMediaPlayer setLoop:0];
@@ -128,7 +128,7 @@ static int renderType = 0;
                                     forKey:@"videotoolbox"
                                 ofCategory:kIJKFFOptionCategoryPlayer];
 
-        [IJKFFMoviePlayerController setLogLevel:k_IJK_LOG_VERBOSE];
+        [IJKFFMoviePlayerController setLogLevel:k_IJK_LOG_INFO];
 
         [_ijkMediaPlayer addIJKMPEventHandler:self];
 
@@ -154,6 +154,10 @@ static int renderType = 0;
     }
 
     return self;
+}
+
+- (void)setup {
+    _ijkMediaPlayer.cacheSnapshot = ([_hostOption getIntValue:FIJK_HOST_OPTION_ENABLE_SNAPSHOT defalt:@(0)] > 0);
 }
 
 - (void)shutdown {
@@ -246,6 +250,7 @@ static int renderType = 0;
 }
 
 - (NSNumber *)setupSurface {
+    [self setup];
     if (_vid < 0) {
         _textureRegistry = [_registrar textures];
         int64_t vid = [_textureRegistry registerTexture:self];
@@ -423,6 +428,18 @@ static int renderType = 0;
     }
 }
 
+- (void) takeSnapshot{
+    
+    [_ijkMediaPlayer takeSnapshot:^(UIImage * _Nullable image, NSError * _Nullable error) {
+        if (image != nil) {
+            NSDictionary *args = @{@"data":UIImageJPEGRepresentation(image, 1.0), @"w": @(image.size.width), @"h": @(image.size.height)};
+            [self->_methodChannel invokeMethod:@"_onSnapshot" arguments:args];
+        } else {
+            [self->_methodChannel invokeMethod:@"_onSnapshot" arguments:@"snapshot error"];
+        }
+    }];
+}
+
 - (void)handleMethodCall:(FlutterMethodCall *)call
                   result:(FlutterResult)result {
 
@@ -500,6 +517,7 @@ static int renderType = 0;
             result(nil);
         }
     } else if ([@"prepareAsync" isEqualToString:call.method]) {
+        [self setup];
         [_ijkMediaPlayer prepareAsync];
         [self handleEvent:IJKMPET_PLAYBACK_STATE_CHANGED
                   andArg1:asyncPreparing
@@ -549,6 +567,9 @@ static int renderType = 0;
     } else if ([@"setSpeed" isEqualToString:call.method]) {
         float speed = [argsMap[@"speed"] doubleValue];
         [_ijkMediaPlayer setSpeed:speed];
+        result(nil);
+    } else if ([@"snapshot" isEqualToString:call.method]) {
+        [self takeSnapshot];
         result(nil);
     } else {
         result(FlutterMethodNotImplemented);
