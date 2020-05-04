@@ -38,7 +38,6 @@ class _LocalPathState extends State<LocalPath> {
     super.initState();
   }
 
-
   void cantOpenSnackBar() {
     Scaffold.of(context).showSnackBar(SnackBar(
       duration: Duration(seconds: 1),

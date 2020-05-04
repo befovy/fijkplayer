@@ -155,6 +155,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
       default:
         break;
     }
+    return Future.value(0);
   }
 
   Future<void> _doNativeSetup() async {
