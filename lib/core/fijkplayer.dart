@@ -111,6 +111,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   String get dataSource => _dataSource;
 
   final Completer<int> _nativeSetup;
+  Completer<Uint8List> _snapShot;
 
   FijkPlayer()
       : _nativeSetup = Completer(),
@@ -140,6 +141,22 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     }
   }
 
+  Future<dynamic> _handler(MethodCall call) {
+    switch (call.method) {
+      case "_onSnapshot":
+        var img = call.arguments;
+        if (img is Map) {
+          _snapShot.complete(img['data']);
+        } else {
+          _snapShot.completeError(UnsupportedError("snapshot"));
+        }
+        _snapShot = null;
+        break;
+      default:
+        break;
+    }
+  }
+
   Future<void> _doNativeSetup() async {
     _playerId = -1;
     _callId = 0;
@@ -154,6 +171,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
             .listen(_eventListener, onError: _errorListener);
     _nativeSetup.complete(_playerId);
 
+    _channel.setMethodCallHandler(_handler);
     if (_startAfterSetup) {
       FijkLog.i("player id:$_playerId, start after setup");
       await _startFromAnyState();
@@ -200,6 +218,30 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     await _nativeSetup.future;
     FijkLog.i("$this setupSurface");
     return _channel.invokeMethod("setupSurface");
+  }
+
+  /// Take snapshot (screen shot) of current playing video
+  ///
+  /// If you want to use [takeSnapshot], you must call
+  /// `player.setOption(FijkOption.hostCategory, "enable-snapshot", 1);`
+  /// after you create a [FijkPlayer].
+  /// Or else this method returns error.
+  ///
+  /// Example:
+  /// ```
+  /// var imageData = await player.takeSnapShot();
+  /// var provider = MemoryImage(v);
+  /// Widget image = Image(image: provider)
+  /// ```
+  Future<Uint8List> takeSnapShot() async {
+    await _nativeSetup.future;
+    FijkLog.i("$this takeSnapShot");
+    if (_snapShot != null && !_snapShot.isCompleted) {
+      return Future.error(StateError("last snapShot is not finished"));
+    }
+    _snapShot = Completer<Uint8List>();
+    _channel.invokeMethod("snapshot");
+    return _snapShot.future;
   }
 
   /// Set data source for this player

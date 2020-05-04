@@ -25,6 +25,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 #define FIJK_HOST_OPTION_REQUEST_SCREENON @"request-screen-on"
+#define FIJK_HOST_OPTION_ENABLE_SNAPSHOT  @"enable-snapshot"
+
 
 @interface FijkHostOption : NSObject
 

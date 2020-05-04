@@ -23,6 +23,7 @@
 package com.befovy.fijkplayer;
 
 import android.content.res.AssetManager;
+import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
 import android.net.Uri;
 import android.text.TextUtils;
@@ -31,6 +32,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -43,11 +45,12 @@ import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.view.TextureRegistry;
+import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkEventListener;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 import tv.danmaku.ijk.media.player.misc.IMediaDataSource;
 
-public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventListener {
+public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventListener, IMediaPlayer.OnSnapShotListener {
 
     final private static AtomicInteger atomicId = new AtomicInteger(0);
 
@@ -97,6 +100,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
         IjkMediaPlayer.native_setLogLevel(IjkMediaPlayer.IJK_LOG_INFO);
         mMethodChannel = new MethodChannel(mEngine.messenger(), "befovy.com/fijkplayer/" + mPlayerId);
         mMethodChannel.setMethodCallHandler(this);
+        mIjkMediaPlayer.setOnSnapShotListener(this);
 
         mEventChannel = new EventChannel(mEngine.messenger(), "befovy.com/fijkplayer/event/" + mPlayerId);
         mEventChannel.setStreamHandler(new EventChannel.StreamHandler() {
@@ -116,7 +120,15 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
         return mPlayerId;
     }
 
+    void setup() {
+        if (mHostOptions.getIntOption(HostOption.ENABLE_SNAPSHOT,0) > 0) {
+            mIjkMediaPlayer.setAmcGlesRender();
+            mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "overlay-format", "fcc-_es2");
+        }
+    }
+
     long setupSurface() {
+        setup();
         if (mSurfaceTextureEntry == null) {
             TextureRegistry.SurfaceTextureEntry surfaceTextureEntry = mEngine.createSurfaceEntry();
             mSurfaceTextureEntry = surfaceTextureEntry;
@@ -258,6 +270,18 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
     }
 
     @Override
+    public void onSnapShot(IMediaPlayer iMediaPlayer, Bitmap bitmap, int w, int h) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        bitmap.recycle();
+        Map<String, Object> args = new HashMap<>();
+        args.put("data", stream.toByteArray());
+        args.put("w", w);
+        args.put("h", h);
+        mMethodChannel.invokeMethod("_onSnapshot", args);
+    }
+
+    @Override
     public void onEvent(IjkMediaPlayer ijkMediaPlayer, int what, int arg1, int arg2, Object extra) {
         switch (what) {
             case PREPARED:
@@ -378,6 +402,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
                 result.error("-1162824012", "Local IOException:" + e.getMessage(), null);
             }
         } else if (call.method.equals("prepareAsync")) {
+            setup();
             mIjkMediaPlayer.prepareAsync();
             handleEvent(PLAYBACK_STATE_CHANGED, asyncPreparing, -1, null);
             result.success(null);
@@ -416,6 +441,13 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
         } else if (call.method.equals("setSpeed")) {
             final Double speed = call.argument("speed");
             mIjkMediaPlayer.setSpeed(speed != null ? speed.floatValue() : 1.0f);
+            result.success(null);
+        } else if (call.method.equals("snapshot")) {
+            if (mHostOptions.getIntOption(HostOption.ENABLE_SNAPSHOT, 0) > 0) {
+                mIjkMediaPlayer.snapShot();
+            } else  {
+                mMethodChannel.invokeMethod("_onSnapshot", "not support");
+            }
             result.success(null);
         } else {
             result.notImplemented();

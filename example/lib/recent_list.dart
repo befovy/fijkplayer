@@ -6,6 +6,8 @@ import 'media_item.dart';
 
 const List<MediaUrl> samples = [
   MediaUrl(
+      title: "Aliyun", url: "http://player.alicdn.com/video/aliyunmedia.mp4"),
+  MediaUrl(
       title: "http 404", url: "https://fijkplayer.befovy.com/butterfly.flv"),
   MediaUrl(title: "assets file", url: "asset:///assets/butterfly.mp4"),
   MediaUrl(title: "assets file", url: "asset:///assets/birthday.mp4"),

@@ -21,6 +21,8 @@ class _VideoScreenState extends State<VideoScreen> {
   @override
   void initState() {
     super.initState();
+    player.setOption(FijkOption.hostCategory, "enable-snapshot", 1);
+    player.setOption(FijkOption.playerCategory, "mediacodec-all-videos", 1);
     startPlay();
   }
 
@@ -37,22 +39,21 @@ class _VideoScreenState extends State<VideoScreen> {
     return Scaffold(
       appBar: FijkAppBar.defaultSetting(title: "Video"),
       body: Container(
-        child: FijkVolumeWatcher(
-            watcher: null,
-            showToast: false,
-            child: FijkView(
-              player: player,
-              panelBuilder: fijkPanel2Builder(),
-              // panelBuilder: simplestUI,
-              // panelBuilder: (FijkPlayer player, BuildContext context,
-              //     Size viewSize, Rect texturePos) {
-              //   return CustomFijkPanel(
-              //       player: player,
-              //       buildContext: context,
-              //       viewSize: viewSize,
-              //       texturePos: texturePos);
-              // },
-            )),
+        child: Center(
+          child: FijkView(
+            player: player,
+            panelBuilder: fijkPanel2Builder(snapShot: true),
+            // panelBuilder: simplestUI,
+            // panelBuilder: (FijkPlayer player, BuildContext context,
+            //     Size viewSize, Rect texturePos) {
+            //   return CustomFijkPanel(
+            //       player: player,
+            //       buildContext: context,
+            //       viewSize: viewSize,
+            //       texturePos: texturePos);
+            // },
+          ),
+        ),
       ),
     );
   }
