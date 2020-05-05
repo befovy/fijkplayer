@@ -67,6 +67,7 @@ const (
 	IJKMPET_BUFFERING_START        = 500
 	IJKMPET_BUFFERING_END          = 501
 	IJKMPET_BUFFERING_UPDATE       = 502
+	IJKMPET_POSITION_UPDATE		   = 510
 	IJKMPET_PLAYBACK_STATE_CHANGED = 700
 )
 
@@ -104,14 +105,16 @@ func (f *FijkPlayer) initPlayer(messenger plugin.BinaryMessenger, tex *flutter.T
 
 	f.id = atomic.AddInt32(&atomicId, 1)
 	f.state = idle
-	f.rotate = -1
 	f.texRegistry = tex
+	f.texture.ID = -1
 	f.sink = &queueEventSink{}
 
 	f.hostOptions = newHostOptions()
 	f.ijk = newIjkPlayer()
 	f.ijk.addEventListener(f.eventListener)
 	f.ijk.setOption(FFP_OPT_CATEGORY_PLAYER, "overlay-format", "fcc-rgba")
+	f.ijk.setIntOption(FFP_OPT_CATEGORY_PLAYER,"enable-position-notify", 1)
+
 	f.methodChannel = plugin.NewMethodChannel(messenger,
 		fmt.Sprintf("befovy.com/fijkplayer/%d", f.id),
 		plugin.StandardMethodCodec{})
@@ -129,6 +132,7 @@ func (f *FijkPlayer) initPlayer(messenger plugin.BinaryMessenger, tex *flutter.T
 	f.methodChannel.HandleFunc("seekTo", f.handleSeekTo)
 	f.methodChannel.HandleFunc("setLoop", f.handleSetLoop)
 	f.methodChannel.HandleFunc("setSpeed", f.handleSetSpeed)
+	f.methodChannel.HandleFunc("snapshot", f.handleSnapshot)
 
 	f.eventChannel = plugin.NewEventChannel(messenger,
 		fmt.Sprintf("befovy.com/fijkplayer/event/%d", f.id),
@@ -141,22 +145,7 @@ func (f *FijkPlayer) getId() int32 {
 }
 
 func (f *FijkPlayer) eventListener(what int, arg1, arg2 int32, extra string) {
-
-	// fmt.Println("go eventListener", what, arg1, arg2)
-	switch what {
-	case IJKMPET_PREPARED,
-		IJKMPET_PLAYBACK_STATE_CHANGED,
-		IJKMPET_BUFFERING_START,
-		IJKMPET_BUFFERING_END,
-		IJKMPET_BUFFERING_UPDATE,
-		IJKMPET_VIDEO_SIZE_CHANGED,
-		IJKMPET_VIDEO_RENDERING_START,
-		IJKMPET_AUDIO_RENDERING_START:
-		f.handleEvent(what, arg1, arg2, extra)
-		break
-	default:
-		break
-	}
+	f.handleEvent(what, arg1, arg2, extra)
 }
 
 func (f *FijkPlayer) pixelReceived(buffer *flutter.PixelBuffer) {
@@ -174,7 +163,8 @@ func (f *FijkPlayer) pixelReceived(buffer *flutter.PixelBuffer) {
 }
 
 func (f *FijkPlayer) handleSetupSurface(arguments interface{}) (reply interface{}, err error) {
-	if f.texRegistry != nil {
+	println("setup surface", f.texRegistry)
+	if f.texRegistry != nil && f.texture.ID < 0{
 		f.texture = f.texRegistry.NewTexture()
 		err := f.texture.Register(f.textureHanler)
 		if err != nil {
@@ -351,6 +341,11 @@ func (f *FijkPlayer) handleSetSpeed(arguments interface{}) (reply interface{}, e
 	return nil, nil
 }
 
+func (f* FijkPlayer) handleSnapshot(arguments interface{}) (reply interface{}, err error)  {
+	_ = f.methodChannel.InvokeMethod("_onSnapshot", "not support")
+	return nil, nil
+}
+
 func (f *FijkPlayer) textureHanler(width, height int) (bool, *flutter.PixelBuffer) {
 	// t := time.Now()
 	// fmt.Println(t.Unix(), "textureHanler", width, height)
@@ -369,11 +364,13 @@ func (f *FijkPlayer) release() {
 	if f.texRegistry != nil {
 		f.texRegistry = nil
 		fmt.Printf("texture %d\n", f.texture.ID)
-		err := f.texture.UnRegister()
-		if err != nil {
-			fmt.Printf("unRegister %s\n", err.Error())
+		if f.texture.ID >= 0 {
+			err := f.texture.UnRegister()
+			if err != nil {
+				fmt.Printf("unRegister %s\n", err.Error())
+			}
+			f.texture.ID = -1
 		}
-		f.texture.ID = -1
 	}
 
 	f.methodChannel.ClearAllHandle()
@@ -444,6 +441,11 @@ func (f *FijkPlayer) handleEvent(what int, arg1, arg2 int32, extra interface{}) 
 		event["percent"] = arg2
 		f.sink.success(event)
 		break
+	case IJKMPET_POSITION_UPDATE:
+		event["event"] = "pos";
+		event["pos"] = arg1;
+		f.sink.success(event);
+		break;
 	case IJKMPET_VIDEO_ROTATION_CHANGED:
 		event["event"] = "rotate"
 		event["degree"] = arg1
