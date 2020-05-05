@@ -64,6 +64,8 @@ func (p *FijkplayerPlugin) InitPlugin(messenger plugin.BinaryMessenger) error {
 
 	eventChannel := plugin.NewEventChannel(messenger, "befovy.com/fijk/event", plugin.StandardMethodCodec{})
 	eventChannel.Handle(p)
+
+	ijkGlobalInit()
 	return nil
 }
 

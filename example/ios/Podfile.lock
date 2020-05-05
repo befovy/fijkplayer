@@ -1,13 +1,9 @@
 PODS:
   - BIJKPlayer (0.7.1)
-  - fijkplayer (0.8.1):
+  - fijkplayer (0.8.2):
     - BIJKPlayer (~> 0.7.1)
     - Flutter
   - Flutter (1.0.0)
-  - path_provider (0.0.1):
-    - Flutter
-  - path_provider_macos (0.0.1):
-    - Flutter
   - shared_preferences (0.0.1):
     - Flutter
   - shared_preferences_macos (0.0.1):
@@ -18,8 +14,6 @@ PODS:
 DEPENDENCIES:
   - fijkplayer (from `.symlinks/plugins/fijkplayer/ios`)
   - Flutter (from `Flutter`)
-  - path_provider (from `.symlinks/plugins/path_provider/ios`)
-  - path_provider_macos (from `.symlinks/plugins/path_provider_macos/ios`)
   - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
   - shared_preferences_macos (from `.symlinks/plugins/shared_preferences_macos/ios`)
   - shared_preferences_web (from `.symlinks/plugins/shared_preferences_web/ios`)
@@ -33,10 +27,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/fijkplayer/ios"
   Flutter:
     :path: Flutter
-  path_provider:
-    :path: ".symlinks/plugins/path_provider/ios"
-  path_provider_macos:
-    :path: ".symlinks/plugins/path_provider_macos/ios"
   shared_preferences:
     :path: ".symlinks/plugins/shared_preferences/ios"
   shared_preferences_macos:
@@ -46,10 +36,8 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   BIJKPlayer: 1531f71310aab1e7f4b510cf13b14eec1bf123de
-  fijkplayer: c170a1e2b88b9a7c3806ff4f77b0cd8d46ad8e0e
+  fijkplayer: b7a150fba379fe0911ce0ef888b8ddba9c9e6ba0
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
-  path_provider: abfe2b5c733d04e238b0d8691db0cfd63a27a93c
-  path_provider_macos: f760a3c5b04357c380e2fddb6f9db6f3015897e0
   shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
   shared_preferences_macos: f3f29b71ccbb56bf40c9dd6396c9acf15e214087
   shared_preferences_web: 141cce0c3ed1a1c5bf2a0e44f52d31eeb66e5ea9

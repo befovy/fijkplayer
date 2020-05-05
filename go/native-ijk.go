@@ -37,7 +37,12 @@ import (
 )
 
 func ijkSetLogLevel(level int) {
+	l := C.int(level)
+	C.ijkff_log_level(l)
+}
 
+func ijkGlobalInit()  {
+	C.ijkff_global_init()
 }
 
 type ijkplayer struct {
@@ -45,12 +50,17 @@ type ijkplayer struct {
 	eventCallback func(what int, arg1, arg2 int32, extra string)
 	pixelCb       func(pixelBuffer *flutter.PixelBuffer)
 
+	// overlay callback data
 	ocbData unsafe.Pointer
+
+	// event callback data
 	ecbData unsafe.Pointer
 }
 
 func newIjkPlayer() *ijkplayer {
-	fp := C.ijkff_create()
+	const callbackVout = 2
+	voutType := C.int(callbackVout)
+	fp := C.ijkff_create(voutType)
 	return &ijkplayer{fp: fp}
 }
 
