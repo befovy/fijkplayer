@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+
+
+---
+## [0.8.2](https://github.com/befovy/fijkplayer/compare/v0.8.1...v0.8.2) (2020-05-05)
+
+* (desktop) add global init for go-flutter, remove path_provider in demo ([7040f25](https://github.com/befovy/fijkplayer/commit/7040f25c3b4bea0de881a54f79f09cd4502fcd80))
+* (android) fix color error upgrade android ijkplayer to 0.7.2 ([ae9590e](https://github.com/befovy/fijkplayer/commit/ae9590ebf7ec30141c27529fb68dd0ef8d4a8d7a))
+
 ---
 ## [0.8.1](https://github.com/befovy/fijkplayer/compare/v0.8.0...v0.8.1) (2020-05-04)
 
