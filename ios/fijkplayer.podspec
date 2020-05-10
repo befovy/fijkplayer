@@ -3,7 +3,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'fijkplayer'
-  s.version          = '0.8.2'
+  s.version          = '0.8.3'
   s.summary          = 'Flutter plugin for ijkplayer'
   s.description      = <<-DESC
 Flutter plugin for ijkplayer
@@ -26,7 +26,7 @@ Flutter plugin for ijkplayer
   s.dependency 'Flutter'
 
   # s.use_frameworks!
-  s.dependency 'BIJKPlayer', '~> 0.7.1'
+  s.dependency 'BIJKPlayer', '~> 0.7.3'
 
   s.ios.deployment_target = '8.0'
 end
