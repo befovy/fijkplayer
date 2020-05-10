@@ -202,16 +202,23 @@ class __FijkPanel2State extends State<_FijkPanel2> {
     });
   }
 
+  Future<void> onRefresh() async {
+    String dataSource = player.dataSource;
+    await player.reset();
+    await player.setDataSource(dataSource,autoPlay: true);
+  }
+
   void playOrPause() {
-    if (player.isPlayable() || player.state == FijkState.asyncPreparing) {
-      if (player.state == FijkState.started) {
-        player.pause();
-      } else {
-        player.start();
-      }
-    } else {
-      FijkLog.w("Invalid state ${player.state} ,can't perform play or pause");
-    }
+    onRefresh();
+    // if (player.isPlayable() || player.state == FijkState.asyncPreparing) {
+    //   if (player.state == FijkState.started) {
+    //     player.pause();
+    //   } else {
+    //     player.start();
+    //   }
+    // } else {
+    //   FijkLog.w("Invalid state ${player.state} ,can't perform play or pause");
+    // }
   }
 
   void onDoubleTapFun() {

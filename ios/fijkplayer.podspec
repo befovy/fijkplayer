@@ -26,7 +26,7 @@ Flutter plugin for ijkplayer
   s.dependency 'Flutter'
 
   # s.use_frameworks!
-  s.dependency 'BIJKPlayer', '~> 0.7.1'
+  s.dependency 'BIJKPlayer', '~> 0.7.3'
 
   s.ios.deployment_target = '8.0'
 end

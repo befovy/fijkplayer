@@ -1,7 +1,7 @@
 PODS:
-  - BIJKPlayer (0.7.1)
+  - BIJKPlayer (0.7.3)
   - fijkplayer (0.8.2):
-    - BIJKPlayer (~> 0.7.1)
+    - BIJKPlayer (~> 0.7.3)
     - Flutter
   - Flutter (1.0.0)
   - shared_preferences (0.0.1):
@@ -35,8 +35,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/shared_preferences_web/ios"
 
 SPEC CHECKSUMS:
-  BIJKPlayer: 1531f71310aab1e7f4b510cf13b14eec1bf123de
-  fijkplayer: b7a150fba379fe0911ce0ef888b8ddba9c9e6ba0
+  BIJKPlayer: 1ecf2e48a182e2e4618d47a01d04814ee4126c96
+  fijkplayer: c365d0c8b47914ba5d8787ab7375d979f15fb88e
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
   shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
   shared_preferences_macos: f3f29b71ccbb56bf40c9dd6396c9acf15e214087

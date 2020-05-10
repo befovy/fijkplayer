@@ -74,6 +74,8 @@ docs-zh:
         url:   /docs/zh/system-volume.html
       - title: 平台选项设置
         url:   /docs/zh/host-option.html
+      - title: ijkplayer 内核 option
+        url:  /docs/zh/ijk-option.html
   - title: 其他语言
     children:
       - title: English
