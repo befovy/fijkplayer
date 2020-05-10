@@ -178,6 +178,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "im-ling",
+      "name": "Ling",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/14890206?v=4",
+      "profile": "https://github.com/im-ling",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
