@@ -31,6 +31,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://github.com/PassXml"><img src="https://avatars3.githubusercontent.com/u/13743804?v=4" width="100px;" alt=""/><br /><sub><b>PassXml</b></sub></a><br /><a href="https://github.com/befovy/fijkplayer/commits?author=PassXml" title="Code">💻</a> <a href="#question-PassXml" title="Answering Questions">💬</a></td>
     <td align="center"><a href="https://github.com/layxyer"><img src="https://avatars2.githubusercontent.com/u/17535968?v=4" width="100px;" alt=""/><br /><sub><b>layxyer</b></sub></a><br /><a href="https://github.com/befovy/fijkplayer/commits?author=layxyer" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/BestYun"><img src="https://avatars0.githubusercontent.com/u/4290613?v=4" width="100px;" alt=""/><br /><sub><b>BestYun</b></sub></a><br /><a href="https://github.com/befovy/fijkplayer/issues?q=author%3ABestYun" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://github.com/im-ling"><img src="https://avatars3.githubusercontent.com/u/14890206?v=4" width="100px;" alt=""/><br /><sub><b>Ling</b></sub></a><br /><a href="https://github.com/befovy/fijkplayer/commits?author=im-ling" title="Code">💻</a></td>
   </tr>
 </table>
 
