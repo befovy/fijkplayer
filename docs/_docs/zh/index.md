@@ -22,7 +22,7 @@ fijkplayer 有内置的编译好的ffmepg 和 ijkplayer，分别托管在 jcente
 
 &nbsp; &nbsp;
 
-开启你的 fijklayer 之旅：
+开启你的 fijkplayer 之旅：
 
 * 中文版 [开始使用](/docs/zh/install.html)  
 * English Version [Getting Started](/docs/en/install.html)
