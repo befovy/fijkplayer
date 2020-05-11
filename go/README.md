@@ -4,14 +4,15 @@ This Go package implements the host-side of the Flutter [fijkplayer](https://git
 
 ## Usage
 
-Import as:
+fijkplayer is a hover compatible plugin.
 
-```go
-import fijkplayer "github.com/befovy/fijkplayer/go"
-```
+Just run `hover plugins get` to import go code.
 
-Then add the following option to your go-flutter [application options](https://github.com/go-flutter-desktop/go-flutter/wiki/Plugin-info):
 
-```go
-flutter.AddPlugin(&fijkplayer.FijkplayerPlugin{}),
-```
+## Prebuilt shared library
+
+But take care fijkplayer use a prebuilt shared c library.
+The library is not provided default.   
+You need to build the library from https://github.com/befovy/ijkplayer
+
+The library is only tested on Mac OS yet.
