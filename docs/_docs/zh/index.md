@@ -35,7 +35,7 @@ fijkplayer 有内置的编译好的ffmepg 和 ijkplayer，分别托管在 jcente
 
 &nbsp; &nbsp;
 
-QQ 交流群 / 微信订阅号
+钉钉交流群 / 微信订阅号
 
 <table>
   <tr>
