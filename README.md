@@ -100,3 +100,8 @@ This project follows the [all-contributors](https://github.com/all-contributors/
 
 Warning: The fijkplayer video player plugin is not functional on iOS simulators. An iOS device must be used during development/testing. For more details, please refer to this [issue](https://github.com/flutter/flutter/issues/14647).
 
+
+## Join Ding Talk Group 加入钉钉群
+
+
+<img style="max-width: 300px" src="docs/images/dingtalk.jpg" alt="dingtalk group qrcode"/>
