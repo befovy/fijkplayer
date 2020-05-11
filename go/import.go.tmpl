@@ -4,7 +4,7 @@ package main
 
 import (
 	flutter "github.com/go-flutter-desktop/go-flutter"
-	fijkplayer "github.com/befovy/fijklayer/go"
+	fijkplayer "github.com/befovy/fijkplayer/go"
 )
 
 func init() {
