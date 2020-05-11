@@ -40,7 +40,7 @@ QQ 交流群 / 微信订阅号
 <table>
   <tr>
     <td>
-      <img src="/images/fijkplayer_qq_group.jpg"  height="200"/>
+      <img src="/images/dingtalk.jpg"  height="200"/>
     </td>
     <td> &nbsp; &nbsp; &nbsp; </td>
     <td> &nbsp; &nbsp; &nbsp; </td>
