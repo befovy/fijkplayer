@@ -252,6 +252,7 @@ static FijkPlugin *_instance = nil;
         for (UIView *view in [_volumeView subviews]) {
             if ([view.class.description isEqualToString:@"MPVolumeSlider"]) {
                 _volumeViewSlider = (UISlider *)view;
+                _volumeViewSlider.value = [AVAudioSession sharedInstance].outputVolume;
                 break;
             }
         }

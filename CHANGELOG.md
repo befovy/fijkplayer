@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 ---
+## [0.8.4](https://github.com/befovy/fijkplayer/compare/v0.8.3...v0.8.4) (2020-05-16)
+
+* add fsFit in demo and docs ([4608acb](https://github.com/befovy/fijkplayer/commit/4608acbc295ce78425cec98d65849140e1a390f6))
+* fix initial volume in iOS device is zero ([fc6a60d](https://github.com/befovy/fijkplayer/commit/fc6a60d68f59730390fa7668933f28e270fc1389))
+* lazy load android native libriries, fixes [#234](https://github.com/befovy/fijkplayer/issues/234) ([3788cfe](https://github.com/befovy/fijkplayer/commit/3788cfec1f33e590d20aff5801633185e529044d))
+* fix spell error go package name ([40446af](https://github.com/befovy/fijkplayer/commit/40446afa25aefb0f9bed293ee77784277d2a3cae))
+
+---
 ## [0.8.3](https://github.com/befovy/fijkplayer/compare/v0.8.2...v0.8.3) (2020-05-10)
 
 * update ijkplayer android 0.7.4, iOS 0.7.3
