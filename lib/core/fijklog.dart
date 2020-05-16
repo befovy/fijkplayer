@@ -79,6 +79,10 @@ class FijkLog {
   const FijkLog._();
 
   /// Set global whole log level
+  /// 
+  /// Call this method on Android platform will load natvie shared libraries.
+  /// If you care about app boot performance, 
+  /// you should call this method as late as possiable. Call this method before the first time you consturctor new [FijkPlayer]
   static setLevel(final FijkLogLevel level) {
     assert(level != null);
     _level = level;
