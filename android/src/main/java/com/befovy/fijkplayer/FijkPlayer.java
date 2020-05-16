@@ -276,6 +276,12 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
                 mWidth = arg1;
                 mHeight = arg2;
                 break;
+            case SEEK_COMPLETE:
+                event.put("event", "seek_complete");
+                event.put("pos", arg1);
+                event.put("err", arg2);
+                mEventSink.success(event);
+                break;
             case ERROR:
                 mEventSink.error(String.valueOf(arg1), extra.toString(), arg2);
                 break;
@@ -311,6 +317,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
             case AUDIO_RENDERING_START:
             case CURRENT_POSITION_UPDATE:
             case VIDEO_ROTATION_CHANGED:
+            case SEEK_COMPLETE:
                 handleEvent(what, arg1, arg2, extra);
                 break;
             default:
