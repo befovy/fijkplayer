@@ -99,6 +99,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   Stream<Duration> get onCurrentPosUpdate => _currentPosController.stream;
 
   bool _buffering = false;
+  bool _seeking = false;
 
   /// return true if the player is buffering
   bool get isBuffering => _buffering;
@@ -430,6 +431,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
       return Future.error(StateError("Non playable state $state"));
     } else {
       FijkLog.i("$this invoke seekTo msec:$msec");
+      _seeking = true;
       _channel.invokeMethod("seekTo", <String, dynamic>{"msec": msec});
     }
   }
@@ -550,7 +552,9 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
       case 'pos':
         int pos = map['pos'];
         _currentPos = Duration(milliseconds: pos);
-        _currentPosController.add(_currentPos);
+        if (!_seeking) {
+          _currentPosController.add(_currentPos);
+        }
         break;
       case 'size_changed':
         int width = map['width'];
@@ -558,6 +562,9 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
         FijkLog.i("$this size changed ($width, $height)");
         _setValue(
             value.copyWith(size: Size(width.toDouble(), height.toDouble())));
+        break;
+      case 'seek_complete':
+        _seeking = false;
         break;
       default:
         break;
