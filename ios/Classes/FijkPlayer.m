@@ -366,6 +366,13 @@ static int renderType = 0;
         _width = arg1;
         _height = arg2;
         break;
+    case 600:
+        [_eventSink success:@{
+            @"event" : @"seek_complete",
+            @"pos" : @(arg1),
+            @"err" : @(arg2),
+        }];
+        break;
     case IJKMPET_ERROR:
         [_eventSink error:[NSString stringWithFormat:@"%d", arg1]
                   message:extra ? [NSString stringWithUTF8String:extra] : nil
@@ -391,7 +398,8 @@ static int renderType = 0;
     case IJKMPET_VIDEO_RENDERING_START:
     case IJKMPET_AUDIO_RENDERING_START:
     case IJKMPET_ERROR:
-    case 510:
+    case IJKMPET_CURRENT_POSITION_UPDATE:
+    case 600:
     case IJKMPET_VIDEO_ROTATION_CHANGED:
         [self handleEvent:what andArg1:arg1 andArg2:arg2 andExtra:extra];
         break;
@@ -554,12 +562,12 @@ static int renderType = 0;
         result(nil);
     } else if ([@"seekTo" isEqualToString:call.method]) {
         long pos = [argsMap[@"msec"] longValue];
-        [_ijkMediaPlayer seekTo:pos];
         if (_state == completed)
             [self handleEvent:IJKMPET_PLAYBACK_STATE_CHANGED
                       andArg1:paused
                       andArg2:-1
                      andExtra:nil];
+        [_ijkMediaPlayer seekTo:pos];
         result(nil);
     } else if ([@"setLoop" isEqualToString:call.method]) {
         int loopCount = [argsMap[@"loop"] intValue];
