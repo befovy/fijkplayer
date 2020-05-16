@@ -87,33 +87,41 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
     private TextureRegistry.SurfaceTextureEntry mSurfaceTextureEntry;
     private SurfaceTexture mSurfaceTexture;
     private Surface mSurface;
+    final private boolean mJustSurface;
 
-    FijkPlayer(@NonNull FijkEngine engine) {
+    FijkPlayer(@NonNull FijkEngine engine, boolean justSurface) {
         mEngine = engine;
         mPlayerId = atomicId.incrementAndGet();
         mState = 0;
-        mIjkMediaPlayer = new IjkMediaPlayer();
-        mIjkMediaPlayer.addIjkEventListener(this);
-        mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "enable-position-notify", 1);
-        mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "start-on-prepared", 0);
+        mJustSurface = justSurface;
+        if (justSurface) {
+            mIjkMediaPlayer = null;
+            mEventChannel = null;
+            mMethodChannel = null;
+        } else {
+            mIjkMediaPlayer = new IjkMediaPlayer();
+            mIjkMediaPlayer.addIjkEventListener(this);
+            mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "enable-position-notify", 1);
+            mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "start-on-prepared", 0);
 
-        IjkMediaPlayer.native_setLogLevel(IjkMediaPlayer.IJK_LOG_INFO);
-        mMethodChannel = new MethodChannel(mEngine.messenger(), "befovy.com/fijkplayer/" + mPlayerId);
-        mMethodChannel.setMethodCallHandler(this);
-        mIjkMediaPlayer.setOnSnapShotListener(this);
+            // IjkMediaPlayer.native_setLogLevel(IjkMediaPlayer.IJK_LOG_INFO);
+            mMethodChannel = new MethodChannel(mEngine.messenger(), "befovy.com/fijkplayer/" + mPlayerId);
+            mMethodChannel.setMethodCallHandler(this);
+            mIjkMediaPlayer.setOnSnapShotListener(this);
 
-        mEventChannel = new EventChannel(mEngine.messenger(), "befovy.com/fijkplayer/event/" + mPlayerId);
-        mEventChannel.setStreamHandler(new EventChannel.StreamHandler() {
-            @Override
-            public void onListen(Object o, EventChannel.EventSink eventSink) {
-                mEventSink.setDelegate(eventSink);
-            }
+            mEventChannel = new EventChannel(mEngine.messenger(), "befovy.com/fijkplayer/event/" + mPlayerId);
+            mEventChannel.setStreamHandler(new EventChannel.StreamHandler() {
+                @Override
+                public void onListen(Object o, EventChannel.EventSink eventSink) {
+                    mEventSink.setDelegate(eventSink);
+                }
 
-            @Override
-            public void onCancel(Object o) {
-                mEventSink.setDelegate(null);
-            }
-        });
+                @Override
+                public void onCancel(Object o) {
+                    mEventSink.setDelegate(null);
+                }
+            });
+        }
     }
 
     int getPlayerId() {
@@ -121,6 +129,8 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
     }
 
     void setup() {
+        if (mJustSurface)
+            return;
         if (mHostOptions.getIntOption(HostOption.ENABLE_SNAPSHOT,0) > 0) {
             mIjkMediaPlayer.setAmcGlesRender();
             mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "overlay-format", "fcc-_es2");
@@ -134,14 +144,18 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
             mSurfaceTextureEntry = surfaceTextureEntry;
             mSurfaceTexture = surfaceTextureEntry.surfaceTexture();
             mSurface = new Surface(mSurfaceTexture);
-            mIjkMediaPlayer.setSurface(mSurface);
+            if (!mJustSurface) {
+                mIjkMediaPlayer.setSurface(mSurface);
+            }
         }
         return mSurfaceTextureEntry.id();
     }
 
     void release() {
-        handleEvent(PLAYBACK_STATE_CHANGED, end, mState, null);
-        mIjkMediaPlayer.release();
+        if (!mJustSurface) {
+            handleEvent(PLAYBACK_STATE_CHANGED, end, mState, null);
+            mIjkMediaPlayer.release();
+        }
         if (mSurfaceTextureEntry != null) {
             mSurfaceTextureEntry.release();
             mSurfaceTextureEntry = null;
@@ -154,8 +168,10 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
             mSurface.release();
             mSurface = null;
         }
-        mMethodChannel.setMethodCallHandler(null);
-        mEventChannel.setStreamHandler(null);
+        if (!mJustSurface) {
+            mMethodChannel.setMethodCallHandler(null);
+            mEventChannel.setStreamHandler(null);
+        }
     }
 
     private boolean isPlayable(int state) {

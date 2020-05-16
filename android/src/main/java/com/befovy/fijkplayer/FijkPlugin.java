@@ -107,7 +107,7 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
         plugin.initWithRegistrar(registrar);
         channel.setMethodCallHandler(plugin);
 
-        final FijkPlayer player = new FijkPlayer(plugin);
+        final FijkPlayer player = new FijkPlayer(plugin, true);
         player.setupSurface();
         player.release();
     }
@@ -118,7 +118,7 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
         initWithBinding(binding);
         channel.setMethodCallHandler(this);
 
-        final FijkPlayer player = new FijkPlayer(this);
+        final FijkPlayer player = new FijkPlayer(this, true);
         player.setupSurface();
         player.release();
 
@@ -270,7 +270,7 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
                 result.success(null);
                 break;
             case "createPlayer": {
-                FijkPlayer fijkPlayer = new FijkPlayer(this);
+                FijkPlayer fijkPlayer = new FijkPlayer(this, false);
                 int playerId = fijkPlayer.getPlayerId();
                 fijkPlayers.append(playerId, fijkPlayer);
                 result.success(playerId);
@@ -297,6 +297,7 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
                 level = level / 100;
                 level = Math.max(level, 0);
                 level = Math.min(level, 8);
+                IjkMediaPlayer.loadLibrariesOnce(null);
                 IjkMediaPlayer.native_setLogLevel(level);
                 result.success(null);
                 break;
