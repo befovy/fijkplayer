@@ -15,7 +15,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    FijkLog.setLevel(FijkLogLevel.Debug);
+    // FijkLog.setLevel(FijkLogLevel.Debug);
     return new MaterialApp(
       theme: ThemeData(
         primaryColor: Color(0xFFffd54f),
