@@ -223,11 +223,15 @@ class _FijkViewState extends State<FijkView> {
 
     if (widget.fs) {
       if (value.fullScreen && !_fullScreen) {
-        _fullScreen = true;
+        setState({
+          _fullScreen = true;
+        });
         await _pushFullScreenWidget(context);
       } else if (_fullScreen && !value.fullScreen) {
         Navigator.of(context).pop();
-        _fullScreen = false;
+        setState({
+          _fullScreen = false;
+        });
       }
 
       // save width and height to make judgement about whether to
@@ -304,7 +308,9 @@ class _FijkViewState extends State<FijkView> {
     FijkLog.d("screen orientation changed:$changed");
 
     await Navigator.of(context).push(route);
-    _fullScreen = false;
+    setState({
+      _fullScreen = false;
+    });
     widget.player.exitFullScreen();
     await SystemChrome.setEnabledSystemUIOverlays(
         [SystemUiOverlay.top, SystemUiOverlay.bottom]);
