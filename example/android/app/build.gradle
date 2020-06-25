@@ -28,7 +28,7 @@ apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 android {
     compileSdkVersion 29
 
-    ndkVersion "21.1.6352462"
+    ndkVersion "21.2.6472646"
 
     defaultConfig {
         applicationId "com.befovy.fijkplayer.demo"
