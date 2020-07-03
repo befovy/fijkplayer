@@ -203,6 +203,7 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
             if (TextUtils.isEmpty(packageName)) {
                 path = mBinding.getFlutterAssets().getAssetFilePathByName(asset);
             } else {
+                //noinspection ConstantConditions
                 path = mBinding.getFlutterAssets().getAssetFilePathByName(asset, packageName);
             }
         } else if (mRegistrar != null) {
