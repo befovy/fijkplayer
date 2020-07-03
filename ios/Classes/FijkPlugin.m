@@ -26,7 +26,7 @@
 
 #import <AVKit/AVKit.h>
 #import <Flutter/Flutter.h>
-#import <IJKPlayer/IJKPlayer.h>
+#import <IJKMediaPlayer/IJKMediaPlayer.h>
 #import <MediaPlayer/MediaPlayer.h>
 
 typedef NS_ENUM(int, FijkVoUIMode) {

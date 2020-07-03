@@ -21,7 +21,7 @@
 // SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import <IJKPlayer/IJKPlayer.h>
+#import <IJKMediaPlayer/IJKMediaPlayer.h>
 
 #import <Flutter/FlutterPlugin.h>
 
