@@ -33,7 +33,7 @@ jobs:
       run: |
         flutter test
         cd example && flutter test
-        
+
     - name: Build Apk
       working-directory: example
       run: |

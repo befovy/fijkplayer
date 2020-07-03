@@ -27,7 +27,7 @@
 
 #import <Flutter/Flutter.h>
 #import <Foundation/Foundation.h>
-#import <IJKPlayer/IJKPlayer.h>
+#import <IJKMediaPlayer/IJKMediaPlayer.h>
 #import <libkern/OSAtomic.h>
 #import <stdatomic.h>
 
