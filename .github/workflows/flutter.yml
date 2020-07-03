@@ -34,11 +34,6 @@ jobs:
         flutter test
         cd example && flutter test
 
-
-    - name: Setup ndk
-      run: |
-        yes 2>/dev/null | sudo $ANDROID_HOME/tools/bin/sdkmanager --install "ndk;16.1.4479499" "cmake;3.10.2.4988404"
-
     - name: Build Apk
       working-directory: example
       run: |
