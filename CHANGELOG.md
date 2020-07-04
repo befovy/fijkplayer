@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 ---
+
+## [0.8.5](https://github.com/befovy/fijkplayer/compare/v0.8.4...v0.8.5) (2020-07-04)
+
+* fix slider pos after seek and fullscreen toggle ([354b436](https://github.com/befovy/fijkplayer/commit/354b436fe5f3c4e73b93e985822cacfb1633b159)), closes [#261](https://github.com/befovy/fijkplayer/issues/261)
+* enable iOS bitcode ([a0f1ad2](https://github.com/befovy/fijkplayer/commit/a0f1ad2e2e10a2bdb39d63bfabe4175793ccebc7))
+
+---
 ## [0.8.4](https://github.com/befovy/fijkplayer/compare/v0.8.3...v0.8.4) (2020-05-16)
 
 * fix initial volume in iOS device is zero ([fc6a60d](https://github.com/befovy/fijkplayer/commit/fc6a60d68f59730390fa7668933f28e270fc1389))
