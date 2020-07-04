@@ -104,6 +104,9 @@ class __FijkPanel2State extends State<_FijkPanel2> {
   ImageProvider _imageProvider;
   Timer _snapshotTimer;
 
+  // Is it needed to clear seek data in FijkData (widget.data)
+  bool _needClearSeekData = true;
+
   static const FijkSliderColors sliderColors = FijkSliderColors(
       cursorColor: Color.fromARGB(240, 250, 100, 10),
       playedColor: Color.fromARGB(200, 240, 90, 50),
@@ -129,7 +132,16 @@ class __FijkPanel2State extends State<_FijkPanel2> {
       } else {
         _currentPos = v;
       }
+      if (_needClearSeekData) {
+        widget.data.clearValue(FijkData._fijkViewPanelSeekto);
+      }
+      _needClearSeekData = false;
     });
+
+    if (widget.data.contains(FijkData._fijkViewPanelSeekto)) {
+      var pos = widget.data.getValue(FijkData._fijkViewPanelSeekto) as double;
+      _currentPos = Duration(milliseconds: pos.toInt());
+    }
 
     _bufferPosSubs = player.onBufferPosUpdate.listen((v) {
       if (_hideStuff == false) {
@@ -346,6 +358,8 @@ class __FijkPanel2State extends State<_FijkPanel2> {
           setState(() {
             player.seekTo(v.toInt());
             _currentPos = Duration(milliseconds: _seekPos.toInt());
+            widget.data.setValue(FijkData._fijkViewPanelSeekto, _seekPos);
+            _needClearSeekData = true;
             _seekPos = -1.0;
           });
         },
