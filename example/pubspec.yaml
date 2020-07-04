@@ -1,7 +1,7 @@
 name: fijkplayer_example
 description: Demonstrates how to use the fijkplayer plugin.
 publish_to: 'none'
-version: 0.8.4
+version: 0.8.5
 environment:
   sdk: ">=2.2.2 <3.0.0"
 
