@@ -557,11 +557,10 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
         }
         break;
       case 'size_changed':
-        int width = map['width'];
-        int height = map['height'];
+        double width = map['width'].toDouble();
+        double height = map['height'].toDouble();
         FijkLog.i("$this size changed ($width, $height)");
-        _setValue(
-            value.copyWith(size: Size(width.toDouble(), height.toDouble())));
+        _setValue(value.copyWith(size: Size(width, height)));
         break;
       case 'seek_complete':
         _seeking = false;
@@ -574,7 +573,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   void _errorListener(Object obj) {
     final PlatformException e = obj;
     FijkException exception = FijkException.fromPlatformException(e);
-    FijkLog.e("$this errorListerner: $exception");
+    FijkLog.e("$this errorListener: $exception");
     _setValue(value.copyWith(exception: exception));
   }
 
