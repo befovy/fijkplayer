@@ -103,5 +103,23 @@ Warning: The fijkplayer video player plugin is not functional on iOS simulators.
 
 ## Join Ding Talk Group 加入钉钉群
 
-
-<img style="max-width: 300px" src="docs/images/dingtalk.jpg" alt="dingtalk group qrcode"/>
+<div>
+  <table>
+    <thead><tr>
+      <th>加入钉钉群</th>
+      <th>微信赞赏码</th>
+      <th>支付宝</th>
+    </tr></thead>
+    <tbody><tr>
+      <td>
+        <img width="200" height="200" src="https://cdn.jsdelivr.net/gh/befovy/fijkplayer@master/docs/images/dingtalk.jpg" alt="加入钉钉群" />
+      </td>
+      <td>
+        <img width="200" height="200" src="https://cdn.jsdelivr.net/gh/befovy/images@master/assets/wechat-qr-code.jpeg" alt="微信赞赏码" />
+      </td>
+      <td>
+        <img width="200" height="200" src="https://cdn.jsdelivr.net/gh/befovy/images@master/assets/alipay-qr-code.jpeg" alt="支付宝二维码" />
+      </td>
+    </tr></tbody>
+  </table>
+</div>
