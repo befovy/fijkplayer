@@ -33,14 +33,17 @@ import io.flutter.view.TextureRegistry;
 
 interface FijkEngine {
 
+    @Nullable
     TextureRegistry.SurfaceTextureEntry createSurfaceEntry();
 
+    @Nullable
     BinaryMessenger messenger();
 
+    @Nullable
     Context context();
 
+    @Nullable
     String lookupKeyForAsset(@NonNull String asset, @Nullable String packageName);
-
 
     void onPlayingChange(int delta);
 
