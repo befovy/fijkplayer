@@ -22,6 +22,7 @@
 
 package com.befovy.fijkplayer;
 
+import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
@@ -131,7 +132,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
     void setup() {
         if (mJustSurface)
             return;
-        if (mHostOptions.getIntOption(HostOption.ENABLE_SNAPSHOT,0) > 0) {
+        if (mHostOptions.getIntOption(HostOption.ENABLE_SNAPSHOT, 0) > 0) {
             mIjkMediaPlayer.setAmcGlesRender();
             mIjkMediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "overlay-format", "fcc-_es2");
         }
@@ -142,13 +143,20 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
         if (mSurfaceTextureEntry == null) {
             TextureRegistry.SurfaceTextureEntry surfaceTextureEntry = mEngine.createSurfaceEntry();
             mSurfaceTextureEntry = surfaceTextureEntry;
-            mSurfaceTexture = surfaceTextureEntry.surfaceTexture();
-            mSurface = new Surface(mSurfaceTexture);
+            if (surfaceTextureEntry != null) {
+                mSurfaceTexture = surfaceTextureEntry.surfaceTexture();
+                mSurface = new Surface(mSurfaceTexture);
+            }
             if (!mJustSurface) {
                 mIjkMediaPlayer.setSurface(mSurface);
             }
         }
-        return mSurfaceTextureEntry.id();
+        if (mSurfaceTextureEntry != null)
+            return mSurfaceTextureEntry.id();
+        else {
+            Log.e("FIJKPLAYER", "setup surface, null SurfaceTextureEntry");
+            return 0;
+        }
     }
 
     void release() {
@@ -332,7 +340,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
             for (Object o : optionsMap.keySet()) {
                 Object option = optionsMap.get(o);
                 if (o instanceof Integer && option instanceof Map) {
-                    Integer cat = (Integer) o;
+                    int cat = (Integer) o;
                     Map optionMap = (Map) option;
                     for (Object key : optionMap.keySet()) {
                         Object value = optionMap.get(key);
@@ -404,11 +412,12 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
                 }
             }
             try {
-                if (openAsset) {
-                    AssetManager assetManager = mEngine.context().getAssets();
+                Context context = mEngine.context();
+                if (openAsset && context != null) {
+                    AssetManager assetManager = context.getAssets();
                     InputStream is = assetManager.open(uri.getPath() != null ? uri.getPath() : "", AssetManager.ACCESS_RANDOM);
                     mIjkMediaPlayer.setDataSource(new RawMediaDataSource(is));
-                } else {
+                } else if (context != null){
                     if (TextUtils.isEmpty(uri.getScheme()) || "file".equals(uri.getScheme())) {
                         String path = uri.getPath() != null ? uri.getPath() : "";
                         IMediaDataSource dataSource = new FileMediaDataSource(new File(path));
@@ -416,8 +425,13 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
                     } else {
                         mIjkMediaPlayer.setDataSource(mEngine.context(), uri);
                     }
+                } else {
+                    Log.e("FIJKPLAYER", "context null, can't setDataSource");
                 }
                 handleEvent(PLAYBACK_STATE_CHANGED, initialized, -1, null);
+                if (context == null) {
+                    handleEvent(PLAYBACK_STATE_CHANGED, error, -1, null);
+                }
                 result.success(null);
             } catch (FileNotFoundException e) {
                 result.error("-875574348", "Local File not found:" + e.getMessage(), null);
@@ -468,7 +482,7 @@ public class FijkPlayer implements MethodChannel.MethodCallHandler, IjkEventList
         } else if (call.method.equals("snapshot")) {
             if (mHostOptions.getIntOption(HostOption.ENABLE_SNAPSHOT, 0) > 0) {
                 mIjkMediaPlayer.snapShot();
-            } else  {
+            } else {
                 mMethodChannel.invokeMethod("_onSnapshot", "not support");
             }
             result.success(null);

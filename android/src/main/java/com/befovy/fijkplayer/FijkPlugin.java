@@ -151,7 +151,6 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
     @Override
     public void onReattachedToActivityForConfigChanges(ActivityPluginBinding binding) {
         mActivity = new WeakReference<>(binding.getActivity());
-
         if (mActivity.get() instanceof FijkVolume.CanListenVolumeKey) {
             FijkVolume.CanListenVolumeKey canListenVolumeKey = (FijkVolume.CanListenVolumeKey) mActivity.get();
             canListenVolumeKey.setVolumeKeyListener(this);
@@ -164,6 +163,7 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
     }
 
     @Override
+    @Nullable
     public TextureRegistry.SurfaceTextureEntry createSurfaceEntry() {
         if (mBinding != null) {
             return mBinding.getTextureRegistry().createSurfaceTexture();
@@ -174,6 +174,7 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
     }
 
     @Override
+    @Nullable
     public BinaryMessenger messenger() {
         if (mBinding != null) {
             return mBinding.getBinaryMessenger();
@@ -184,19 +185,27 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
     }
 
     @Override
+    @Nullable
     public Context context() {
-        return mContext.get();
+        if (mContext != null)
+            return mContext.get();
+        else
+            return null;
     }
 
+    @Nullable
     private Activity activity() {
         if (mRegistrar != null) {
             return mRegistrar.activity();
-        } else {
+        } else if (mActivity != null) {
             return mActivity.get();
+        } else {
+            return null;
         }
     }
 
     @Override
+    @Nullable
     public String lookupKeyForAsset(@NonNull String asset, @Nullable String packageName) {
         String path = null;
         if (mBinding != null) {
@@ -262,6 +271,7 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
 
     @Override
     public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
+        Activity activity;
         switch (call.method) {
             case "getPlatformVersion":
                 result.success("Android " + android.os.Build.VERSION.RELEASE);
@@ -305,8 +315,8 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
             }
             case "setOrientationPortrait":
                 boolean changedPort = false;
-                if (activity() != null) {
-                    final Activity activity = activity();
+                activity = activity();
+                if (activity != null) {
                     int current_orientation = activity.getResources().getConfiguration().orientation;
                     if (current_orientation == Configuration.ORIENTATION_LANDSCAPE) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
@@ -321,8 +331,8 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
                 break;
             case "setOrientationLandscape":
                 boolean changedLand = false;
-                if (activity() != null) {
-                    final Activity activity = activity();
+                activity = activity();
+                if (activity != null) {
                     int current_orientation = activity.getResources().getConfiguration().orientation;
                     if (current_orientation == Configuration.ORIENTATION_PORTRAIT) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
@@ -336,8 +346,8 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
                 result.success(changedLand);
                 break;
             case "setOrientationAuto":
-                if (activity() != null) {
-                    final Activity activity = activity();
+                activity = activity();
+                if (activity != null) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
                         activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_USER);
                     } else {
@@ -481,7 +491,6 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
      */
     private boolean isScreenKeptOn() {
         Activity activity = activity();
-
         if (activity == null || activity.getWindow() == null)
             return false;
         int flag = activity.getWindow().getAttributes().flags;
@@ -491,12 +500,11 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
 
     private float getScreenBrightness() {
         Activity activity = activity();
-
         if (activity == null || activity.getWindow() == null)
             return 0;
         float brightness = activity.getWindow().getAttributes().screenBrightness;
         if (brightness < 0) {
-            Context context = mContext.get();
+            Context context = context();
             Log.w("FIJKPLAYER", "window attribute brightness less than 0");
             try {
                 if (context != null) {
@@ -512,7 +520,6 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
 
     private void setScreenBrightness(float brightness) {
         Activity activity = activity();
-
         if (activity == null || activity.getWindow() == null)
             return;
         WindowManager.LayoutParams layoutParams = activity.getWindow().getAttributes();
@@ -549,7 +556,7 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
     }
 
     @TargetApi(26)
-    @SuppressWarnings("deprecation")
+    // @SuppressWarnings("deprecation")
     private void abandonAudioFocus() {
         AudioManager audioManager = audioManager();
         if (audioManager == null)
@@ -581,7 +588,7 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
 
     @Nullable
     private AudioManager audioManager() {
-        Context context = mContext.get();
+        Context context = context();
         if (context != null) {
             return (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         } else {
