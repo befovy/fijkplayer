@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 ---
+## [0.8.7](https://github.com/befovy/fijkplayer/compare/v0.8.6...v0.8.7) (2020-07-11)
+
+* upgrade iOS pod dependency, speed up pod install
+
+---
 ## [0.8.6](https://github.com/befovy/fijkplayer/compare/v0.8.5...v0.8.6) (2020-07-06)
 
 * fix android context null pointer error ([4cdf670](https://github.com/befovy/fijkplayer/commit/4cdf6705a1c49eb075f3b195c4052d2281de6877)), closes [#272](https://github.com/befovy/fijkplayer/issues/272)
