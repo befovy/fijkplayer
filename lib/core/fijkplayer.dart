@@ -429,11 +429,12 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     } else if (!isPlayable()) {
       FijkLog.e("$this invoke seekTo invalid state:$state");
       return Future.error(StateError("Non playable state $state"));
-    } else {
-      FijkLog.i("$this invoke seekTo msec:$msec");
-      _seeking = true;
-      _channel.invokeMethod("seekTo", <String, dynamic>{"msec": msec});
     }
+
+    FijkLog.i("$this invoke seekTo msec:$msec");
+    _seeking = true;
+    _channel.invokeMethod("seekTo", <String, dynamic>{"msec": msec});
+    _currentPos = Duration(milliseconds: msec);
   }
 
   /// Release native player. Release memory and resource
