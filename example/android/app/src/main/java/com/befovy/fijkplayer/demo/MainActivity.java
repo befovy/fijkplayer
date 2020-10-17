@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.KeyEvent;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -12,15 +13,12 @@ import com.befovy.fijkplayer.FijkVolume;
 
 import java.util.ArrayList;
 
-import io.flutter.app.FlutterActivity;
-import io.flutter.plugins.GeneratedPluginRegistrant;
+import io.flutter.embedding.android.FlutterActivity;
 
 public class MainActivity extends FlutterActivity implements FijkVolume.CanListenVolumeKey {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        GeneratedPluginRegistrant.registerWith(this);
-
 
         ArrayList<String> noGranted = new ArrayList<>();
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET)
