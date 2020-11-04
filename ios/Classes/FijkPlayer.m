@@ -27,6 +27,7 @@
 
 #import <Flutter/Flutter.h>
 #import <Foundation/Foundation.h>
+//#import <IJKMediaPlayer/IJKMediaPlayer.h>
 #import <IJKMediaPlayer/IJKMediaPlayer.h>
 #import <libkern/OSAtomic.h>
 #import <stdatomic.h>
@@ -447,6 +448,25 @@ static int renderType = 0;
         }
     }];
 }
+-(void)startRecord:(NSString *) fileFullPath {
+    int state = [_ijkMediaPlayer startRecordVideo:fileFullPath];
+//    int state = [_ijkMediaPlayer rtspRecordVideo:rtspUrl filePath:fileFullPath bStop:NO];
+    if(state==0){
+        NSDictionary *args = @{@"result":@YES};
+        [self->_methodChannel invokeMethod:@"_onStartRecord" arguments:args];
+    }else{
+        [self->_methodChannel invokeMethod:@"_onStartRecord" arguments:@"startRecord error"];
+    }
+}
+-(void) stopRecord{
+    int state = [_ijkMediaPlayer stopRecordVideo];
+    if(state==0){
+        NSDictionary *args = @{@"result":@YES};
+        [self->_methodChannel invokeMethod:@"_onStopRecord" arguments:args];
+    }else{
+        [self->_methodChannel invokeMethod:@"_onStopRecord" arguments:@"stopRecord error"];
+    }
+}
 
 - (void)handleMethodCall:(FlutterMethodCall *)call
                   result:(FlutterResult)result {
@@ -579,7 +599,17 @@ static int renderType = 0;
     } else if ([@"snapshot" isEqualToString:call.method]) {
         [self takeSnapshot];
         result(nil);
-    } else {
+    } else if([@"startRecord" isEqualToString:call.method]){
+        NSString *fileName = argsMap[@"fileName"];
+//        NSString *url = argsMap[@"rtspUrl"];
+//        self->filePath = fileName;
+//        self->rtspUrl=url;
+        [self startRecord:fileName];
+        result(nil);
+    } else if([@"stopRecord" isEqualToString:call.method]){
+        [self stopRecord];
+        result(nil);
+    }else {
         result(FlutterMethodNotImplemented);
     }
 }
