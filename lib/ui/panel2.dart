@@ -221,6 +221,8 @@ class __FijkPanel2State extends State<_FijkPanel2> {
       } else {
         player.start();
       }
+    } else if (player.state == FijkState.initialized) {
+      player.start();
     } else {
       FijkLog.w("Invalid state ${player.state} ,can't perform play or pause");
     }
