@@ -31,6 +31,7 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:fijkplayer/utils/utils.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -47,5 +48,8 @@ part 'core/fijkview.dart';
 part 'core/fijkvol.dart';
 part 'ui/panel.dart';
 part 'ui/panel2.dart';
+part 'ui/panel3.dart';
 part 'ui/slider.dart';
 part 'ui/volume.dart';
+part 'ui/custom_slider.dart';
+part 'ui/progress_toast.dart';
