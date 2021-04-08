@@ -23,17 +23,17 @@
 part of fijkplayer;
 
 /// Default builder generate default FijkVolToast UI
-Widget defaultFijkVolumeToast(double value, Stream<double> emitter) {
+Widget defaultFijkVolumeToast(double? value, Stream<double?> emitter) {
   return _FijkSliderToast(value, 0, emitter);
 }
 
-Widget defaultFijkBrightnessToast(double value, Stream<double> emitter) {
+Widget defaultFijkBrightnessToast(double? value, Stream<double?> emitter) {
   return _FijkSliderToast(value, 1, emitter);
 }
 
 class _FijkSliderToast extends StatefulWidget {
-  final Stream<double> emitter;
-  final double initial;
+  final Stream<double?> emitter;
+  final double? initial;
 
   // type 0 volume
   // type 1 screen brightness
@@ -46,8 +46,8 @@ class _FijkSliderToast extends StatefulWidget {
 }
 
 class _FijkSliderToastState extends State<_FijkSliderToast> {
-  double value;
-  StreamSubscription subs;
+  double? value;
+  StreamSubscription? subs;
 
   @override
   void initState() {
@@ -70,9 +70,9 @@ class _FijkSliderToastState extends State<_FijkSliderToast> {
   Widget build(BuildContext context) {
     IconData iconData;
     final type = widget.type;
-    if (value <= 0) {
+    if (value! <= 0) {
       iconData = type == 0 ? Icons.volume_mute : Icons.brightness_low;
-    } else if (value < 0.5) {
+    } else if (value! < 0.5) {
       iconData = type == 0 ? Icons.volume_down : Icons.brightness_medium;
     } else {
       iconData = type == 0 ? Icons.volume_up : Icons.brightness_high;

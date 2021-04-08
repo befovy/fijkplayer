@@ -27,10 +27,10 @@ class LocalPath extends StatefulWidget {
 class _LocalPathState extends State<LocalPath> {
   bool root = true;
 
-  List<FileSystemEntity> files = List();
+  List<FileSystemEntity> files = [];
   Directory current = Directory.current;
 
-  StreamSubscription _subscription;
+  StreamSubscription? _subscription;
 
   @override
   void initState() {
@@ -46,7 +46,7 @@ class _LocalPathState extends State<LocalPath> {
 
   void listDir(String path) {
     bool opened = true;
-    List<FileSystemEntity> tmpFiles = List();
+    List<FileSystemEntity> tmpFiles = [];
     FileSystemEntity.isDirectory(path).then((f) {
       if (f) {
         final Directory dir = Directory(path);

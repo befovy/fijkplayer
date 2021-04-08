@@ -29,7 +29,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class FijkPlayerTester {
-  final int id;
+  final int? id;
   final MethodChannel playerEvent;
   final MethodChannel playerMethod;
 
@@ -44,7 +44,7 @@ class FijkPlayerTester {
     return playerEvent.codec;
   }
 
-  Future<dynamic> eventHandler(MethodCall call) {
+  Future<dynamic>? eventHandler(MethodCall call) {
     switch (call.method) {
       case 'listen':
       case 'cancel':
@@ -93,7 +93,7 @@ class FijkPlayerTester {
     return defaultBinaryMessenger.handlePlatformMessage(
         "befovy.com/fijkplayer/event/$id",
         codec.encodeSuccessEnvelope(event),
-        (ByteData data) {});
+        (ByteData? data) {});
   }
 }
 
@@ -117,9 +117,9 @@ void main() {
           return Future.value(playerIncId);
         case 'releasePlayer':
           Map args = methodCall.arguments as Map;
-          int pid = args["pid"];
+          int? pid = args["pid"];
           expect(pid, isNotNull);
-          FijkPlayerTester tester = playerTesters.remove(pid);
+          FijkPlayerTester? tester = playerTesters.remove(pid);
           tester?.release();
           return null;
         case 'logLevel':
@@ -213,8 +213,8 @@ void main() {
 
     test("setupSurface", () async {
       FijkPlayer player = FijkPlayer();
-      int tid = await player.setupSurface();
-      expect(tid > 0, true);
+      int? tid = await (player.setupSurface());
+      expect(tid != null && tid > 0, true);
       await player.release();
     });
 

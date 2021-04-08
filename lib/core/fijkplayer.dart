@@ -25,14 +25,14 @@ part of fijkplayer;
 /// FijkPlayer present as a playback. It interacts with native object.
 ///
 /// FijkPlayer invoke native method and receive native event.
-class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
-  static Map<int, FijkPlayer> _allInstance = HashMap();
-  String _dataSource;
+class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue?> {
+  static Map<int?, FijkPlayer> _allInstance = HashMap();
+  String? _dataSource;
 
-  int _playerId;
-  int _callId;
-  MethodChannel _channel;
-  StreamSubscription<dynamic> _nativeEventSubscription;
+  int? _playerId;
+  int _callId = 0;
+  late MethodChannel _channel;
+  StreamSubscription<dynamic>? _nativeEventSubscription;
 
   bool _startAfterSetup = false;
 
@@ -46,7 +46,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   Future<int> get id => _nativeSetup.future;
 
   /// Get is in sync, if the async [id] is not finished, idSync return -1;
-  int get idSync => _playerId;
+  int? get idSync => _playerId;
 
   /// return the current state
   FijkState get state => _value.state;
@@ -71,7 +71,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   /// stream of [bufferPos].
   Stream<Duration> get onBufferPosUpdate => _bufferPosController.stream;
 
-  int _bufferPercent = 0;
+  int? _bufferPercent = 0;
 
   /// return the buffer percent of water mark.
   ///
@@ -79,13 +79,13 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   /// this value starts from 0, and when reaches or exceeds 100, the player start to play again.
   ///
   /// This is not the quotient of [bufferPos] / [value.duration]
-  int get bufferPercent => _bufferPercent;
+  int? get bufferPercent => _bufferPercent;
 
-  final StreamController<int> _bufferPercentController =
+  final StreamController<int?> _bufferPercentController =
       StreamController.broadcast();
 
   /// stream of [bufferPercent].
-  Stream<int> get onBufferPercentUpdate => _bufferPercentController.stream;
+  Stream<int?> get onBufferPercentUpdate => _bufferPercentController.stream;
 
   Duration _currentPos = Duration();
 
@@ -109,16 +109,16 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
 
   Stream<bool> get onBufferStateUpdate => _bufferStateController.stream;
 
-  String get dataSource => _dataSource;
+  String? get dataSource => _dataSource;
 
   final Completer<int> _nativeSetup;
-  Completer<Uint8List> _snapShot;
+  Completer<Uint8List>? _snapShot;
 
   FijkPlayer()
       : _nativeSetup = Completer(),
+        _value = FijkValue.uninitialized(),
         super() {
     FijkLog.d("create new fijkplayer");
-    _value = FijkValue.uninitialized();
     _doNativeSetup();
   }
 
@@ -147,9 +147,9 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
       case "_onSnapshot":
         var img = call.arguments;
         if (img is Map) {
-          _snapShot.complete(img['data']);
+          _snapShot!.complete(img['data']);
         } else {
-          _snapShot.completeError(UnsupportedError("snapshot"));
+          _snapShot!.completeError(UnsupportedError("snapshot"));
         }
         _snapShot = null;
         break;
@@ -161,7 +161,6 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
 
   Future<void> _doNativeSetup() async {
     _playerId = -1;
-    _callId = 0;
     _playerId = await FijkPlugin._createPlayer();
     FijkLog.i("create player id:$_playerId");
 
@@ -216,7 +215,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     return _channel.invokeMethod("applyOptions", fijkOption.data);
   }
 
-  Future<int> setupSurface() async {
+  Future<int?> setupSurface() async {
     await _nativeSetup.future;
     FijkLog.i("$this setupSurface");
     return _channel.invokeMethod("setupSurface");
@@ -238,12 +237,12 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   Future<Uint8List> takeSnapShot() async {
     await _nativeSetup.future;
     FijkLog.i("$this takeSnapShot");
-    if (_snapShot != null && !_snapShot.isCompleted) {
+    if (_snapShot != null && !_snapShot!.isCompleted) {
       return Future.error(StateError("last snapShot is not finished"));
     }
     _snapShot = Completer<Uint8List>();
     _channel.invokeMethod("snapshot");
-    return _snapShot.future;
+    return _snapShot!.future;
   }
 
   /// Set data source for this player
@@ -272,7 +271,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   ///
   /// If both [autoPlay] and [showCover] are true, [showCover] will be ignored.
   Future<void> setDataSource(
-    String path, {
+    String? path, {
     bool autoPlay = false,
     bool showCover = false,
   }) async {
@@ -328,7 +327,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   /// Default value of audio track is 1.0,
   /// [volume] must be greater or equals to 0.0
   Future<void> setVolume(double volume) async {
-    if (volume == null || volume < 0) {
+    if (volume < 0) {
       FijkLog.e("$this invoke seekTo invalid volume:$volume");
       return Future.error(
           ArgumentError.value(volume, "setVolume invalid volume"));
@@ -361,7 +360,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     await _nativeSetup.future;
     if (state == FijkState.initialized) {
       _callId += 1;
-      int cid = _callId;
+      int? cid = _callId;
       FijkLog.i("$this invoke prepareAsync and start #$cid");
       await setOption(FijkOption.playerCategory, "start-on-prepared", 1);
       await _channel.invokeMethod("prepareAsync");
@@ -410,7 +409,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
       return Future.error(StateError("call reset on invalid state $state"));
     } else {
       _callId += 1;
-      int cid = _callId;
+      int? cid = _callId;
       FijkLog.i("$this invoke reset #$cid");
       await _channel.invokeMethod("reset").then((_) {
         FijkLog.i("$this invoke reset #$cid -> done");
@@ -420,7 +419,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     }
   }
 
-  Future<void> seekTo(int msec) async {
+  Future<void> seekTo(int? msec) async {
     await _nativeSetup.future;
     if (msec == null || msec < 0) {
       FijkLog.e("$this invoke seekTo invalid msec:$msec");
@@ -440,7 +439,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   Future<void> release() async {
     await _nativeSetup.future;
     _callId += 1;
-    int cid = _callId;
+    int? cid = _callId;
     FijkLog.i("$this invoke release #$cid");
     if (isPlayable()) await stop();
     _setValue(value.copyWith(state: FijkState.end));
@@ -458,7 +457,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   /// Default loopCount of player is 1, which also means no loop.
   /// A positive value of [loopCount] means special repeat times.
   /// If [loopCount] is 0, is means infinite repeat.
-  Future<void> setLoop(int loopCount) async {
+  Future<void> setLoop(int? loopCount) async {
     await _nativeSetup.future;
     if (loopCount == null || loopCount < 0) {
       FijkLog.e("$this invoke setLoop invalid loopCount:$loopCount");
@@ -475,7 +474,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   ///
   /// [speed] must not null and greater than 0.
   /// Default speed is 1
-  Future<void> setSpeed(double speed) async {
+  Future<void> setSpeed(double? speed) async {
     await _nativeSetup.future;
     if (speed == null || speed <= 0) {
       FijkLog.e("$this invoke setSpeed invalid speed:$speed");
@@ -497,7 +496,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
         FijkLog.i("$this prepared duration $dur");
         break;
       case 'rotate':
-        int degree = map['degree'];
+        int? degree = map['degree'];
         _setValue(value.copyWith(rotate: degree));
         FijkLog.i("$this rotate degree $degree");
         break;
@@ -512,7 +511,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
 
         if (fpState != oldState) {
           FijkLog.i("$this state changed to $fpState <= $oldState");
-          FijkException fijkException =
+          FijkException? fijkException =
               (fpState != FijkState.error) ? FijkException.noException : null;
           if (newStateId == FijkState.prepared.index) {
             _setValue(value.copyWith(
@@ -543,7 +542,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
         break;
       case 'buffering':
         int head = map['head'];
-        int percent = map['percent'];
+        int? percent = map['percent'];
         _bufferPos = Duration(milliseconds: head);
         _bufferPosController.add(_bufferPos);
         _bufferPercent = percent;
@@ -571,7 +570,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
   }
 
   void _errorListener(Object obj) {
-    final PlatformException e = obj;
+    final PlatformException e = obj as PlatformException;
     FijkException exception = FijkException.fromPlatformException(e);
     FijkLog.e("$this errorListener: $exception");
     _setValue(value.copyWith(exception: exception));

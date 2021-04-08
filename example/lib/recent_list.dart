@@ -98,7 +98,7 @@ class RecentMediaList extends StatefulWidget {
 class _RecentMediaListState extends State<RecentMediaList> {
   int recentCount = 0;
   int newestId = 0;
-  StreamingSharedPreferences prefs;
+  late StreamingSharedPreferences prefs;
   ScrollController _controller = ScrollController();
 
   _RecentMediaListState() {
@@ -134,7 +134,8 @@ class _RecentMediaListState extends State<RecentMediaList> {
               .getCustomValue<MediaUrl>(key,
                   defaultValue: MediaUrl(url: ""),
                   adapter: JsonAdapter(
-                    deserializer: (value) => MediaUrl.fromJson(value),
+                    deserializer: (value) =>
+                        MediaUrl.fromJson(value as Map<String, dynamic>),
                   ))
               .getValue();
           return MediaItem(mediaUrl: item);
@@ -152,7 +153,8 @@ Future<void> addToHistory(MediaUrl mediaUrl) async {
         .getCustomValue<MediaUrl>("recentid" + newest.toString(),
             defaultValue: MediaUrl(url: ""),
             adapter: JsonAdapter(
-              deserializer: (value) => MediaUrl.fromJson(value),
+              deserializer: (value) =>
+                  MediaUrl.fromJson(value as Map<String, dynamic>),
             ))
         .getValue();
 
@@ -172,7 +174,8 @@ Future<void> addToHistory(MediaUrl mediaUrl) async {
     await prefs.setCustomValue<MediaUrl>(
         "recentid" + newest.toString(), mediaUrl,
         adapter: JsonAdapter(
-          deserializer: (value) => MediaUrl.fromJson(value),
+          deserializer: (value) =>
+              MediaUrl.fromJson(value as Map<String, dynamic>),
         ));
   }
 }

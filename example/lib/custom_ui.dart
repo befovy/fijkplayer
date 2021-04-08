@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:fijkplayer/fijkplayer.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -39,10 +38,10 @@ class CustomFijkPanel extends StatefulWidget {
   final Rect texturePos;
 
   const CustomFijkPanel({
-    @required this.player,
-    this.buildContext,
-    this.viewSize,
-    this.texturePos,
+    required this.player,
+    required this.buildContext,
+    required this.viewSize,
+    required this.texturePos,
   });
 
   @override

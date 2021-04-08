@@ -2,12 +2,11 @@ import 'package:fijkplayer/fijkplayer.dart';
 import 'package:flutter/material.dart';
 
 import 'app_bar.dart';
-// import 'custom_ui.dart';
 
 class VideoScreen extends StatefulWidget {
   final String url;
 
-  VideoScreen({@required this.url});
+  VideoScreen({required this.url});
 
   @override
   _VideoScreenState createState() => _VideoScreenState();

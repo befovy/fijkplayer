@@ -23,7 +23,7 @@
 part of fijkplayer;
 
 /// Default builder generate default [FijkPanel] UI
-Widget defaultFijkPanelBuilder(FijkPlayer player, FijkData data,
+Widget defaultFijkPanelBuilder(FijkPlayer player, FijkData? data,
     BuildContext context, Size viewSize, Rect texturePos) {
   return _DefaultFijkPanel(
       player: player,
@@ -35,12 +35,12 @@ Widget defaultFijkPanelBuilder(FijkPlayer player, FijkData data,
 /// Default Panel Widget
 class _DefaultFijkPanel extends StatefulWidget {
   final FijkPlayer player;
-  final BuildContext buildContext;
-  final Size viewSize;
-  final Rect texturePos;
+  final BuildContext? buildContext;
+  final Size? viewSize;
+  final Rect? texturePos;
 
   const _DefaultFijkPanel({
-    @required this.player,
+    required this.player,
     this.buildContext,
     this.viewSize,
     this.texturePos,
@@ -75,18 +75,18 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
 
   bool _playing = false;
   bool _prepared = false;
-  String _exception;
+  String? _exception;
 
   // bool _buffering = false;
 
   double _seekPos = -1.0;
 
-  StreamSubscription _currentPosSubs;
+  StreamSubscription? _currentPosSubs;
 
-  StreamSubscription _bufferPosSubs;
+  StreamSubscription? _bufferPosSubs;
   //StreamSubscription _bufferingSubs;
 
-  Timer _hideTimer;
+  Timer? _hideTimer;
   bool _hideStuff = true;
 
   double _volume = 1.0;
@@ -130,7 +130,7 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
 
     bool playing = (value.state == FijkState.started);
     bool prepared = value.prepared;
-    String exception = value.exception.message;
+    String? exception = value.exception.message;
     if (playing != _playing ||
         prepared != _prepared ||
         exception != _exception) {
@@ -267,7 +267,6 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
                   ? Icons.fullscreen_exit
                   : Icons.fullscreen),
               padding: EdgeInsets.only(left: 10.0, right: 10.0),
-//              color: Colors.transparent,
               onPressed: () {
                 widget.player.value.fullScreen
                     ? player.exitFullScreen()
@@ -284,12 +283,12 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
   @override
   Widget build(BuildContext context) {
     Rect rect = player.value.fullScreen
-        ? Rect.fromLTWH(0, 0, widget.viewSize.width, widget.viewSize.height)
+        ? Rect.fromLTWH(0, 0, widget.viewSize!.width, widget.viewSize!.height)
         : Rect.fromLTRB(
-            max(0.0, widget.texturePos.left),
-            max(0.0, widget.texturePos.top),
-            min(widget.viewSize.width, widget.texturePos.right),
-            min(widget.viewSize.height, widget.texturePos.bottom));
+            max(0.0, widget.texturePos!.left),
+            max(0.0, widget.texturePos!.top),
+            min(widget.viewSize!.width, widget.texturePos!.right),
+            min(widget.viewSize!.height, widget.texturePos!.bottom));
     return Positioned.fromRect(
       rect: rect,
       child: GestureDetector(
@@ -311,7 +310,7 @@ class _DefaultFijkPanelState extends State<_DefaultFijkPanel> {
                     child: Center(
                         child: _exception != null
                             ? Text(
-                                _exception,
+                                _exception!,
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontSize: 25,

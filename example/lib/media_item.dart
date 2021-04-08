@@ -4,9 +4,9 @@ import 'video_page.dart';
 
 @immutable
 class MediaUrl {
-  const MediaUrl({@required this.url, this.title});
+  const MediaUrl({required this.url, this.title});
 
-  final String title;
+  final String? title;
   final String url;
 
   MediaUrl.fromJson(Map<String, dynamic> json)
@@ -32,18 +32,18 @@ class MediaUrl {
 
 class MediaItem extends StatelessWidget {
   MediaItem({
-    @required this.mediaUrl,
+    required this.mediaUrl,
   });
 
   final MediaUrl mediaUrl;
 
   @override
   Widget build(BuildContext context) {
-    List ws = <Widget>[];
+    List<Widget> ws = [];
 
     if (mediaUrl.title != null) {
       ws.add(Text(
-        mediaUrl.title,
+        mediaUrl.title ?? "Default Title",
         style: TextStyle(fontSize: 15),
       ));
     }
@@ -52,8 +52,6 @@ class MediaItem extends StatelessWidget {
       style: TextStyle(fontSize: 13),
     ));
     return ButtonTheme(
-//      height: mediaUrl.title == null ? 50 : 60,
-
       child: FlatButton(
           key: ValueKey(mediaUrl.url),
           materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,

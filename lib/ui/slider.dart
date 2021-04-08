@@ -31,8 +31,8 @@ class FijkSlider extends StatefulWidget {
   final double cacheValue;
 
   final ValueChanged<double> onChanged;
-  final ValueChanged<double> onChangeStart;
-  final ValueChanged<double> onChangeEnd;
+  final ValueChanged<double>? onChangeStart;
+  final ValueChanged<double>? onChangeEnd;
 
   final double min;
   final double max;
@@ -40,20 +40,16 @@ class FijkSlider extends StatefulWidget {
   final FijkSliderColors colors;
 
   const FijkSlider({
-    Key key,
-    @required this.value,
-    @required this.onChanged,
+    Key? key,
+    required this.value,
+    required this.onChanged,
     this.cacheValue = 0.0,
     this.onChangeStart,
     this.onChangeEnd,
     this.min = 0.0,
     this.max = 1.0,
     this.colors = const FijkSliderColors(),
-  })  : assert(value != null),
-        assert(cacheValue != null),
-        assert(min != null),
-        assert(max != null),
-        assert(min <= max),
+  })  : assert(min <= max),
         assert(value >= min && value <= max),
         super(key: key);
 
@@ -66,7 +62,7 @@ class FijkSlider extends StatefulWidget {
 class _FijkSliderState extends State<FijkSlider> {
   bool dragging = false;
 
-  double dragValue;
+  double dragValue = 0;
 
   static const double margin = 2.0;
 
@@ -91,7 +87,7 @@ class _FijkSliderState extends State<FijkSlider> {
         });
         dragValue = widget.value;
         if (widget.onChangeStart != null) {
-          widget.onChangeStart(dragValue);
+          widget.onChangeStart!(dragValue);
         }
       },
       onHorizontalDragUpdate: (DragUpdateDetails details) {
@@ -100,16 +96,14 @@ class _FijkSliderState extends State<FijkSlider> {
         dragValue = (dx - margin) / (box.size.width - 2 * margin);
         dragValue = max(0, min(1, dragValue));
         dragValue = dragValue * (widget.max - widget.min) + widget.min;
-        if (widget.onChanged != null) {
-          widget.onChanged(dragValue);
-        }
+        widget.onChanged(dragValue);
       },
       onHorizontalDragEnd: (DragEndDetails details) {
         setState(() {
           dragging = false;
         });
         if (widget.onChangeEnd != null) {
-          widget.onChangeEnd(dragValue);
+          widget.onChangeEnd!(dragValue);
         }
       },
     );
@@ -152,10 +146,7 @@ class _SliderPainter extends CustomPainter {
   final FijkSliderColors colors;
 
   _SliderPainter(this.v, this.cv, this.dragging,
-      {this.colors = const FijkSliderColors()})
-      : assert(colors != null),
-        assert(v != null),
-        assert(cv != null);
+      {this.colors = const FijkSliderColors()});
 
   @override
   void paint(Canvas canvas, Size size) {

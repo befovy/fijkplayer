@@ -8,8 +8,8 @@ import 'recent_list.dart';
 
 class HomeItem extends StatelessWidget {
   HomeItem({
-    @required this.onPressed,
-    @required this.text,
+    required this.onPressed,
+    required this.text,
   });
 
   final String text;
@@ -81,30 +81,10 @@ class HomeScreen extends StatelessWidget {
                     MaterialPageRoute(builder: (context) => ListScreen()));
               },
               text: "List View",
-            )
-            /*
-            Container(
-              color: Theme.of(context).primaryColorLight,
-              padding: EdgeInsets.only(left: 15, top: 3, bottom: 3, right: 15),
-              child: Text(
-                "Recent",
-                style: TextStyle(fontSize: 15),
-              ),
             ),
-            Expanded(
-              child: list,
-            ),
-             */
           ],
         ),
       ),
     );
   }
-}
-
-void displaySnackBar(BuildContext context) {
-  Scaffold.of(context).showSnackBar(SnackBar(
-    duration: Duration(seconds: 1),
-    content: Text('Not implemented, pull request is welcome 👏👏🍺🍺'),
-  ));
 }

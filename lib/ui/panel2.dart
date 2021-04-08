@@ -23,17 +23,17 @@
 part of fijkplayer;
 
 FijkPanelWidgetBuilder fijkPanel2Builder(
-    {Key key,
+    {Key? key,
     final bool fill = false,
     final int duration = 4000,
     final bool doubleTap = true,
     final bool snapShot = false,
-    final VoidCallback onBack}) {
-  return (FijkPlayer player, FijkData data, BuildContext context, Size viewSize,
-      Rect texturePos) {
+    final VoidCallback? onBack}) {
+  return (FijkPlayer? player, FijkData? data, BuildContext context,
+      Size viewSize, Rect texturePos) {
     return _FijkPanel2(
       key: key,
-      player: player,
+      player: player!,
       data: data,
       onBack: onBack,
       viewSize: viewSize,
@@ -48,18 +48,18 @@ FijkPanelWidgetBuilder fijkPanel2Builder(
 
 class _FijkPanel2 extends StatefulWidget {
   final FijkPlayer player;
-  final FijkData data;
-  final VoidCallback onBack;
-  final Size viewSize;
-  final Rect texPos;
-  final bool fill;
-  final bool doubleTap;
-  final bool snapShot;
-  final int hideDuration;
+  final FijkData? data;
+  final VoidCallback? onBack;
+  final Size? viewSize;
+  final Rect? texPos;
+  final bool? fill;
+  final bool? doubleTap;
+  final bool? snapShot;
+  final int? hideDuration;
 
   const _FijkPanel2(
-      {Key key,
-      @required this.player,
+      {Key? key,
+      required this.player,
       this.data,
       this.fill,
       this.onBack,
@@ -68,8 +68,7 @@ class _FijkPanel2 extends StatefulWidget {
       this.doubleTap,
       this.snapShot,
       this.texPos})
-      : assert(player != null),
-        assert(
+      : assert(
             hideDuration != null && hideDuration > 0 && hideDuration < 10000),
         super(key: key);
 
@@ -80,29 +79,29 @@ class _FijkPanel2 extends StatefulWidget {
 class __FijkPanel2State extends State<_FijkPanel2> {
   FijkPlayer get player => widget.player;
 
-  Timer _hideTimer;
+  Timer? _hideTimer;
   bool _hideStuff = true;
 
-  Timer _statelessTimer;
+  Timer? _statelessTimer;
   bool _prepared = false;
   bool _playing = false;
-  bool _dragLeft;
-  double _volume;
-  double _brightness;
+  bool? _dragLeft;
+  double? _volume;
+  double? _brightness;
 
   double _seekPos = -1.0;
   Duration _duration = Duration();
   Duration _currentPos = Duration();
   Duration _bufferPos = Duration();
 
-  StreamSubscription _currentPosSubs;
-  StreamSubscription _bufferPosSubs;
+  StreamSubscription? _currentPosSubs;
+  StreamSubscription? _bufferPosSubs;
 
-  StreamController<double> _valController;
+  StreamController<double?>? _valController;
 
   // snapshot
-  ImageProvider _imageProvider;
-  Timer _snapshotTimer;
+  ImageProvider? _imageProvider;
+  Timer? _snapshotTimer;
 
   // Is it needed to clear seek data in FijkData (widget.data)
   bool _needClearSeekData = true;
@@ -133,13 +132,13 @@ class __FijkPanel2State extends State<_FijkPanel2> {
         _currentPos = v;
       }
       if (_needClearSeekData) {
-        widget.data.clearValue(FijkData._fijkViewPanelSeekto);
+        widget.data!.clearValue(FijkData._fijkViewPanelSeekto);
       }
       _needClearSeekData = false;
     });
 
-    if (widget.data.contains(FijkData._fijkViewPanelSeekto)) {
-      var pos = widget.data.getValue(FijkData._fijkViewPanelSeekto) as double;
+    if (widget.data!.contains(FijkData._fijkViewPanelSeekto)) {
+      var pos = widget.data!.getValue(FijkData._fijkViewPanelSeekto) as double;
       _currentPos = Duration(milliseconds: pos.toInt());
     }
 
@@ -169,7 +168,7 @@ class __FijkPanel2State extends State<_FijkPanel2> {
   }
 
   double dura2double(Duration d) {
-    return d != null ? d.inMilliseconds.toDouble() : 0.0;
+    return d.inMilliseconds.toDouble();
   }
 
   void _playerValueChanged() {
@@ -198,7 +197,7 @@ class __FijkPanel2State extends State<_FijkPanel2> {
 
   void _restartHideTimer() {
     _hideTimer?.cancel();
-    _hideTimer = Timer(Duration(milliseconds: widget.hideDuration), () {
+    _hideTimer = Timer(Duration(milliseconds: widget.hideDuration!), () {
       setState(() {
         _hideStuff = true;
       });
@@ -238,12 +237,12 @@ class __FijkPanel2State extends State<_FijkPanel2> {
       _dragLeft = false;
       FijkVolume.getVol().then((v) {
         if (widget.data != null &&
-            !widget.data.contains(FijkData._fijkViewPanelVolume)) {
-          widget.data.setValue(FijkData._fijkViewPanelVolume, v);
+            !widget.data!.contains(FijkData._fijkViewPanelVolume)) {
+          widget.data!.setValue(FijkData._fijkViewPanelVolume, v);
         }
         setState(() {
           _volume = v;
-          _valController.add(v);
+          _valController!.add(v);
         });
       });
     } else {
@@ -251,12 +250,12 @@ class __FijkPanel2State extends State<_FijkPanel2> {
       _dragLeft = true;
       FijkPlugin.screenBrightness().then((v) {
         if (widget.data != null &&
-            !widget.data.contains(FijkData._fijkViewPanelBrightness)) {
-          widget.data.setValue(FijkData._fijkViewPanelBrightness, v);
+            !widget.data!.contains(FijkData._fijkViewPanelBrightness)) {
+          widget.data!.setValue(FijkData._fijkViewPanelBrightness, v);
         }
         setState(() {
           _brightness = v;
-          _valController.add(v);
+          _valController!.add(v);
         });
       });
     }
@@ -267,24 +266,24 @@ class __FijkPanel2State extends State<_FijkPanel2> {
   }
 
   void onVerticalDragUpdateFun(DragUpdateDetails d) {
-    double delta = d.primaryDelta / panelHeight();
+    double delta = d.primaryDelta! / panelHeight();
     delta = -delta.clamp(-1.0, 1.0);
     if (_dragLeft != null && _dragLeft == false) {
       if (_volume != null) {
-        _volume += delta;
-        _volume = _volume.clamp(0.0, 1.0);
+        _volume = _volume! + delta;
+        _volume = _volume!.clamp(0.0, 1.0);
         FijkVolume.setVol(_volume);
         setState(() {
-          _valController.add(_volume);
+          _valController!.add(_volume);
         });
       }
     } else if (_dragLeft != null && _dragLeft == true) {
       if (_brightness != null) {
-        _brightness += delta;
-        _brightness = _brightness.clamp(0.0, 1.0);
+        _brightness = _brightness! + delta;
+        _brightness = _brightness!.clamp(0.0, 1.0);
         FijkPlugin.setScreenBrightness(_brightness);
         setState(() {
-          _valController.add(_brightness);
+          _valController!.add(_brightness);
         });
       }
     }
@@ -360,7 +359,7 @@ class __FijkPanel2State extends State<_FijkPanel2> {
           setState(() {
             player.seekTo(v.toInt());
             _currentPos = Duration(milliseconds: _seekPos.toInt());
-            widget.data.setValue(FijkData._fijkViewPanelSeekto, _seekPos);
+            widget.data!.setValue(FijkData._fijkViewPanelSeekto, _seekPos);
             _needClearSeekData = true;
             _seekPos = -1.0;
           });
@@ -370,7 +369,7 @@ class __FijkPanel2State extends State<_FijkPanel2> {
   }
 
   Widget buildBottom(BuildContext context, double height) {
-    if (_duration != null && _duration.inMilliseconds > 0) {
+    if (_duration.inMilliseconds > 0) {
       return Row(
         children: <Widget>[
           buildPlayButton(context, height),
@@ -416,7 +415,7 @@ class __FijkPanel2State extends State<_FijkPanel2> {
       color: Color(0x00000000),
     );
 
-    if (fullScreen && widget.snapShot) {
+    if (fullScreen && widget.snapShot!) {
       centerWidget = Row(
         children: <Widget>[
           Expanded(child: centerChild),
@@ -478,7 +477,7 @@ class __FijkPanel2State extends State<_FijkPanel2> {
   GestureDetector buildGestureDetector(BuildContext context) {
     return GestureDetector(
       onTap: onTapFun,
-      onDoubleTap: widget.doubleTap ? onDoubleTapFun : null,
+      onDoubleTap: widget.doubleTap! ? onDoubleTapFun : null,
       onVerticalDragUpdate: onVerticalDragUpdateFun,
       onVerticalDragStart: onVerticalDragStartFun,
       onVerticalDragEnd: onVerticalDragEndFun,
@@ -496,30 +495,30 @@ class __FijkPanel2State extends State<_FijkPanel2> {
 
   Rect panelRect() {
     Rect rect = player.value.fullScreen || (true == widget.fill)
-        ? Rect.fromLTWH(0, 0, widget.viewSize.width, widget.viewSize.height)
+        ? Rect.fromLTWH(0, 0, widget.viewSize!.width, widget.viewSize!.height)
         : Rect.fromLTRB(
-            max(0.0, widget.texPos.left),
-            max(0.0, widget.texPos.top),
-            min(widget.viewSize.width, widget.texPos.right),
-            min(widget.viewSize.height, widget.texPos.bottom));
+            max(0.0, widget.texPos!.left),
+            max(0.0, widget.texPos!.top),
+            min(widget.viewSize!.width, widget.texPos!.right),
+            min(widget.viewSize!.height, widget.texPos!.bottom));
     return rect;
   }
 
   double panelHeight() {
     if (player.value.fullScreen || (true == widget.fill)) {
-      return widget.viewSize.height;
+      return widget.viewSize!.height;
     } else {
-      return min(widget.viewSize.height, widget.texPos.bottom) -
-          max(0.0, widget.texPos.top);
+      return min(widget.viewSize!.height, widget.texPos!.bottom) -
+          max(0.0, widget.texPos!.top);
     }
   }
 
   double panelWidth() {
     if (player.value.fullScreen || (true == widget.fill)) {
-      return widget.viewSize.width;
+      return widget.viewSize!.width;
     } else {
-      return min(widget.viewSize.width, widget.texPos.right) -
-          max(0.0, widget.texPos.left);
+      return min(widget.viewSize!.width, widget.texPos!.right) -
+          max(0.0, widget.texPos!.left);
     }
   }
 
@@ -537,8 +536,8 @@ class __FijkPanel2State extends State<_FijkPanel2> {
   Widget buildStateless() {
     if (_volume != null || _brightness != null) {
       Widget toast = _volume == null
-          ? defaultFijkBrightnessToast(_brightness, _valController.stream)
-          : defaultFijkVolumeToast(_volume, _valController.stream);
+          ? defaultFijkBrightnessToast(_brightness, _valController!.stream)
+          : defaultFijkVolumeToast(_volume, _valController!.stream);
       return IgnorePointer(
         child: AnimatedOpacity(
           opacity: 1,
@@ -580,7 +579,7 @@ class __FijkPanel2State extends State<_FijkPanel2> {
             decoration: BoxDecoration(
                 border: Border.all(color: Colors.yellowAccent, width: 3)),
             child:
-                Image(height: 200, fit: BoxFit.contain, image: _imageProvider),
+                Image(height: 200, fit: BoxFit.contain, image: _imageProvider!),
           ),
         ),
       );
@@ -595,7 +594,7 @@ class __FijkPanel2State extends State<_FijkPanel2> {
 
     List ws = <Widget>[];
 
-    if (_statelessTimer != null && _statelessTimer.isActive) {
+    if (_statelessTimer != null && _statelessTimer!.isActive) {
       ws.add(buildStateless());
     } else if (player.state == FijkState.asyncPreparing) {
       ws.add(buildStateless());
@@ -610,7 +609,7 @@ class __FijkPanel2State extends State<_FijkPanel2> {
     }
     return Positioned.fromRect(
       rect: rect,
-      child: Stack(children: ws),
+      child: Stack(children: ws as List<Widget>),
     );
   }
 }

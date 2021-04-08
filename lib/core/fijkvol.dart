@@ -32,12 +32,10 @@ class FijkVolumeEvent {
   final int type;
 
   const FijkVolumeEvent({
-    @required this.vol,
-    @required this.sui,
-    @required this.type,
-  })  : assert(vol != null),
-        assert(sui != null),
-        assert(type != null);
+    required this.vol,
+    required this.sui,
+    required this.type,
+  });
 
   @override
   bool operator ==(Object other) =>
@@ -88,14 +86,14 @@ class FijkVolume {
 
   /// Mute system volume.
   /// return system volume after mute
-  static Future<double> mute() {
+  static Future<double?> mute() {
     return FijkPlugin._channel.invokeMethod("volumeMute");
   }
 
   /// set system volume to [vol].
   /// the range of [vol] is [0.0, 1,0].
   /// return the system volume value after set.
-  static Future<double> setVol(double vol) {
+  static Future<double?> setVol(double? vol) {
     if (vol == null || vol < 0.0 || vol > 1.0) {
       return Future.error(ArgumentError.value(
           vol, "step must be not null and in range [0.0, 1.0]"));
@@ -107,14 +105,14 @@ class FijkVolume {
 
   /// get ths current system volume.
   /// the range of returned value is [0.0, 1.0].
-  static Future<double> getVol() {
+  static Future<double?> getVol() {
     return FijkPlugin._channel.invokeMethod("systemVolume");
   }
 
   /// increase system volume by step, step must be in range [0.0, 1.0].
   /// return the system volume value after increase.
   /// the return volume value may be not equals to the current volume + step.
-  static Future<double> up({double step = _defaultStep}) {
+  static Future<double?> up({double step = _defaultStep}) {
     if (step == null || step < 0.0 || step > 1.0) {
       return Future.error(ArgumentError.value(
           step, "step must be not null and in range [0.0, 1.0]"));
@@ -127,7 +125,7 @@ class FijkVolume {
   /// decrease system volume by step, step must be in range [0.0, 1.0].
   /// return the system volume value after decrease.
   /// the return volume value may be not equals to the current volume - step.
-  static Future<double> down({double step = _defaultStep}) {
+  static Future<double?> down({double step = _defaultStep}) {
     if (step == null || step < 0.0 || step > 1.0) {
       return Future.error(ArgumentError.value(
           step, "step must be not null and in range [0.0, 1.0]"));
@@ -192,8 +190,8 @@ class FijkVolumeWatcher extends StatefulWidget {
   final bool showToast;
 
   FijkVolumeWatcher({
-    @required this.watcher,
-    @required this.child,
+    required this.watcher,
+    required this.child,
     bool showToast = false,
   })  : assert(child != null),
         showToast = showToast;
@@ -203,9 +201,9 @@ class FijkVolumeWatcher extends StatefulWidget {
 }
 
 class _FijkVolumeWatcherState extends State<FijkVolumeWatcher> {
-  static OverlayEntry _entry;
-  static Timer _timer;
-  StreamController<double> _volController;
+  static OverlayEntry? _entry;
+  static Timer? _timer;
+  late StreamController<double> _volController;
 
   @override
   void initState() {
@@ -228,12 +226,12 @@ class _FijkVolumeWatcherState extends State<FijkVolumeWatcher> {
 
   /// reference https://www.kikt.top/posts/flutter/toast/oktoast/
   void showVolToast(double vol) {
-    bool active = _timer?.isActive;
+    bool? active = _timer?.isActive;
     _timer?.cancel();
     Widget widget = defaultFijkVolumeToast(vol, _volController.stream);
     if (active == null || active == false) {
       _entry = OverlayEntry(builder: (_) => widget);
-      Overlay.of(context).insert(_entry);
+      Overlay.of(context)!.insert(_entry!);
     }
     _timer = Timer(const Duration(milliseconds: 800), () {
       _entry?.remove();

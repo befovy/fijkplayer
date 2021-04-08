@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 ---
+## [0.9.0](2020-04-08)
+
+* Migrated to null safety
+
+---
 ## [0.8.7](https://github.com/befovy/fijkplayer/compare/v0.8.6...v0.8.7) (2020-07-11)
 
 * upgrade iOS pod dependency, speed up pod install
