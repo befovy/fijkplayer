@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 ---
+## [0.8.8](https://github.com/befovy/fijkplayer/compare/v0.8.7...v0.8.8) (2020-07-11)
+
+* fix ios setLoop never return ([2476a3a](https://github.com/befovy/fijkplayer/commit/2476a3ac3d4ed94e315b11061dbfb646fa406046)), closes [#396](https://github.com/befovy/fijkplayer/issues/396) and [#366](https://github.com/befovy/fijkplayer/issues/366)
+
+* upgrade iOS pod dependency, resue github release, fix jcenter unavaiable ([86deb1f](https://github.com/befovy/fijkplayer/commit/86deb1f77716ff54cd9df514b292dc9c1e2de5c5))
+
+---
 ## [0.8.7](https://github.com/befovy/fijkplayer/compare/v0.8.6...v0.8.7) (2020-07-11)
 
 * upgrade iOS pod dependency, speed up pod install

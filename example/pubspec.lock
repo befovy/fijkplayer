@@ -112,7 +112,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.8.7"
+    version: "0.8.8"
   file:
     dependency: transitive
     description:
