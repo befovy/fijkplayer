@@ -113,6 +113,8 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
 
   final Completer<int> _nativeSetup;
   Completer<Uint8List> _snapShot;
+  Completer<bool> _isStartRecord;
+  Completer<bool> _isStopRecord;
 
   FijkPlayer()
       : _nativeSetup = Completer(),
@@ -152,6 +154,24 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
           _snapShot.completeError(UnsupportedError("snapshot"));
         }
         _snapShot = null;
+        break;
+      case "_onStartRecord":
+        var m = call.arguments;
+        if(m is Map){
+          _isStartRecord.complete(m["result"]);
+        }else{
+          _isStartRecord.completeError(UnsupportedError("startRecord"));
+        }
+        _isStartRecord = null;
+        break;
+      case "_onStopRecord":
+        var m = call.arguments;
+        if(m is Map){
+          _isStopRecord.complete(m["result"]);
+        }else{
+          _isStopRecord.completeError(UnsupportedError("stopRecord"));
+        }
+        _isStopRecord = null;
         break;
       default:
         break;
@@ -244,6 +264,30 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     _snapShot = Completer<Uint8List>();
     _channel.invokeMethod("snapshot");
     return _snapShot.future;
+  }
+  /// 视频录制开始方法
+  /// fileName :文件名
+  Future<bool> takeStartRecord(String fileName) async {
+     await _nativeSetup.future;
+     FijkLog.i("$this takeStartRecord");
+     if(_isStartRecord!=null && !_isStartRecord.isCompleted){
+       return Future.error(StateError("last takeStartRecord is not finished"));
+     }
+     _isStartRecord = Completer<bool>();
+     _channel.invokeMethod("startRecord",<String, dynamic>{'fileName': fileName});
+     return _isStartRecord.future;
+  }
+  /// 视频录制结束方法
+  /// fileName :文件名
+  Future<bool> takeStopRecord() async {
+    await _nativeSetup.future;
+    FijkLog.i("$this takeStopRecord");
+    if(_isStopRecord!=null && !_isStopRecord.isCompleted){
+      return Future.error(StateError("last takeStopRecord is not finished"));
+    }
+    _isStopRecord = Completer<bool>();
+    _channel.invokeMethod("stopRecord");
+    return _isStopRecord.future;
   }
 
   /// Set data source for this player
