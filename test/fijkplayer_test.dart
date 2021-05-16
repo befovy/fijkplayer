@@ -90,7 +90,7 @@ class FijkPlayerTester {
   }
 
   Future<void> sendEvent(dynamic event) {
-    return defaultBinaryMessenger.handlePlatformMessage(
+    return  ServicesBinding.instance.defaultBinaryMessenger.handlePlatformMessage(
         "befovy.com/fijkplayer/event/$id",
         codec.encodeSuccessEnvelope(event),
         (ByteData data) {});
