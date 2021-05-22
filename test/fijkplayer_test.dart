@@ -29,7 +29,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class FijkPlayerTester {
-  final int id;
+  final int? id;
   final MethodChannel playerEvent;
   final MethodChannel playerMethod;
 
@@ -44,7 +44,7 @@ class FijkPlayerTester {
     return playerEvent.codec;
   }
 
-  Future<dynamic> eventHandler(MethodCall call) {
+  Future<dynamic>? eventHandler(MethodCall call) {
     switch (call.method) {
       case 'listen':
       case 'cancel':
@@ -90,10 +90,10 @@ class FijkPlayerTester {
   }
 
   Future<void> sendEvent(dynamic event) {
-    return  ServicesBinding.instance.defaultBinaryMessenger.handlePlatformMessage(
+    return  ServicesBinding.instance!.defaultBinaryMessenger.handlePlatformMessage(
         "befovy.com/fijkplayer/event/$id",
         codec.encodeSuccessEnvelope(event),
-        (ByteData data) {});
+        (ByteData? data) {});
   }
 }
 
@@ -117,9 +117,9 @@ void main() {
           return Future.value(playerIncId);
         case 'releasePlayer':
           Map args = methodCall.arguments as Map;
-          int pid = args["pid"];
+          int? pid = args["pid"];
           expect(pid, isNotNull);
-          FijkPlayerTester tester = playerTesters.remove(pid);
+          FijkPlayerTester? tester = playerTesters.remove(pid);
           tester?.release();
           return null;
         case 'logLevel':
@@ -162,7 +162,7 @@ void main() {
       }, throwsArgumentError);
 
       expect(() async {
-        await player.setLoop(null);
+        await player.setLoop(-1);
       }, throwsArgumentError);
 
       await player.setLoop(1);
@@ -213,16 +213,13 @@ void main() {
 
     test("setupSurface", () async {
       FijkPlayer player = FijkPlayer();
-      int tid = await player.setupSurface();
-      expect(tid > 0, true);
+      int? tid = await player.setupSurface();
+      expect(tid != null && tid > 0, true);
       await player.release();
     });
 
     test("setDataSource", () async {
       FijkPlayer player = FijkPlayer();
-      expect(() async {
-        await player.setDataSource(null);
-      }, throwsArgumentError);
       expect(() async {
         await player.setDataSource("");
       }, throwsArgumentError);
@@ -250,7 +247,7 @@ void main() {
         await player.setLoop(-1);
       }, throwsArgumentError);
       expect(() async {
-        await player.setLoop(null);
+        await player.setLoop(-1);
       }, throwsArgumentError);
       await player.release();
     });
@@ -258,7 +255,7 @@ void main() {
     test("setSpeed", () async {
       FijkPlayer player = FijkPlayer();
       expect(() async {
-        await player.setSpeed(null);
+        await player.setSpeed(-1);
       }, throwsArgumentError);
       expect(() async {
         await player.setSpeed(0);
@@ -326,7 +323,7 @@ void main() {
       FijkPlayer player = FijkPlayer();
 
       expect(() async {
-        await player.seekTo(null);
+        await player.seekTo(-1);
       }, throwsArgumentError);
 
       expect(() async {
@@ -334,7 +331,7 @@ void main() {
       }, throwsStateError);
 
       bool argError = false;
-      await player.seekTo(null).catchError((e) {
+      await player.seekTo(-1).catchError((e) {
         argError = true;
       }, test: (e) {
         return e is ArgumentError;

@@ -46,8 +46,8 @@ class _FijkSliderToast extends StatefulWidget {
 }
 
 class _FijkSliderToastState extends State<_FijkSliderToast> {
-  double value;
-  StreamSubscription subs;
+  double value = 0;
+  StreamSubscription? subs;
 
   @override
   void initState() {

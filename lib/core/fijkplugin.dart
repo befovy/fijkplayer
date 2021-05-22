@@ -28,8 +28,13 @@ class FijkPlugin {
 
   static const MethodChannel _channel = const MethodChannel('befovy.com/fijk');
 
-  static Future<int> _createPlayer() {
-    return _channel.invokeMethod("createPlayer");
+  static Future<int> _createPlayer() async {
+    int?  pid = await _channel.invokeMethod("createPlayer");
+    if (pid != null){
+      return Future.value(pid);
+    }
+    FijkLog.e("failed to create native player");
+    return Future.value(-1);
   }
 
   static Future<void> _releasePlayer(int pid) {
@@ -48,7 +53,7 @@ class FijkPlugin {
   static Future<bool> setOrientationPortrait() async {
     if (isDesktop()) return Future.value();
     // ios crash Supported orientations has no common orientation with the application
-    bool changed = await _channel.invokeMethod("setOrientationPortrait");
+    bool? changed = await _channel.invokeMethod("setOrientationPortrait");
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     return Future.value(changed);
@@ -61,7 +66,7 @@ class FijkPlugin {
   /// return false if can't change orientation.
   static Future<bool> setOrientationLandscape() async {
     if (isDesktop()) return Future.value(false);
-    bool changed = await _channel.invokeMethod("setOrientationLandscape");
+    bool? changed = await _channel.invokeMethod("setOrientationLandscape");
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.landscapeRight, DeviceOrientation.landscapeLeft]);
     return Future.value(changed);
@@ -85,9 +90,12 @@ class FijkPlugin {
   }
 
   /// Check if screen is kept on
-  static Future<bool> isScreenKeptOn() {
+  static Future<bool> isScreenKeptOn() async {
     if (Platform.isAndroid || Platform.isIOS) {
-      return _channel.invokeMethod("isScreenKeptOn");
+      var keptOn = await _channel.invokeMethod("isScreenKeptOn");
+      if (keptOn != null) {
+        return Future.value(keptOn);
+      }
     }
     return Future.value(false);
   }
@@ -95,7 +103,7 @@ class FijkPlugin {
   /// Set screen brightness.
   /// The range of [value] is [0.0, 1.0]
   static Future<void> setScreenBrightness(double value) {
-    if (value == null || value < 0.0 || value > 1.0) {
+    if (value < 0.0 || value > 1.0) {
       return Future.error(ArgumentError.value(
           value, "brightness value must be not null and in range [0.0, 1.0]"));
     } else if (Platform.isAndroid || Platform.isIOS) {
@@ -107,9 +115,11 @@ class FijkPlugin {
 
   /// Get the screen brightness.
   /// The range of returned value is [0.0, 1.0]
-  static Future<double> screenBrightness() {
+  static Future<double> screenBrightness() async {
     if (Platform.isAndroid || Platform.isIOS) {
-      return _channel.invokeMethod("brightness");
+      var brightness = await _channel.invokeMethod("brightness");
+      if (brightness != null)
+        return Future.value(brightness);
     }
     return Future.value(0);
   }
@@ -136,7 +146,7 @@ class FijkPlugin {
     return _channel.invokeMethod("logLevel", <String, dynamic>{'level': level});
   }
 
-  static StreamSubscription _eventSubs;
+  static StreamSubscription? _eventSubs;
 
   static void _onLoad(String type) {
     if (_eventSubs == null) {
@@ -161,8 +171,8 @@ class FijkPlugin {
     FijkLog.d("plugin listener: $map");
     switch (map['event']) {
       case 'volume':
-        bool sui = map['sui'];
-        double vol = map['vol'];
+        bool sui = map['sui'] ?? false;
+        double vol = map['vol'] ?? 0.0;
         FijkVolume._instance._onVolCallback(vol, sui);
         break;
       default:

@@ -146,7 +146,7 @@ class FijkValue {
   ///
   /// Is null when [prepared] is false.
   /// Is negative width and height if playback is audio only.
-  final Size size;
+  final Size? size;
 
   /// The rotation degrees
   final int rotate;
@@ -164,16 +164,16 @@ class FijkValue {
 
   /// A constructor requires all value.
   const FijkValue({
-    @required this.prepared,
-    @required this.completed,
-    @required this.audioRenderStart,
-    @required this.videoRenderStart,
-    @required this.state,
-    @required this.size,
-    @required this.rotate,
-    @required this.duration,
-    @required this.fullScreen,
-    @required this.exception,
+    required this.prepared,
+    required this.completed,
+    required this.audioRenderStart,
+    required this.videoRenderStart,
+    required this.state,
+    required this.size,
+    required this.rotate,
+    required this.duration,
+    required this.fullScreen,
+    required this.exception,
   });
 
   /// Construct FijkValue with uninitialized value
@@ -193,16 +193,16 @@ class FijkValue {
 
   /// Return new FijkValue which combines the old value and the assigned new value
   FijkValue copyWith({
-    bool prepared,
-    bool completed,
-    bool videoRenderStart,
-    bool audioRenderStart,
-    FijkState state,
-    Size size,
-    int rotate,
-    Duration duration,
-    bool fullScreen,
-    FijkException exception,
+    bool? prepared,
+    bool? completed,
+    bool? videoRenderStart,
+    bool? audioRenderStart,
+    FijkState? state,
+    Size? size,
+    int? rotate,
+    Duration? duration,
+    bool? fullScreen,
+    FijkException? exception,
   }) {
     return FijkValue(
       prepared: prepared ?? this.prepared,
@@ -328,12 +328,12 @@ class FijkException implements Exception {
   final int code;
 
   /// human readable exception message
-  final String message;
+  final String? message;
 
   const FijkException(code, [this.message]) : code = code;
 
   static FijkException fromPlatformException(PlatformException e) {
-    int code = int.tryParse(e.code);
+    int? code = int.tryParse(e.code);
     return code != null
         ? FijkException(code, e.message)
         : FijkException(unknown, e.message);
