@@ -29,8 +29,6 @@ void main() {
     test("Constructor", () async {
       FijkOption fijkOption = FijkOption();
 
-      expect(true, fijkOption != null);
-
       var data = fijkOption.data;
       expect(data, isInstanceOf<Map>());
       expect(data[0], isInstanceOf<Map>());
@@ -47,7 +45,7 @@ void main() {
       FijkOption fijkOption = FijkOption();
       fijkOption.setPlayerOption("start", 1);
       fijkOption.setPlayerOption("hello", "world");
-      expect(fijkOption.data[4].length, 2);
+      expect(fijkOption.data[FijkOption.playerCategory]!.length, 2);
       expect(
           () => fijkOption.setFormatOption("hi", false), throwsArgumentError);
       expect(() => fijkOption.setPlayerOption("hi", double.infinity),
@@ -58,7 +56,7 @@ void main() {
       expect(
           () => fijkOption.setSwsOption("hi", Object()), throwsArgumentError);
 
-      expect(fijkOption.data[4].length, 2);
+      expect(fijkOption.data[FijkOption.playerCategory]!.length, 2);
     });
 
     test("value update", () async {
@@ -71,7 +69,7 @@ void main() {
       expect(data, isInstanceOf<Map>());
 
       expect(data.containsKey(4), true);
-      var playerData = data[4];
+      var playerData = data[4]!;
       expect(playerData.containsKey("hello"), true);
       expect(playerData["hello"], 1);
     });
@@ -85,16 +83,16 @@ void main() {
       expect(data, isInstanceOf<Map>());
 
       expect(data.containsKey(4), true);
-      var playerData = data[4];
+      var playerData = data[4]!;
       expect(playerData.containsKey("hello"), true);
       expect(playerData["hello"], "world");
 
-      data[4]["hello"] = 1;
+      data[4]!["hello"] = 1;
 
-      expect(data[4]["hello"], 1);
+      expect(data[4]!["hello"], 1);
 
       data = fijkOption.data;
-      expect(data[4]["hello"], "world");
+      expect(data[4]!["hello"], "world");
     });
   });
 }

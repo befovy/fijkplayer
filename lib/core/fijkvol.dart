@@ -32,12 +32,10 @@ class FijkVolumeEvent {
   final int type;
 
   const FijkVolumeEvent({
-    @required this.vol,
-    @required this.sui,
-    @required this.type,
-  })  : assert(vol != null),
-        assert(sui != null),
-        assert(type != null);
+    required this.vol,
+    required this.sui,
+    required this.type,
+  });
 
   @override
   bool operator ==(Object other) =>
@@ -81,59 +79,74 @@ class FijkVolume {
 
   static FijkVolume _instance = FijkVolume._();
 
-  static _VolumeValueNotifier _notifer =
+  static _VolumeValueNotifier _notifier =
       _VolumeValueNotifier(FijkVolumeEvent(vol: 0, sui: false, type: 0));
 
   static const double _defaultStep = 1.0 / 16.0;
 
   /// Mute system volume.
   /// return system volume after mute
-  static Future<double> mute() {
-    return FijkPlugin._channel.invokeMethod("volumeMute");
+  static Future<double> mute() async {
+    var vol = await FijkPlugin._channel.invokeMethod("volumeMute");
+    if (vol != null)
+      return Future.value(vol);
+    return Future.value(0);
   }
 
   /// set system volume to [vol].
   /// the range of [vol] is [0.0, 1,0].
   /// return the system volume value after set.
-  static Future<double> setVol(double vol) {
-    if (vol == null || vol < 0.0 || vol > 1.0) {
+  static Future<double> setVol(double vol) async {
+    if ( vol < 0.0 || vol > 1.0) {
       return Future.error(ArgumentError.value(
           vol, "step must be not null and in range [0.0, 1.0]"));
     } else {
-      return FijkPlugin._channel
+      var afterSet = await FijkPlugin._channel
           .invokeMethod("volumeSet", <String, dynamic>{'vol': vol});
+      if (afterSet != null)
+        return Future.value(afterSet);
+      return Future.value(0);
     }
   }
 
   /// get ths current system volume.
   /// the range of returned value is [0.0, 1.0].
-  static Future<double> getVol() {
-    return FijkPlugin._channel.invokeMethod("systemVolume");
+  static Future<double> getVol() async{
+    var vol = await FijkPlugin._channel.invokeMethod("systemVolume");
+    if (vol != null)
+      return Future.value(vol);
+    return Future.value(0);
   }
 
   /// increase system volume by step, step must be in range [0.0, 1.0].
   /// return the system volume value after increase.
   /// the return volume value may be not equals to the current volume + step.
-  static Future<double> up({double step = _defaultStep}) {
-    if (step == null || step < 0.0 || step > 1.0) {
+  static Future<double> up({double step = _defaultStep}) async {
+    if (step < 0.0 || step > 1.0) {
       return Future.error(ArgumentError.value(
           step, "step must be not null and in range [0.0, 1.0]"));
     } else {
-      return FijkPlugin._channel
+      var vol = await FijkPlugin._channel
           .invokeMethod("volumeUp", <String, dynamic>{'step': step});
+      if (vol != null)
+        return Future.value(vol);
+      return Future.value(0);
     }
   }
 
   /// decrease system volume by step, step must be in range [0.0, 1.0].
   /// return the system volume value after decrease.
   /// the return volume value may be not equals to the current volume - step.
-  static Future<double> down({double step = _defaultStep}) {
-    if (step == null || step < 0.0 || step > 1.0) {
+  static Future<double> down({double step = _defaultStep}) async {
+    if (step < 0.0 || step > 1.0) {
       return Future.error(ArgumentError.value(
           step, "step must be not null and in range [0.0, 1.0]"));
     } else {
-      return FijkPlugin._channel
+      var vol = await FijkPlugin._channel
           .invokeMethod("volumeDown", <String, dynamic>{'step': step});
+      if (vol != null)
+        return Future.value(vol);
+      return Future.value(0);
     }
   }
 
@@ -141,7 +154,7 @@ class FijkVolume {
   /// mode can be one of
   /// {[hideUIWhenPlayable], [hideUIWhenPlaying], [neverShowUI], [alwaysShowUI]}
   static Future<void> setUIMode(int mode) {
-    if (mode == null)
+    if (mode < hideUIWhenPlayable || hideUIWhenPlayable > alwaysShowUI)
       return Future.error(ArgumentError.notNull("mode"));
     else
       return FijkPlugin._channel
@@ -149,24 +162,24 @@ class FijkVolume {
   }
 
   void _onVolCallback(double vol, bool ui) {
-    _notifer.value = FijkVolumeEvent(vol: vol, sui: ui, type: STREAM_MUSIC);
+    _notifier.value = FijkVolumeEvent(vol: vol, sui: ui, type: STREAM_MUSIC);
   }
 
   /// the [listener] wiil be nitified after system volume changed.
   /// the value after change can be obtained through [FijkVolume.value]
   static void addListener(VoidCallback listener) {
     FijkPlugin._onLoad("vol");
-    _notifer.addListener(listener);
+    _notifier.addListener(listener);
   }
 
   /// remove the [listener] set using [addListener]
   static void removeListener(VoidCallback listener) {
-    _notifer.removeListener(listener);
+    _notifier.removeListener(listener);
   }
 
   /// get the system volume event.
   /// a valid value is returned only if [addListener] is called and there's really volume changing
-  static FijkVolumeEvent get value => _notifer.value;
+  static FijkVolumeEvent get value => _notifier.value;
 }
 
 /// Volume changed callback func.
@@ -192,20 +205,19 @@ class FijkVolumeWatcher extends StatefulWidget {
   final bool showToast;
 
   FijkVolumeWatcher({
-    @required this.watcher,
-    @required this.child,
+    required this.watcher,
+    /*required*/ required this.child,
     bool showToast = false,
-  })  : assert(child != null),
-        showToast = showToast;
+  })  : showToast = showToast;
 
   @override
   _FijkVolumeWatcherState createState() => _FijkVolumeWatcherState();
 }
 
 class _FijkVolumeWatcherState extends State<FijkVolumeWatcher> {
-  static OverlayEntry _entry;
-  static Timer _timer;
-  StreamController<double> _volController;
+  static OverlayEntry? _entry;
+  static Timer? _timer;
+  late StreamController<double> _volController;
 
   @override
   void initState() {
@@ -218,9 +230,7 @@ class _FijkVolumeWatcherState extends State<FijkVolumeWatcher> {
   void volChanged() {
     FijkVolumeEvent value = FijkVolume.value;
     _volController.add(value.vol);
-    if (widget.watcher != null) {
-      widget.watcher(value);
-    }
+    widget.watcher(value);
     if (widget.showToast && !value.sui) {
       showVolToast(value.vol);
     }
@@ -228,12 +238,15 @@ class _FijkVolumeWatcherState extends State<FijkVolumeWatcher> {
 
   /// reference https://www.kikt.top/posts/flutter/toast/oktoast/
   void showVolToast(double vol) {
-    bool active = _timer?.isActive;
+    bool active = _timer?.isActive ?? false;
     _timer?.cancel();
     Widget widget = defaultFijkVolumeToast(vol, _volController.stream);
-    if (active == null || active == false) {
-      _entry = OverlayEntry(builder: (_) => widget);
-      Overlay.of(context).insert(_entry);
+    if (active == false) {
+      var entry = OverlayEntry(builder: (_) => widget);
+      _entry = entry;
+      var overlay = Overlay.of(context);
+      if (overlay != null)
+        overlay.insert(entry);
     }
     _timer = Timer(const Duration(milliseconds: 800), () {
       _entry?.remove();
