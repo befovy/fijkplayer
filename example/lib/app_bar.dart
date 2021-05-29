@@ -14,12 +14,12 @@ class SettingMenu extends StatelessWidget {
 }
 
 class FijkAppBar extends StatelessWidget implements PreferredSizeWidget {
-  FijkAppBar({Key key, @required this.title, this.actions}) : super(key: key);
+  FijkAppBar({Key? key, required this.title, this.actions}) : super(key: key);
 
   final String title;
-  final List<Widget> actions;
+  final List<Widget>? actions;
 
-  FijkAppBar.defaultSetting({Key key, @required this.title}) : actions = null;
+  FijkAppBar.defaultSetting({Key? key, required this.title}) : actions = null;
   // todo settings page
   //: actions=<Widget>[SettingMenu()];
 

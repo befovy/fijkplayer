@@ -10,15 +10,15 @@ class ListItemPlayer extends StatefulWidget {
   final int index;
   final ValueNotifier<double> notifier;
 
-  ListItemPlayer({@required this.index, @required this.notifier});
+  ListItemPlayer({required this.index, required this.notifier});
 
   @override
   _ListItemPlayerState createState() => _ListItemPlayerState();
 }
 
 class _ListItemPlayerState extends State<ListItemPlayer> {
-  FijkPlayer _player;
-  Timer _timer;
+  FijkPlayer? _player;
+  Timer? _timer;
   bool _start = false;
   bool _expectStart = false;
 
@@ -48,42 +48,43 @@ class _ListItemPlayerState extends State<ListItemPlayer> {
 
     double pixels = widget.notifier.value;
     int x = (pixels / 200).ceil();
-    if (_player != null && widget.index == x) {
+    var player = _player;
+    if (player != null && widget.index == x) {
       _expectStart = true;
-      _player.removeListener(pauseListener);
-      if (_start == false && _player.isPlayable()) {
-        FijkLog.i("start from scroll listener $_player");
-        _player.start();
+      player.removeListener(pauseListener);
+      if (_start == false && _player!.isPlayable()) {
+        FijkLog.i("start from scroll listener $player");
+        player.start();
         _start = true;
       } else if (_start == false) {
-        FijkLog.i("add start listener $_player");
-        _player.addListener(startListener);
+        FijkLog.i("add start listener $player");
+        player.addListener(startListener);
       }
     } else if (_player != null) {
       _expectStart = false;
-      _player.removeListener(startListener);
-      if (_player.isPlayable() && _start) {
-        FijkLog.i("pause from scroll listener $_player");
-        _player.pause();
+      player!.removeListener(startListener);
+      if (player.isPlayable() && _start) {
+        FijkLog.i("pause from scroll listener $player");
+        player.pause();
         _start = false;
       } else if (_start) {
-        FijkLog.i("add pause listener $_player");
-        _player.addListener(pauseListener);
+        FijkLog.i("add pause listener $player");
+        player.addListener(pauseListener);
       }
     }
   }
 
   void startListener() {
-    FijkValue value = _player.value;
+    FijkValue value = _player!.value;
     if (value.prepared && !_start && _expectStart) {
       _start = true;
       FijkLog.i("start from player listener $_player");
-      _player.start();
+      _player!.start();
     }
   }
 
   void pauseListener() {
-    FijkValue value = _player.value;
+    FijkValue value = _player!.value;
     if (value.prepared && _start && !_expectStart) {
       _start = false;
       FijkLog.i("pause from player listener $_player");
@@ -122,7 +123,7 @@ class _ListItemPlayerState extends State<ListItemPlayer> {
             Expanded(
               child: _player != null
                   ? FijkView(
-                      player: _player,
+                      player: _player!,
                       fit: fit,
                       cover: AssetImage("assets/cover.png"),
                     )

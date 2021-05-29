@@ -39,10 +39,10 @@ class CustomFijkPanel extends StatefulWidget {
   final Rect texturePos;
 
   const CustomFijkPanel({
-    @required this.player,
-    this.buildContext,
-    this.viewSize,
-    this.texturePos,
+    required this.player,
+    required this.buildContext,
+    required this.viewSize,
+    required this.texturePos,
   });
 
   @override

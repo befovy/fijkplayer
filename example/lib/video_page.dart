@@ -7,7 +7,7 @@ import 'app_bar.dart';
 class VideoScreen extends StatefulWidget {
   final String url;
 
-  VideoScreen({@required this.url});
+  VideoScreen({required this.url});
 
   @override
   _VideoScreenState createState() => _VideoScreenState();
