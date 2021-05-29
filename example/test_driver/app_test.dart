@@ -27,7 +27,7 @@ void main() {
   });
 
   group('Counter App', () {
-    FlutterDriver driver;
+    FlutterDriver? driver;
     setUpAll(() async {
       driver = await FlutterDriver.connect();
     });

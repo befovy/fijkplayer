@@ -8,8 +8,8 @@ import 'recent_list.dart';
 
 class HomeItem extends StatelessWidget {
   HomeItem({
-    @required this.onPressed,
-    @required this.text,
+    required this.onPressed,
+    required this.text,
   });
 
   final String text;

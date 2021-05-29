@@ -27,10 +27,10 @@ class LocalPath extends StatefulWidget {
 class _LocalPathState extends State<LocalPath> {
   bool root = true;
 
-  List<FileSystemEntity> files = List();
+  List<FileSystemEntity> files = [];
   Directory current = Directory.current;
 
-  StreamSubscription _subscription;
+  StreamSubscription? _subscription;
 
   @override
   void initState() {
@@ -40,13 +40,14 @@ class _LocalPathState extends State<LocalPath> {
   void cantOpenSnackBar() {
     Scaffold.of(context).showSnackBar(SnackBar(
       duration: Duration(seconds: 1),
-      content: Text('Something error when openning this file/dir'),
+      content: Text('Something error when opening this file/dir'),
     ));
   }
 
   void listDir(String path) {
     bool opened = true;
-    List<FileSystemEntity> tmpFiles = List();
+    print("list path:$path");
+    List<FileSystemEntity> tmpFiles = [];
     FileSystemEntity.isDirectory(path).then((f) {
       if (f) {
         final Directory dir = Directory(path);
