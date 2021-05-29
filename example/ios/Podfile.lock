@@ -1,6 +1,6 @@
 PODS:
   - BIJKPlayer (0.7.10)
-  - fijkplayer (0.8.8):
+  - fijkplayer (0.9.0):
     - BIJKPlayer (~> 0.7.10)
     - Flutter
   - Flutter (1.0.0)
@@ -26,7 +26,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   BIJKPlayer: 6727b075679eb5173b6d16f42ff2f33b9a757213
-  fijkplayer: 0d3793a2822d030ef5bba77f904bff1f7a91a115
+  fijkplayer: f9cdfb1e8c9ba8ed31dda5689cebabe52f233907
   Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
   shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
 

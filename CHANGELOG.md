@@ -3,7 +3,11 @@
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
 ---
-## [0.8.8](https://github.com/befovy/fijkplayer/compare/v0.8.7...v0.8.8) (2020-07-11)
+## [0.9.0](https://github.com/befovy/fijkplayer/compare/v0.8.8...v0.9.0) (2021-05-29)
+
+* null safety support
+---
+## [0.8.8](https://github.com/befovy/fijkplayer/compare/v0.8.7...v0.8.8) (2021-05-15)
 
 * fix ios setLoop never return ([2476a3a](https://github.com/befovy/fijkplayer/commit/2476a3ac3d4ed94e315b11061dbfb646fa406046)), closes [#396](https://github.com/befovy/fijkplayer/issues/396) and [#366](https://github.com/befovy/fijkplayer/issues/366)
 
