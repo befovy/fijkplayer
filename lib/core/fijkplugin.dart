@@ -29,8 +29,8 @@ class FijkPlugin {
   static const MethodChannel _channel = const MethodChannel('befovy.com/fijk');
 
   static Future<int> _createPlayer() async {
-    int?  pid = await _channel.invokeMethod("createPlayer");
-    if (pid != null){
+    int? pid = await _channel.invokeMethod("createPlayer");
+    if (pid != null) {
       return Future.value(pid);
     }
     FijkLog.e("failed to create native player");
@@ -118,8 +118,7 @@ class FijkPlugin {
   static Future<double> screenBrightness() async {
     if (Platform.isAndroid || Platform.isIOS) {
       var brightness = await _channel.invokeMethod("brightness");
-      if (brightness != null)
-        return Future.value(brightness);
+      if (brightness != null) return Future.value(brightness);
     }
     return Future.value(0);
   }

@@ -68,8 +68,7 @@ class _FijkPanel2 extends StatefulWidget {
       this.doubleTap = false,
       this.snapShot = false,
       required this.texPos})
-      : assert(
-            hideDuration > 0 && hideDuration < 10000),
+      : assert(hideDuration > 0 && hideDuration < 10000),
         super(key: key);
 
   @override
