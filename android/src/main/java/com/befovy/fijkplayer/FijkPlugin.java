@@ -71,7 +71,7 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
     private static final int NO_UI_IF_PLAYING = 1;
     // never show system volume changed UI
     @SuppressWarnings("unused")
-    private static int NEVER_SHOW_UI = 2;
+    private static final int NEVER_SHOW_UI = 2;
     // always show system volume changed UI
     private static final int ALWAYS_SHOW_UI = 3;
 
@@ -309,7 +309,7 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
                 level = Math.max(level, 0);
                 level = Math.min(level, 8);
                 IjkMediaPlayer.loadLibrariesOnce(null);
-                IjkMediaPlayer.native_setLogLevel(level);
+                IjkMediaPlayer.setLogLevel(level);
                 result.success(null);
                 break;
             }
