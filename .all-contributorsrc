@@ -196,6 +196,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "MichaelPei",
+      "name": "Michael Pei",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1621220?v=4",
+      "profile": "https://github.com/MichaelPei",
+      "contributions": [
+        "question"
+      ]
     }
   ],
   "contributorsPerLine": 7,
