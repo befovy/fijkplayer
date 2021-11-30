@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file. See [standa
 
 
 ---
+## [0.10.1](https://github.com/befovy/fijkplayer/compare/v0.10.0...v0.10.1) (2021-11-30)
+
+* fix fix mov seek null pointer crash (https://github.com/befovy/ijkplayer/pull/71) (https://github.com/befovy/FFmpeg/commit/72cfdff6)
+
+---
 ## [0.10.0](https://github.com/befovy/fijkplayer/compare/v0.9.0...v0.10.0) (2021-07-11)
 
 * download android symbols from github release.
