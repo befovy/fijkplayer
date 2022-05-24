@@ -544,12 +544,16 @@ class __InnerFijkViewState extends State<_InnerFijkView> {
           height: constraints.maxHeight,
           color: _color,
         ),
-        Positioned.fromRect(
-            rect: pos,
-            child: Container(
-              color: Color(0xFF000000),
-              child: buildTexture(),
-            )),
+        InteractiveViewer(
+          minScale: 1,
+          maxScale: 5,
+          child: Positioned.fromRect(
+              rect: pos,
+              child: Container(
+                color: Color(0xFF000000),
+                child: buildTexture(),
+              )),
+        ),
       ];
 
       if (widget.cover != null && !value.videoRenderStart) {
@@ -563,7 +567,9 @@ class __InnerFijkViewState extends State<_InnerFijkView> {
       }
 
       if (_panelBuilder != null) {
-        ws.add(_panelBuilder!(_player, data, ctx, constraints.biggest, pos));
+        ws.add(HitTestBlocker(
+          child: _panelBuilder!(_player, data, ctx, constraints.biggest, pos),
+        ));
       }
       return Stack(
         children: ws as List<Widget>,
