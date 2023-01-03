@@ -227,7 +227,10 @@ class _FijkViewState extends State<FijkView> {
         _fullScreen = true;
         await _pushFullScreenWidget(context);
       } else if (_fullScreen && !value.fullScreen) {
-        Navigator.of(context).pop();
+        await SystemChrome.setEnabledSystemUIOverlays(
+            [SystemUiOverlay.top, SystemUiOverlay.bottom]);
+        await FijkPlugin.setOrientationPortrait();
+        Navigator.of(context, rootNavigator: true).pop();
         _fullScreen = false;
       }
 
@@ -303,7 +306,7 @@ class _FijkViewState extends State<FijkView> {
     }
     FijkLog.d("screen orientation changed:$changed");
 
-    await Navigator.of(context).push(route);
+    await Navigator.of(context, rootNavigator: true).push(route);
     _fullScreen = false;
     widget.player.exitFullScreen();
     await SystemChrome.setEnabledSystemUIOverlays(
