@@ -19,3 +19,6 @@ doc/api/
 .project
 .classpath
 org.eclipse.buildship.core.prefs
+example/ios/Podfile.lock
+example/ios/Podfile.lock
+*.lock

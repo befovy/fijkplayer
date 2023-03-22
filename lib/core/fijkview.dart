@@ -560,7 +560,7 @@ class __InnerFijkViewState extends State<_InnerFijkView> {
           rect: pos,
           child: Image(
             image: widget.cover!,
-            fit: BoxFit.fill,
+            fit: _convertVideoFitToBoxFit(_fit),
           ),
         ));
       }
@@ -572,5 +572,21 @@ class __InnerFijkViewState extends State<_InnerFijkView> {
         children: ws as List<Widget>,
       );
     });
+  }
+
+  BoxFit _convertVideoFitToBoxFit(FijkFit originFit) {
+    if (originFit == FijkFit.contain) {
+      return BoxFit.contain;
+    } else if (originFit == FijkFit.fill) {
+      return BoxFit.fill;
+    } else if (originFit == FijkFit.fitWidth) {
+      return BoxFit.fitWidth;
+    } else if (originFit == FijkFit.fitHeight) {
+      return BoxFit.fitHeight;
+    } else if (originFit == FijkFit.cover) {
+      return BoxFit.cover;
+    }else {
+      return BoxFit.fitWidth;
+    }
   }
 }
