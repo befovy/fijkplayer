@@ -124,6 +124,7 @@ class FijkView extends StatefulWidget {
     this.panelBuilder = defaultFijkPanelBuilder,
     this.color = const Color(0xFF607D8B),
     this.cover,
+    this.coverWidget,
     this.fs = true,
     this.onDispose,
   });
@@ -169,6 +170,9 @@ class FijkView extends StatefulWidget {
   /// If [fs] is false, FijkView never make response to the change of [FijkValue.fullScreen].
   /// But you can still call [FijkPlayer.enterFullScreen] and [FijkPlayer.exitFullScreen] and make your own full screen pages.
   final bool fs;
+
+  /// 封面 cover widget
+  final Widget? coverWidget;
 
   @override
   createState() => _FijkViewState();
@@ -227,7 +231,10 @@ class _FijkViewState extends State<FijkView> {
         _fullScreen = true;
         await _pushFullScreenWidget(context);
       } else if (_fullScreen && !value.fullScreen) {
-        Navigator.of(context).pop();
+        await SystemChrome.setEnabledSystemUIOverlays(
+            [SystemUiOverlay.top, SystemUiOverlay.bottom]);
+        await FijkPlugin.setOrientationPortrait();
+        Navigator.of(context, rootNavigator: true).pop();
         _fullScreen = false;
       }
 
@@ -303,7 +310,7 @@ class _FijkViewState extends State<FijkView> {
     }
     FijkLog.d("screen orientation changed:$changed");
 
-    await Navigator.of(context).push(route);
+    await Navigator.of(context, rootNavigator: true).push(route);
     _fullScreen = false;
     widget.player.exitFullScreen();
     await SystemChrome.setEnabledSystemUIOverlays(
@@ -334,6 +341,7 @@ class _FijkViewState extends State<FijkView> {
               fijkViewState: this,
               fullScreen: false,
               cover: widget.cover,
+              coverWidget: widget.coverWidget,
               data: _fijkData,
             ),
     );
@@ -346,12 +354,14 @@ class _InnerFijkView extends StatefulWidget {
     required this.fullScreen,
     required this.cover,
     required this.data,
+    this.coverWidget,
   });
 
   final _FijkViewState fijkViewState;
   final bool fullScreen;
   final ImageProvider? cover;
   final FijkData data;
+  final Widget? coverWidget;
 
   @override
   __InnerFijkViewState createState() => __InnerFijkViewState();
@@ -557,9 +567,13 @@ class __InnerFijkViewState extends State<_InnerFijkView> {
           rect: pos,
           child: Image(
             image: widget.cover!,
-            fit: BoxFit.fill,
+            fit: _convertVideoFitToBoxFit(_fit),
           ),
         ));
+      }
+
+      if (widget.coverWidget != null && !value.videoRenderStart) {
+        ws.add(Positioned.fromRect(rect: pos, child: widget.coverWidget!));
       }
 
       if (_panelBuilder != null) {
@@ -569,5 +583,21 @@ class __InnerFijkViewState extends State<_InnerFijkView> {
         children: ws as List<Widget>,
       );
     });
+  }
+
+  BoxFit _convertVideoFitToBoxFit(FijkFit originFit) {
+    if (originFit == FijkFit.contain) {
+      return BoxFit.contain;
+    } else if (originFit == FijkFit.fill) {
+      return BoxFit.fill;
+    } else if (originFit == FijkFit.fitWidth) {
+      return BoxFit.fitWidth;
+    } else if (originFit == FijkFit.fitHeight) {
+      return BoxFit.fitHeight;
+    } else if (originFit == FijkFit.cover) {
+      return BoxFit.cover;
+    } else {
+      return BoxFit.fitWidth;
+    }
   }
 }
