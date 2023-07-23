@@ -103,7 +103,7 @@ class HomeScreen extends StatelessWidget {
 }
 
 void displaySnackBar(BuildContext context) {
-  Scaffold.of(context).showSnackBar(SnackBar(
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
     duration: Duration(seconds: 1),
     content: Text('Not implemented, pull request is welcome 👏👏🍺🍺'),
   ));

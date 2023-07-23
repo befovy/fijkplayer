@@ -286,7 +286,7 @@ class FijkPlayer extends ChangeNotifier implements ValueListenable<FijkValue> {
     bool autoPlay = false,
     bool showCover = false,
   }) async {
-    if (path == null || path.length == 0 || Uri.tryParse(path) == null) {
+    if (path.length == 0 || Uri.tryParse(path) == null) {
       FijkLog.e("$this setDataSource invalid path:$path");
       return Future.error(
           ArgumentError.value(path, "path must be a valid url"));

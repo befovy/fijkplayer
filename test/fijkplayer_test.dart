@@ -36,8 +36,10 @@ class FijkPlayerTester {
   FijkPlayerTester({this.id})
       : playerEvent = MethodChannel("befovy.com/fijkplayer/event/$id"),
         playerMethod = MethodChannel("befovy.com/fijkplayer/$id") {
-    playerEvent.setMockMethodCallHandler(this.eventHandler);
-    playerMethod.setMockMethodCallHandler(this.playerHandler);
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(playerEvent, this.eventHandler);
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(playerMethod, this.playerHandler);
   }
 
   MethodCodec get codec {
@@ -85,12 +87,14 @@ class FijkPlayerTester {
   }
 
   void release() {
-    playerEvent.setMockMethodCallHandler(null);
-    playerMethod.setMockMethodCallHandler(null);
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(playerEvent, null);
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(playerMethod, null);
   }
 
   Future<void> sendEvent(dynamic event) {
-    return ServicesBinding.instance!.defaultBinaryMessenger
+    return TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .handlePlatformMessage("befovy.com/fijkplayer/event/$id",
             codec.encodeSuccessEnvelope(event), (ByteData? data) {});
   }
@@ -107,7 +111,8 @@ void main() {
   int playerIncId = 0;
 
   setUpAll(() {
-    pluginChannel.setMockMethodCallHandler((MethodCall methodCall) async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(pluginChannel, (MethodCall methodCall) async {
       switch (methodCall.method) {
         case 'createPlayer':
           playerIncId = playerIncId + 1;
@@ -130,7 +135,8 @@ void main() {
   });
 
   tearDownAll(() {
-    pluginChannel.setMockMethodCallHandler(null);
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(pluginChannel, null);
   });
 
   group("test FijkPlayer State", () {

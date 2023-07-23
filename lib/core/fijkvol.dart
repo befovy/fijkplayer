@@ -46,7 +46,7 @@ class FijkVolumeEvent {
           hashCode == other.hashCode);
 
   @override
-  int get hashCode => hashValues(vol, sui, type);
+  int get hashCode => Object.hash(vol, sui, type);
 }
 
 class _VolumeValueNotifier extends ValueNotifier<FijkVolumeEvent> {
