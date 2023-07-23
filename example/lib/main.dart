@@ -20,7 +20,8 @@ class _MyAppState extends State<MyApp> {
         primaryColor: Color(0xFFffd54f),
         primaryColorDark: Color(0xFFffc107),
         primaryColorLight: Color(0xFFffecb3),
-        accentColor: Color(0xFFFFC107),
+        colorScheme:
+            ColorScheme.fromSwatch().copyWith(secondary: Color(0xFFFFC107)),
         dividerColor: Color(0xFFBDBDBD),
       ),
       home: HomeScreen(),

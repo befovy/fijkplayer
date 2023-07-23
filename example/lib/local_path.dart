@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:fijkplayer_example/video_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 import 'app_bar.dart';
 
@@ -38,7 +37,7 @@ class _LocalPathState extends State<LocalPath> {
   }
 
   void cantOpenSnackBar() {
-    Scaffold.of(context).showSnackBar(SnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       duration: Duration(seconds: 1),
       content: Text('Something error when opening this file/dir'),
     ));

@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:fijkplayer/fijkplayer.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 /// https://fijkplayer.befovy.com/docs/zh/custom-ui.html#%E6%97%A0%E7%8A%B6%E6%80%81-ui-
 Widget simplestUI(
