@@ -27,11 +27,10 @@ jobs:
       run: flutter pub get
     
     - name: Dart code style check
+      if: matrix.channel == 'stable'
       run: |
-          output=$(flutter format -n .)
-          if [ ! -z $output]; then
-            exit 1
-          fi;
+        dart --version
+        dart format --set-exit-if-changed .
 
     - name: Unit Test
       run: |
