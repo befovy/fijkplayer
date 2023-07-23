@@ -79,9 +79,8 @@ class _LocalPathState extends State<LocalPath> {
     final text = parent ? ".." : path.substring(parentLength + 1);
     final IconData icon = isDir ? Icons.folder : Icons.music_video;
 
-    return FlatButton(
+    return TextButton(
       key: ValueKey(path),
-      padding: EdgeInsets.only(left: 5, right: 5),
       child: Row(children: <Widget>[
         Icon(icon),
         Padding(padding: EdgeInsets.only(left: 5)),
