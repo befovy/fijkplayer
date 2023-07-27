@@ -108,6 +108,18 @@ class FijkFit {
   /// As large as possible while still containing the video entirely within the
   /// target FijkView box. But change video's aspect ratio to 16:9.
   static const FijkFit ar16_9 = FijkFit(aspectRatio: 16.0 / 9.0);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FijkFit &&
+          runtimeType == other.runtimeType &&
+          sizeFactor == other.sizeFactor &&
+          aspectRatio == other.aspectRatio &&
+          alignment == other.alignment;
+
+  @override
+  int get hashCode => Object.hash(sizeFactor, aspectRatio, alignment);
 }
 
 /// [FijkView] is a widget that can display the video frame of [FijkPlayer].
@@ -517,6 +529,23 @@ class __InnerFijkViewState extends State<_InnerFijkView> {
     widget.fijkViewState.paramNotifier.removeListener(_fijkValueListener);
   }
 
+  /// 将视频适应策略转换为 boxfit
+  /// convert FijkFit to BoxFit
+  /// this for covers fit
+  BoxFit _convertVideoFitToBoxFit(FijkFit originFit) {
+    if (originFit == FijkFit.contain) {
+      return BoxFit.contain;
+    } else if (originFit == FijkFit.fill) {
+      return BoxFit.fill;
+    } else if (originFit == FijkFit.fitWidth) {
+      return BoxFit.fitWidth;
+    } else if (originFit == FijkFit.fitHeight) {
+      return BoxFit.fitHeight;
+    } else {
+      return BoxFit.fitWidth;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     _panelBuilder = fView.panelBuilder;
@@ -559,7 +588,7 @@ class __InnerFijkViewState extends State<_InnerFijkView> {
           rect: pos,
           child: Image(
             image: widget.cover!,
-            fit: BoxFit.fill,
+            fit: _convertVideoFitToBoxFit(_fit),
           ),
         ));
       }
