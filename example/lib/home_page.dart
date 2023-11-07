@@ -19,10 +19,8 @@ class HomeItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return ButtonTheme(
       height: 45,
-      child: FlatButton(
+      child: TextButton(
           key: ValueKey(text),
-          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          padding: EdgeInsets.all(0),
           onPressed: this.onPressed,
           child: Container(
             width: double.infinity,
@@ -103,7 +101,7 @@ class HomeScreen extends StatelessWidget {
 }
 
 void displaySnackBar(BuildContext context) {
-  Scaffold.of(context).showSnackBar(SnackBar(
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
     duration: Duration(seconds: 1),
     content: Text('Not implemented, pull request is welcome 👏👏🍺🍺'),
   ));

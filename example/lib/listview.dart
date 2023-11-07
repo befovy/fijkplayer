@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:fijkplayer/fijkplayer.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 import 'app_bar.dart';
 

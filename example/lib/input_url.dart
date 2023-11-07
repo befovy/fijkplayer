@@ -27,7 +27,7 @@ class InputScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: <Widget>[
-              RaisedButton(
+              ElevatedButton(
                 onPressed: () {
                   _controller.clear();
                 },
@@ -36,7 +36,7 @@ class InputScreen extends StatelessWidget {
               Container(
                 width: 10,
               ),
-              RaisedButton(
+              ElevatedButton(
                 onPressed: () {
                   print(_controller.text);
                   addToHistory(MediaUrl(url: _controller.text));
