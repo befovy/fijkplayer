@@ -67,8 +67,11 @@ class FijkPlugin {
   static Future<bool> setOrientationLandscape() async {
     if (isDesktop()) return Future.value(false);
     bool? changed = await _channel.invokeMethod("setOrientationLandscape");
-    SystemChrome.setPreferredOrientations(
-        [DeviceOrientation.landscapeRight, DeviceOrientation.landscapeLeft]);
+    var orientation = DeviceOrientation.landscapeRight;
+    if (Platform.isAndroid) {
+      orientation = DeviceOrientation.landscapeLeft;
+    }
+    SystemChrome.setPreferredOrientations([orientation]);
     return Future.value(changed);
   }
 
