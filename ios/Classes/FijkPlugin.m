@@ -62,6 +62,9 @@ static FijkPlugin *_instance = nil;
     FijkPlugin *instance = [[FijkPlugin alloc] initWithRegistrar:registrar];
     _instance = instance;
     [registrar addMethodCallDelegate:instance channel:channel];
+    [registrar addApplicationDelegate:instance];
+    // For receiving detachFromEngineForRegistrar.
+    [registrar publish:instance];
 
     FijkPlayer *player = [[FijkPlayer alloc] initJustTexture];
     int64_t vid = [[registrar textures] registerTexture:player];
@@ -97,6 +100,24 @@ static FijkPlugin *_instance = nil;
                  object:nil];
     }
     return self;
+}
+
+// Called when a plugin is being removed from a FlutterEngine.
+// See: https://github.com/flutter/engine/blob/e29263212bfdd3e51f8b1cd4b07dd60e2395d5bd/shell/platform/darwin/ios/framework/Headers/FlutterPlugin.h#L231-L242
+- (void)detachFromEngineForRegistrar:(NSObject<FlutterPluginRegistrar> *)registrar {
+    [self shutdownAllPlayers];
+}
+
+- (void)applicationWillTerminate:(UIApplication *)application {
+    [self shutdownAllPlayers];
+}
+
+- (void)shutdownAllPlayers {
+    for (NSNumber *pid in _fijkPlayers) {
+        FijkPlayer *fijkplayer = _fijkPlayers[pid];
+        [fijkplayer shutdown];
+    }
+    [_fijkPlayers removeAllObjects];
 }
 
 - (void)handleMethodCall:(FlutterMethodCall *)call
