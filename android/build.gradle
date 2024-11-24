@@ -4,7 +4,8 @@ version '0.11.0'
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 34
+    namespace "com.befovy.fijkplayer"
 
     defaultConfig {
         minSdkVersion 16
