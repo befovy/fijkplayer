@@ -54,7 +54,6 @@ import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
-import io.flutter.plugin.common.PluginRegistry.Registrar;
 import io.flutter.view.TextureRegistry;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
@@ -81,7 +80,6 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
 
     private WeakReference<Activity> mActivity;
     private WeakReference<Context> mContext;
-    private Registrar mRegistrar;
     private FlutterPluginBinding mBinding;
 
     // Count of playable players
@@ -95,22 +93,6 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
     private EventChannel mEventChannel;
     private Object mAudioFocusRequest;
     private boolean mAudioFocusRequested = false;
-
-
-    /**
-     * Plugin registration.
-     */
-    @SuppressWarnings("unused")
-    public static void registerWith(Registrar registrar) {
-        final MethodChannel channel = new MethodChannel(registrar.messenger(), "befovy.com/fijk");
-        FijkPlugin plugin = new FijkPlugin();
-        plugin.initWithRegistrar(registrar);
-        channel.setMethodCallHandler(plugin);
-
-        final FijkPlayer player = new FijkPlayer(plugin, true);
-        player.setupSurface();
-        player.release();
-    }
 
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
@@ -167,8 +149,6 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
     public TextureRegistry.SurfaceTextureEntry createSurfaceEntry() {
         if (mBinding != null) {
             return mBinding.getTextureRegistry().createSurfaceTexture();
-        } else if (mRegistrar != null) {
-            return mRegistrar.textures().createSurfaceTexture();
         }
         return null;
     }
@@ -178,8 +158,6 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
     public BinaryMessenger messenger() {
         if (mBinding != null) {
             return mBinding.getBinaryMessenger();
-        } else if (mRegistrar != null) {
-            return mRegistrar.messenger();
         }
         return null;
     }
@@ -195,9 +173,7 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
 
     @Nullable
     private Activity activity() {
-        if (mRegistrar != null) {
-            return mRegistrar.activity();
-        } else if (mActivity != null) {
+        if (mActivity != null) {
             return mActivity.get();
         } else {
             return null;
@@ -215,22 +191,10 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
                 //noinspection ConstantConditions
                 path = mBinding.getFlutterAssets().getAssetFilePathByName(asset, packageName);
             }
-        } else if (mRegistrar != null) {
-            if (TextUtils.isEmpty(packageName)) {
-                path = mRegistrar.lookupKeyForAsset(asset);
-            } else {
-                path = mRegistrar.lookupKeyForAsset(asset, packageName);
-            }
         }
         return path;
     }
 
-
-    private void initWithRegistrar(@NonNull Registrar registrar) {
-        mRegistrar = registrar;
-        mContext = new WeakReference<>(registrar.activeContext());
-        init(registrar.messenger());
-    }
 
     private void initWithBinding(@NonNull FlutterPluginBinding binding) {
         mBinding = binding;
