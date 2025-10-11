@@ -1,0 +1,20 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "模块描述"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "fijkplayer_example"
+    },
+    {
+      "name": "permission_READ_PASTEBOARD",
+      "value": "需要读取剪贴板内容以支持粘贴文字功能"
+    }
+  ]
+}
