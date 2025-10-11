@@ -1,0 +1,10 @@
+{
+  "module": {
+    "name": "fijkplayer",
+    "type": "har",
+    "deviceTypes": [
+      "default",
+      "tablet"
+    ]
+  }
+}

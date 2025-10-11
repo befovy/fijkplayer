@@ -1,0 +1,20 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "module description"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "fijkplayer_example"
+    },
+    {
+      "name": "permission_READ_PASTEBOARD",
+      "value": "Need to read clipboard content to support paste functionality"
+    }
+  ]
+}
