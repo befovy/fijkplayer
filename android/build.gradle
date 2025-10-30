@@ -4,23 +4,30 @@ version '0.11.0'
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
+    namespace "com.befovy.fijkplayer"
 
     defaultConfig {
         minSdkVersion 16
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        targetSdkVersion 31 // 关键：与 compileSdkVersion 保持一致，避免版本脱节
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner" // 替换为 AndroidX 测试 runner
     }
+
     lintOptions {
         disable 'InvalidPackage'
     }
+
+    // 强制统一资源编译版本，避免冲突
+    resourcePrefix "fijkplayer_" // 可选：给插件资源加前缀，防止与项目资源重名
 }
 
-
 dependencies {
-
-    // implementation(name: 'fijkplayer-full-release', ext: 'aar')
-
-    // fijkplayer-full include the java lib and native shared libs for armv5 armv7 arm64 x86 x86_64
-    implementation 'com.befovy.fijkplayer:fijkplayer-full:0.7.16'
-    implementation 'androidx.annotation:annotation:1.2.0'
+    // 核心依赖：锁定低版本 core-ktx，避免传递引入 lStar 相关资源
+    implementation 'androidx.core:core-ktx:1.6.0'
+    // 升级 annotation 依赖，确保与 AndroidX 版本兼容
+    implementation 'androidx.annotation:annotation:1.5.0'
+    // 保留原 fijkplayer-full 依赖，添加强制排除冲突的 AndroidX 库
+    implementation('com.befovy.fijkplayer:fijkplayer-full:0.7.16') {
+        exclude group: 'androidx.core' // 排除库自带的 core 依赖，使用上面锁定的 1.6.0 版本
+    }
 }
