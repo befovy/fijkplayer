@@ -1,13 +1,13 @@
 group 'com.befovy.fijkplayer'
-version '0.11.0'
+version '0.11.3'
 
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 30
-
+    compileSdkVersion 35
+    namespace "com.befovy.fijkplayer"
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion flutter.minSdkVersion
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     lintOptions {

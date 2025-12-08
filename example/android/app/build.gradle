@@ -1,3 +1,9 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 
@@ -22,24 +28,31 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
-apply plugin: 'com.android.application'
-apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
+//apply plugin: 'com.android.application'
+//apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
-    compileSdkVersion 33
+    compileSdkVersion 35
+    namespace "com.befovy.fijkplayer.demo"
 
     defaultConfig {
         applicationId "com.befovy.fijkplayer.demo"
-        minSdkVersion 16
-        targetSdkVersion 33
+        minSdkVersion flutter.minSdkVersion
+        targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        ndk {
+            abiFilters 'arm64-v8a'
+        }
     }
+
 
     aaptOptions {
         noCompress '.flv', '.mp4'
     }
+
 
     buildTypes {
         release {
@@ -47,6 +60,17 @@ android {
             minifyEnabled true
             signingConfig signingConfigs.debug
             // proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            def appName = "fijkplayer_example"
+            def buildType = variant.buildType.name
+            def versionName = variant.versionName
+            outputFileName = "${appName}-${versionName}-${buildType}.apk"
+            println("  L Terminal Run : cd " + rootProject.buildDir + "/app/outputs/apk/${buildType}/${outputFileName}")
         }
     }
 }
