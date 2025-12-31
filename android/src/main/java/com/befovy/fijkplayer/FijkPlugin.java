@@ -54,7 +54,6 @@ import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
-import io.flutter.plugin.common.PluginRegistry.Registrar;
 import io.flutter.view.TextureRegistry;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
@@ -63,192 +62,38 @@ import tv.danmaku.ijk.media.player.IjkMediaPlayer;
  */
 public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAware, FijkEngine, FijkVolume.VolumeKeyListener, AudioManager.OnAudioFocusChangeListener {
 
-    // show system volume changed UI if no playable player
-    // hide system volume changed UI if some players are in playable state
     private static final int NO_UI_IF_PLAYABLE = 0;
-    // show system volume changed UI if no start state player
-    // hide system volume changed UI if some players are in start state
     private static final int NO_UI_IF_PLAYING = 1;
-    // never show system volume changed UI
     @SuppressWarnings("unused")
     private static final int NEVER_SHOW_UI = 2;
-    // always show system volume changed UI
     private static final int ALWAYS_SHOW_UI = 3;
 
     final private SparseArray<FijkPlayer> fijkPlayers = new SparseArray<>();
-
     private final QueuingEventSink mEventSink = new QueuingEventSink();
 
     private WeakReference<Activity> mActivity;
-    private WeakReference<Context> mContext;
-    private Registrar mRegistrar;
+    private Context mContext;
     private FlutterPluginBinding mBinding;
+    private MethodChannel mMethodChannel;
 
-    // Count of playable players
     private int playableCnt = 0;
-    // Count of playing players
     private int playingCnt = 0;
     private int volumeUIMode = ALWAYS_SHOW_UI;
     private float volStep = 1.0f / 16.0f;
     private boolean eventListening = false;
-    // non-local field prevent GC
     private EventChannel mEventChannel;
     private Object mAudioFocusRequest;
     private boolean mAudioFocusRequested = false;
 
-
-    /**
-     * Plugin registration.
-     */
-    @SuppressWarnings("unused")
-    public static void registerWith(Registrar registrar) {
-        final MethodChannel channel = new MethodChannel(registrar.messenger(), "befovy.com/fijk");
-        FijkPlugin plugin = new FijkPlugin();
-        plugin.initWithRegistrar(registrar);
-        channel.setMethodCallHandler(plugin);
-
-        final FijkPlayer player = new FijkPlayer(plugin, true);
-        player.setupSurface();
-        player.release();
-    }
-
     @Override
     public void onAttachedToEngine(@NonNull FlutterPluginBinding binding) {
-        final MethodChannel channel = new MethodChannel(binding.getBinaryMessenger(), "befovy.com/fijk");
-        initWithBinding(binding);
-        channel.setMethodCallHandler(this);
-
-        final FijkPlayer player = new FijkPlayer(this, true);
-        player.setupSurface();
-        player.release();
-
-        AudioManager audioManager = audioManager();
-        if (audioManager != null) {
-            int max = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-            volStep = Math.max(1.0f / (float) max, volStep);
-        }
-    }
-
-    @Override
-    public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
-        mContext = null;
-    }
-
-    @Override
-    public void onAttachedToActivity(ActivityPluginBinding binding) {
-        mActivity = new WeakReference<>(binding.getActivity());
-        if (mActivity.get() instanceof FijkVolume.CanListenVolumeKey) {
-            FijkVolume.CanListenVolumeKey canListenVolumeKey = (FijkVolume.CanListenVolumeKey) mActivity.get();
-            canListenVolumeKey.setVolumeKeyListener(this);
-        }
-    }
-
-    @Override
-    public void onDetachedFromActivityForConfigChanges() {
-        mActivity = null;
-    }
-
-    @Override
-    public void onReattachedToActivityForConfigChanges(ActivityPluginBinding binding) {
-        mActivity = new WeakReference<>(binding.getActivity());
-        if (mActivity.get() instanceof FijkVolume.CanListenVolumeKey) {
-            FijkVolume.CanListenVolumeKey canListenVolumeKey = (FijkVolume.CanListenVolumeKey) mActivity.get();
-            canListenVolumeKey.setVolumeKeyListener(this);
-        }
-    }
-
-    @Override
-    public void onDetachedFromActivity() {
-        mActivity = null;
-    }
-
-    @Override
-    @Nullable
-    public TextureRegistry.SurfaceTextureEntry createSurfaceEntry() {
-        if (mBinding != null) {
-            return mBinding.getTextureRegistry().createSurfaceTexture();
-        } else if (mRegistrar != null) {
-            return mRegistrar.textures().createSurfaceTexture();
-        }
-        return null;
-    }
-
-    @Override
-    @Nullable
-    public BinaryMessenger messenger() {
-        if (mBinding != null) {
-            return mBinding.getBinaryMessenger();
-        } else if (mRegistrar != null) {
-            return mRegistrar.messenger();
-        }
-        return null;
-    }
-
-    @Override
-    @Nullable
-    public Context context() {
-        if (mContext != null)
-            return mContext.get();
-        else
-            return null;
-    }
-
-    @Nullable
-    private Activity activity() {
-        if (mRegistrar != null) {
-            return mRegistrar.activity();
-        } else if (mActivity != null) {
-            return mActivity.get();
-        } else {
-            return null;
-        }
-    }
-
-    @Override
-    @Nullable
-    public String lookupKeyForAsset(@NonNull String asset, @Nullable String packageName) {
-        String path = null;
-        if (mBinding != null) {
-            if (TextUtils.isEmpty(packageName)) {
-                path = mBinding.getFlutterAssets().getAssetFilePathByName(asset);
-            } else {
-                //noinspection ConstantConditions
-                path = mBinding.getFlutterAssets().getAssetFilePathByName(asset, packageName);
-            }
-        } else if (mRegistrar != null) {
-            if (TextUtils.isEmpty(packageName)) {
-                path = mRegistrar.lookupKeyForAsset(asset);
-            } else {
-                path = mRegistrar.lookupKeyForAsset(asset, packageName);
-            }
-        }
-        return path;
-    }
-
-
-    private void initWithRegistrar(@NonNull Registrar registrar) {
-        mRegistrar = registrar;
-        mContext = new WeakReference<>(registrar.activeContext());
-        init(registrar.messenger());
-    }
-
-    private void initWithBinding(@NonNull FlutterPluginBinding binding) {
         mBinding = binding;
-        mContext = new WeakReference<>(binding.getApplicationContext());
-        init(binding.getBinaryMessenger());
-    }
+        mContext = binding.getApplicationContext();
+        mMethodChannel = new MethodChannel(binding.getBinaryMessenger(), "befovy.com/fijk");
+        mMethodChannel.setMethodCallHandler(this);
 
-    /**
-     * Maybe call init more than once
-     *
-     * @param messenger BinaryMessenger from flutter engine
-     */
-    private void init(BinaryMessenger messenger) {
-        if (mEventChannel != null) {
-            mEventChannel.setStreamHandler(null);
-            mEventSink.setDelegate(null);
-        }
-        mEventChannel = new EventChannel(messenger, "befovy.com/fijk/event");
+        // init event channel
+        mEventChannel = new EventChannel(binding.getBinaryMessenger(), "befovy.com/fijk/event");
         mEventChannel.setStreamHandler(new EventChannel.StreamHandler() {
             @Override
             public void onListen(Object o, EventChannel.EventSink eventSink) {
@@ -268,6 +113,83 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
         }
     }
 
+    @Override
+    public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+        mMethodChannel.setMethodCallHandler(null);
+        mEventChannel.setStreamHandler(null);
+        mEventSink.setDelegate(null);
+        mContext = null;
+        mBinding = null;
+    }
+
+    @Override
+    public void onAttachedToActivity(@NonNull ActivityPluginBinding binding) {
+        mActivity = new WeakReference<>(binding.getActivity());
+        if (binding.getActivity() instanceof FijkVolume.CanListenVolumeKey) {
+            ((FijkVolume.CanListenVolumeKey) binding.getActivity()).setVolumeKeyListener(this);
+        }
+    }
+
+    @Override
+    public void onDetachedFromActivityForConfigChanges() {
+        mActivity = null;
+    }
+
+    @Override
+    public void onReattachedToActivityForConfigChanges(@NonNull ActivityPluginBinding binding) {
+        mActivity = new WeakReference<>(binding.getActivity());
+        if (binding.getActivity() instanceof FijkVolume.CanListenVolumeKey) {
+            ((FijkVolume.CanListenVolumeKey) binding.getActivity()).setVolumeKeyListener(this);
+        }
+    }
+
+    @Override
+    public void onDetachedFromActivity() {
+        mActivity = null;
+    }
+
+    @Override
+    @Nullable
+    public TextureRegistry.SurfaceTextureEntry createSurfaceEntry() {
+        if (mBinding != null) {
+            return mBinding.getTextureRegistry().createSurfaceTexture();
+        }
+        return null;
+    }
+
+    @Override
+    @Nullable
+    public BinaryMessenger messenger() {
+        if (mBinding != null) {
+            return mBinding.getBinaryMessenger();
+        }
+        return null;
+    }
+
+    @Override
+    @Nullable
+    public Context context() {
+        return mContext;
+    }
+
+    @Nullable
+    private Activity activity() {
+        if (mActivity != null) {
+            return mActivity.get();
+        }
+        return null;
+    }
+
+    @Override
+    @Nullable
+    public String lookupKeyForAsset(@NonNull String asset, @Nullable String packageName) {
+        if (mBinding == null) return null;
+        if (TextUtils.isEmpty(packageName)) {
+            return mBinding.getFlutterAssets().getAssetFilePathByName(asset);
+        } else {
+            return mBinding.getFlutterAssets().getAssetFilePathByName(asset, packageName);
+        }
+    }
 
     @Override
     public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
@@ -592,7 +514,7 @@ public class FijkPlugin implements MethodCallHandler, FlutterPlugin, ActivityAwa
         if (context != null) {
             return (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         } else {
-            Log.e("FIJKPLAYER", "context null, can't get AudioManager");
+            Log.e("FIJKPLAYER", "context null, can\'t get AudioManager");
             return null;
         }
     }
